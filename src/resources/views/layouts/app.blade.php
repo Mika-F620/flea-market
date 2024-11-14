@@ -24,7 +24,6 @@
         <p class="header__btnItem">出品</p>
       </div>
     </div>
-    @yield('btn')
   </header>
   <main>
     @yield('content')
