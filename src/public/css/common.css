@@ -65,3 +65,37 @@ body {
   padding: 8px 16px;
   border-radius: 4px;
 }
+
+.sectionTitle {
+  font-size: 3.6rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.formBtnRed {
+  background-color: #ff5555;
+  color: #fff;
+  border: none;
+  font-size: 26px;
+  font-weight: bold;
+  padding: 16px;
+  cursor: pointer;
+  transition: all .3s;
+  width: 100%;
+}
+
+.formBtnRed:hover {
+  opacity: 0.8;
+}
+
+.formLink {
+  text-align: center;
+  font-size: 2rem;
+  color: #0073cc;
+  text-decoration: none;
+  transition: all .3s;
+}
+
+.formLink:hover {
+  opacity: 0.8;
+}
