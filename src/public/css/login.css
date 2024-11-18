@@ -1,0 +1,37 @@
+@charset "utf-8";
+
+.login__form {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 116px;
+}
+
+.login__formContents {
+  display: flex;
+  flex-direction: column;
+  gap: 38px;
+}
+
+.login__item {
+  display: flex;
+  flex-direction: column;
+}
+
+.login__label {
+  font-size: 2.4rem;
+  font-weight: bold;
+}
+
+.login__input {
+  height: 59px;
+  font-size: 2.4rem;
+}
+
+.login__btn {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+  align-items: center;
+}
