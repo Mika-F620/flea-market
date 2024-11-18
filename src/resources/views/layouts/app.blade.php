@@ -17,12 +17,7 @@
       <h1 class="header__title">
         <img class="header__logo" src="{{ asset('img/logo.svg') }}" alt="COACHTECH">
       </h1>
-      <input type="text" class="header__search" placeholder="なにをお探しですか？">
-      <div class="header__btn">
-        <p class="header__btnItem">ログイン</p>
-        <p class="header__btnItem">マイページ</p>
-        <p class="header__btnItem">出品</p>
-      </div>
+      @yield('btn')
     </div>
   </header>
   <main>

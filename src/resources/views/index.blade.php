@@ -2,6 +2,14 @@
 @section('css')
   <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 @endsection
+@section('btn')
+  <input type="text" class="header__search" placeholder="なにをお探しですか？">
+  <div class="header__btn">
+    <p class="header__btnItem">ログイン</p>
+    <p class="header__btnItem">マイページ</p>
+    <p class="header__btnItem">出品</p>
+  </div>
+@endsection
 @section('content')
   <section class="top">
     <div class="top__select">
