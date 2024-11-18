@@ -15,10 +15,13 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('name'); // ユーザー名
+            $table->string('email')->unique(); // メールアドレス
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password'); // パスワード
+            $table->string('postal_code')->nullable(); // 郵便番号
+            $table->string('address')->nullable(); // 住所
+            $table->string('building')->nullable(); // 建物名
             $table->rememberToken();
             $table->timestamps();
         });
@@ -31,6 +34,8 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['postal_code', 'address', 'building']);
+        });
     }
 }
