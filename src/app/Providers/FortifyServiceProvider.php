@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Events\Registered;
 use App\Models\User;
+use Laravel\Fortify\Contracts\LoginResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -76,12 +78,32 @@ class FortifyServiceProvider extends ServiceProvider
                 return $user;
             }
 
+            // 入力値を取得
+            $credentials = $request->only('email', 'password');
+
+            // ユーザー名またはメールアドレスで検索
+            $user = User::where('email', $credentials['email'])
+                ->orWhere('name', $credentials['email']) // ユーザー名で検索
+                ->first();
+
+            // パスワードが一致する場合、認証成功
+            if ($user && Hash::check($credentials['password'], $user->password)) {
+                return $user;
+            }
+
             return null;
         });
 
         RateLimiter::for('login', function (Request $request) {
             $email = (string) $request->email;
             return Limit::perMinute(10)->by($email . $request->ip());
+        });
+
+        $this->app->instance(LoginResponse::class, new class implements LoginResponse {
+            public function toResponse($request)
+            {
+                return redirect('/?page=mylist'); // ログイン後のリダイレクト先
+            }
         });
     }
 }
