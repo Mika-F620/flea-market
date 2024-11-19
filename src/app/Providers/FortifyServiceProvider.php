@@ -8,10 +8,15 @@ use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Laravel\Fortify\Contracts\RegisterResponse;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Events\Registered;
+use App\Models\User;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -31,9 +36,18 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::createUsersUsing(CreateNewUser::class);
 
         Fortify::registerView(fn() => view('auth.register'));
+
+        // 登録後のリダイレクトを設定
+        $this->app->instance(RegisterResponse::class, new class implements RegisterResponse {
+            public function toResponse($request)
+            {
+                return redirect('/mypage/profile');
+            }
+        });
+
         Fortify::loginView(fn() => view('auth.login'));
 
-        Fortify::authenticateUsing(function (LoginRequest $request) {  // Laravel\Fortify\Http\Requests\LoginRequestを使用
+        Fortify::authenticateUsing(function (Request $request) {  // Laravel\Fortify\Http\Requests\LoginRequestを使用
             // バリデーションルールとメッセージを指定してValidatorを適用
             $validator = Validator::make(
                 $request->only(['email', 'password']),

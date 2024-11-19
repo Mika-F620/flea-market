@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,15 +17,22 @@ use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('index');
-})->name('home');
+});
 Route::get('/mypage', function () {
     return view('mypage');
 });
 Route::get('/login', function () {
     return view('auth.login');
 });
-Route::get('/mypage/profile', function () {
-    return view('profile');
-})->name('mypage.profile');
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('mypage.profile');
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/mypage/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+Route::get('/home', function () {
+    return redirect('/mypage/profile');
+})->name('home');

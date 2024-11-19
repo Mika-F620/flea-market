@@ -22,6 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('postal_code')->nullable(); // 郵便番号
             $table->string('address')->nullable(); // 住所
             $table->string('building')->nullable(); // 建物名
+            $table->string('profile_image')->nullable(); // 画像保存用カラム
             $table->rememberToken();
             $table->timestamps();
         });
@@ -34,8 +35,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['postal_code', 'address', 'building']);
-        });
+        Schema::dropIfExists('users');
     }
 }

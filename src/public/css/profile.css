@@ -3,7 +3,6 @@
 .profile__photo {
   display: flex;
   max-width: 680px;
-  margin: 0 auto 76px;
   gap: 40px;
   align-items: center;
 }
@@ -16,6 +15,7 @@
   font-weight: bold;
   padding: 14px 32px;
   background-color: #fff;
+  cursor: pointer;
 }
 
 .profile__form {
@@ -45,4 +45,13 @@
 .profile__input {
   height: 59px;
   font-size: 2.4rem;
+}
+
+.profile__img {
+  width: 100%;
+  max-width: 150px;
+}
+
+.profile__fileInput {
+  display: none;
 }
