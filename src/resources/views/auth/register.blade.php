@@ -5,16 +5,7 @@
 @section('content')
   <section class="wrapper">
     <h2 class="sectionTitle">会員登録</h2>
-    @if ($errors->any())
-        <div>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-    <form class="register__form" action="{{ route('register') }}" method="POST">
+    <form class="register__form" action="{{ route('register') }}" method="POST" novalidate>
       @csrf
       <div class="register__formContents">
         <div class="register__item">
@@ -48,7 +39,7 @@
       </div>
       <div class="register__btn">
         <input class="formBtnRed" type="submit" value="登録" />
-        <a href="#" class="formLink">ログインはこちら</a>
+        <a href="{{ route('login') }}" class="formLink">ログインはこちら</a>
       </div>
     </form>
   </section>

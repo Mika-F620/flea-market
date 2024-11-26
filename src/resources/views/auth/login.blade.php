@@ -9,8 +9,8 @@
       @csrf
         <div class="login__formContents">
           <div class="login__item">
-            <label class="login__label" for="email">ユーザー名 / メールアドレス</label>
-            <input class="login__input" type="email" name="email" class="" id="email">
+            <label class="login__label" for="login">ユーザー名 / メールアドレス</label>
+            <input class="login__input" type="text" name="username_email" id="username_email" value="{{ old('username_email') }}">
           </div>
           <div class="login__item">
             <label class="login__label" for="pass">パスワード</label>

@@ -27,6 +27,10 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store']); // ロ�
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout'); // ログアウト処理
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+// マイページのルート定義
+Route::get('/mypage', function () {
+    return view('mypage'); // mypage.blade.php を表示する場合
+})->name('mypage');
 Route::middleware(['auth'])->group(function () {
     Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('mypage.profile');
 });
@@ -37,3 +41,11 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/home', function () {
     return redirect('/mypage/profile');
 })->name('home');
+
+Route::get('/sell', function () {
+    return view('sell');
+});
+
+Route::get('/item', function () {
+    return view('item');
+});

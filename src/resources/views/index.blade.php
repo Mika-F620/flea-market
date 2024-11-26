@@ -5,8 +5,13 @@
 @section('btn')
   <input type="text" class="header__search" placeholder="なにをお探しですか？">
   <div class="header__btn">
-    <p class="header__btnItem">ログイン</p>
-    <p class="header__btnItem">マイページ</p>
+    @if (Auth::check())
+      <form class="header__loginLink" action="/logout" method="post">
+        @csrf
+        <button class="header__loginBtn">ログアウト</button>
+      </form>
+    @endif
+    <p class="header__btnItem"><a href="{{ route('mypage') }}" class="">マイページ</a></p>
     <p class="header__btnItem">出品</p>
   </div>
 @endsection
