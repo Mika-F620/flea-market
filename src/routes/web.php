@@ -49,3 +49,11 @@ Route::get('/sell', function () {
 Route::get('/item', function () {
     return view('item');
 });
+
+Route::get('/purchase', function () {
+    return view('purchase');
+});
+
+Route::get('/purchase/address', function () {
+    return view('address');
+});
