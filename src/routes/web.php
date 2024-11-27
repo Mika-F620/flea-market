@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -19,29 +20,54 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 Route::get('/', function () {
     return view('index');
 });
+
 Route::get('/mypage', function () {
-    return view('mypage');
-});
-Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login'); // ログインフォーム表示
-Route::post('/login', [AuthenticatedSessionController::class, 'store']); // ログイン処理
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout'); // ログアウト処理
+    return view('mypage'); // mypage.blade.php を表示
+})->name('mypage');
+
+// Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+//     ->middleware('guest') // メソッドチェーンでミドルウェアを追加
+//     ->name('login'); // 名前付きルートの定義
+
+// Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+//     ->middleware('guest') // メソッドチェーンでミドルウェアを追加
+//     ->name('login.store'); // 名前付きルートの定義
+
+// Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+// Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
+
+
+// Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+//     ->name('logout');
+
+// ログインフォームの表示
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+    ->middleware(['guest'])
+    ->name('login');
+
+// ログイン処理
+Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+    ->middleware(['guest']);
+
+// ログアウト処理
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware(['auth'])
+    ->name('logout');
+
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+
 // マイページのルート定義
-Route::get('/mypage', function () {
-    return view('mypage'); // mypage.blade.php を表示する場合
-})->name('mypage');
-Route::middleware(['auth'])->group(function () {
-    Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('mypage.profile');
-});
 Route::middleware(['auth'])->group(function () {
     Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/mypage/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
+
 Route::get('/home', function () {
     return redirect('/mypage/profile');
 })->name('home');
 
+// その他ページのルート
 Route::get('/sell', function () {
     return view('sell');
 });

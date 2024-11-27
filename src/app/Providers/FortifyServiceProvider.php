@@ -2,94 +2,77 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Laravel\Fortify\Contracts\RegisterResponse;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
-use App\Models\User;
-use Laravel\Fortify\Contracts\LoginResponse;
+use Laravel\Fortify\Contracts\LoginViewResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
-    public function register(): void
+    public function register()
     {
-        //
+        // LoginViewResponse を適切にバインド
+        $this->app->singleton(LoginViewResponse::class, function () {
+            return new class implements LoginViewResponse {
+                public function toResponse($request)
+                {
+                    return view('auth.login'); // ビューの確認
+                }
+            };
+        });
     }
 
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
-        // ユーザー登録処理
         Fortify::createUsersUsing(CreateNewUser::class);
+        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
+        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
+        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // 登録ビュー
-        Fortify::registerView(fn() => view('auth.register'));
+        Fortify::loginView(fn() => view('auth.login')); // ログイン画面ビュー
 
-        // 登録後のリダイレクト設定
-        $this->app->instance(RegisterResponse::class, new class implements RegisterResponse {
-            public function toResponse($request)
-            {
-                return redirect('/mypage/profile');
-            }
+        RateLimiter::for('login', function (Request $request) {
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+
+            return Limit::perMinute(5)->by($throttleKey);
         });
 
-        // ログインビュー
-        Fortify::loginView(fn() => view('auth.login'));
+        RateLimiter::for('two-factor', function (Request $request) {
+            return Limit::perMinute(5)->by($request->session()->get('login.id'));
+        });
 
-        // カスタム認証ロジック
         Fortify::authenticateUsing(function (Request $request) {
-            // 入力値を取得
-            $credentials = $request->only(['username_email', 'password']);
+            $credentials = $request->only(['login_identifier', 'password']);
+            
+            // メールアドレスかユーザー名で判定
+            $loginField = filter_var($credentials['login_identifier'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
         
-            // バリデーションの実施
-            Validator::make($credentials, [
-                'username_email' => ['required', 'string', 'max:255'],
-                'password' => ['required', 'string', 'min:8'],
-            ], [
-                'username_email.required' => 'ユーザー名またはメールアドレスを入力してください。',
-                'password.required' => 'パスワードを入力してください。',
-                'password.min' => 'パスワードは8文字以上で入力してください。',
-            ])->validate();
+            // ユーザーを取得
+            $user = User::where($loginField, $credentials['login_identifier'])->first();
         
-            // 入力がメールアドレス形式かユーザー名かを判定
-            $loginField = filter_var($credentials['username_email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
-        
-            // ユーザーを検索
-            $user = User::where($loginField, $credentials['username_email'])->first();
-        
-            // パスワードが一致する場合は認証成功
+            // パスワードチェック
             if ($user && Hash::check($credentials['password'], $user->password)) {
                 return $user;
             }
         
             return null; // 認証失敗
         });
-
-        // ログインのレートリミット
-        RateLimiter::for('login', function (Request $request) {
-            $usernameEmail = (string) $request->username_email;
-            return Limit::perMinute(10)->by($usernameEmail . $request->ip());
-        });
-
-        // ログイン後のリダイレクト先
-        $this->app->instance(LoginResponse::class, new class implements LoginResponse {
-            public function toResponse($request)
-            {
-                return redirect('/?page=mylist'); // ログイン後のリダイレクト先
-            }
-        });
+        
+        
     }
 }

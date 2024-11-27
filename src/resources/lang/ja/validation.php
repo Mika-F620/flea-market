@@ -21,7 +21,13 @@ return [
     */
 
     'custom' => [
+        'login_identifier' => [
+        'required' => 'ユーザー名またはメールアドレスを入力してください。',
+        'string' => '入力が無効です。',
+        'max' => '255文字以内で入力してください。',
+        ],
         'password' => [
+            'required' => 'パスワードを入力してください。',
             'min' => 'パスワードは8文字以上で入力してください。',
         ],
         'password_confirmation' => [
@@ -40,7 +46,8 @@ return [
 
     'attributes' => [
         'name' => 'お名前',
-        'email' => 'メールアドレス',
+        'email' => 'あメールアドレス',
+        'login_identifier' => 'ユーザー名またはメールアドレス', // 追加
         'password' => 'パスワード',
         'password_confirmation' => '確認用パスワード',
     ],
