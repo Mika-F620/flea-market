@@ -8,6 +8,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-bottom: 36px;
+}
+
+.sell__item:last-of-type {
+  margin-bottom: 118px;
 }
 
 .sell__itemTitle {
@@ -27,20 +32,132 @@
   flex-wrap: wrap;
   gap: 36px 19px;
   padding: 0;
+  margin: 0;
+}
+
+.sell__tagItemLabel {
+  padding: 4px 16px;
+  cursor: pointer;
 }
 
 .sell__tagItem {
   list-style-type: none;
   border: 2px solid #ff5655;
   font-size: 1.5rem;
-  padding: 4px 16px;
   border-radius: 20px;
   color: #ff5655;
   transition: all .3s;
-  cursor: pointer;
+}
+
+.sell__tagItem input:checked + label {
+  background-color: #ff6b6b;
+  color: #fff;
+  border-color: #ff6b6b;
+  border-radius: 20px;
 }
 
 .sell__tagItem:hover {
   background-color: #ff5655;
   color: #fff;
+}
+
+/* ドラッグ＆ドロップエリア */
+.sell__dropZone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  background-color: #f9f9f9;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.sell__dropZone.dragover {
+  background-color: #e8f5e9; /* ドラッグオーバー時の背景色 */
+  border-color: #4caf50; /* ドラッグオーバー時の枠線色 */
+}
+
+.sell__fileButton {
+  border: 2px solid #e74c3c;
+  border-radius: 10px;
+  background-color: white;
+  color: #e74c3c;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.sell__fileButton:hover {
+  background-color: #e74c3c;
+  color: white;
+}
+
+/* input[type="file"]を隠す */
+.sell__dropZoneInput {
+  display: none;
+}
+
+/* プレビュー画像 */
+.sell__previewContainer img {
+  max-width: 100%;
+  max-height: 150px;
+  margin-top: 10px;
+}
+
+.sell__select {
+  display: inline-block;
+  position: relative;
+  border: 1px solid #5f5f5f;
+  vertical-align: middle;
+  width: auto;
+  border-radius: 4px;
+}
+
+.sell__select::before {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 21px;
+  width: 0;
+  height: 0;
+  border-width: 15px 9px 0 9px;
+  border-style: solid;
+  border-color: #5f5f5f transparent transparent transparent;
+  content: "";
+  pointer-events: none;
+}
+
+.sell__selectDrop {
+  appearance: none;
+  padding: 10px;
+  padding-right: 50px;
+  border: none;
+  outline: 0;
+  background: #fff;
+  background-image: none;
+  box-shadow: none;
+  text-indent: 0.01px;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  width: 100%;
+  color: #5f5f5f;
+  border-radius: 4px;
+}
+
+.sell__itemInput {
+  height: 45px;
+}
+
+.sell__itemArea {
+  height: 125px;
+  resize: none;
+}
+
+.sell__itemPrice {
+  height: 45px;
 }

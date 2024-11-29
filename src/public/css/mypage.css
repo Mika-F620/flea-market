@@ -30,6 +30,11 @@
   align-items: center;
 }
 
+.mypage__infoImg {
+  width: 100%;
+  max-width: 150px;
+}
+
 .mypage__infoName {
   font-size: 3.6rem;
   font-weight: bold;

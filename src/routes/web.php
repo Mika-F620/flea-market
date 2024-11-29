@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProductController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 /*
@@ -21,24 +22,22 @@ Route::get('/', function () {
     return view('index');
 });
 
-Route::get('/mypage', function () {
-    return view('mypage'); // mypage.blade.php を表示
-})->name('mypage');
+Route::get('/mypage', function (Illuminate\Http\Request $request) {
+    $user = Auth::user();
+    $page = $request->query('page', 'sell'); // デフォルトを'sell'に設定
 
-// Route::get('/login', [AuthenticatedSessionController::class, 'create'])
-//     ->middleware('guest') // メソッドチェーンでミドルウェアを追加
-//     ->name('login'); // 名前付きルートの定義
+    // ログインしているユーザーの商品を取得
+    if ($page === 'sell') {
+        $products = \App\Models\Product::where('user_id', $user->id)->latest()->get();
+    } elseif ($page === 'buy') {
+        // 購入履歴を取得する処理（購入テーブルがあればここで対応）
+        $products = collect(); // 現時点では空のコレクションとしておく
+    } else {
+        $products = collect(); // 不明なページの場合も空にする
+    }
 
-// Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-//     ->middleware('guest') // メソッドチェーンでミドルウェアを追加
-//     ->name('login.store'); // 名前付きルートの定義
-
-// Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
-// Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
-
-
-// Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-//     ->name('logout');
+    return view('mypage', compact('user', 'products', 'page'));
+})->name('mypage')->middleware('auth');
 
 // ログインフォームの表示
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])
@@ -67,9 +66,11 @@ Route::get('/home', function () {
     return redirect('/mypage/profile');
 })->name('home');
 
-// その他ページのルート
-Route::get('/sell', function () {
-    return view('sell');
+Route::middleware(['auth'])->group(function () {
+    Route::post('/sell', [ProductController::class, 'store'])->name('sell.store'); // 商品登録
+    Route::get('/sell', function () {
+        return view('sell'); // sell.blade.php を表示
+    })->name('sell.index');
 });
 
 Route::get('/item', function () {
