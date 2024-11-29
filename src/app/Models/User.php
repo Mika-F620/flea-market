@@ -46,4 +46,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Product::class, 'purchases', 'user_id', 'product_id')->withTimestamps();
     }
+
+    public function purchases()
+    {
+        return $this->belongsToMany(Product::class, 'purchases', 'user_id', 'product_id')
+            ->withPivot('payment_method', 'created_at', 'updated_at');
+    }
 }

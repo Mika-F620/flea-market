@@ -30,24 +30,24 @@ class PurchaseController extends Controller
         ]);
 
         // 購入データの保存
-        Purchase::create([
-            'user_id' => Auth::id(),
-            'product_id' => $request->input('product_id'),
-            'payment_method' => $request->input('payment_method'),
-        ]);
+        // Purchase::create([
+        //     'user_id' => Auth::id(),
+        //     'product_id' => $request->input('product_id'),
+        //     'payment_method' => $request->input('payment_method'),
+        // ]);
 
         // 購入後にmypage?page=buyにリダイレクト
         return redirect()->route('mypage', ['page' => 'buy'])->with('success', '購入が完了しました！');
     }
 
-    public function purchase($id)
-    {
-        // 商品を取得
-        $product = Product::findOrFail($id);
+    // public function purchase($id)
+    // {
+    //     // 商品を取得
+    //     $product = Product::findOrFail($id);
 
-        // purchaseビューにデータを渡す
-        return view('purchase', compact('product'));
-    }
+    //     // purchaseビューにデータを渡す
+    //     return view('purchase', compact('product'));
+    // }
 
     public function show($id)
     {

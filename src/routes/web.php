@@ -23,22 +23,25 @@ Route::get('/', function () {
     return view('index');
 });
 
-Route::get('/mypage', function (Illuminate\Http\Request $request) {
-    $user = Auth::user();
-    $page = $request->query('page', 'sell'); // デフォルトを'sell'に設定
+// Route::get('/mypage', function (Illuminate\Http\Request $request) {
+//     $user = Auth::user();
+//     $page = $request->query('page', 'sell'); // デフォルトを'sell'に設定
 
-    // ログインしているユーザーの商品を取得
-    if ($page === 'sell') {
-        $products = \App\Models\Product::where('user_id', $user->id)->latest()->get();
-    } elseif ($page === 'buy') {
-        // 購入履歴を取得する処理（購入テーブルがあればここで対応）
-        $products = collect(); // 現時点では空のコレクションとしておく
-    } else {
-        $products = collect(); // 不明なページの場合も空にする
-    }
+//     // ログインしているユーザーの商品を取得
+//     if ($page === 'sell') {
+//         $products = \App\Models\Product::where('user_id', $user->id)->latest()->get();
+//     } elseif ($page === 'buy') {
+//         // 購入履歴を取得する処理（購入テーブルがあればここで対応）
+//         $products = collect(); // 現時点では空のコレクションとしておく
+//     } else {
+//         $products = collect(); // 不明なページの場合も空にする
+//     }
 
-    return view('mypage', compact('user', 'products', 'page'));
-})->name('mypage')->middleware('auth');
+//     return view('mypage', compact('user', 'products', 'page'));
+// })->name('mypage')->middleware('auth');
+
+Route::get('/mypage', [ProductController::class, 'mypage'])->name('mypage');
+
 
 // ログインフォームの表示
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])

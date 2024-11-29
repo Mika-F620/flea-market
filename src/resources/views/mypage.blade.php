@@ -48,7 +48,6 @@
           <a href="{{ route('item.show', ['id' => $product->id]) }}">
             <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
             <p class="mypage__itemName">{{ $product->name }}</p>
-            <p>商品ID: {{ $product->id }}</p>
           </a>
         </div>
       @endforeach

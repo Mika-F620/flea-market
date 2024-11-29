@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Purchase;
 use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
@@ -101,7 +102,6 @@ class ProductController extends Controller
         // 出品した商品
         if ($page === 'sell') {
             $products = Product::where('user_id', $user->id)->get();
-            \Log::info('出品商品: ' . $products->toJson());
         }
         // 購入した商品
         elseif ($page === 'buy') {
@@ -109,11 +109,6 @@ class ProductController extends Controller
         } else {
             $products = collect(); // 空のコレクション
         }
-
-        // デバッグ
-        \Log::info('Page: ' . $page);
-        \Log::info('User: ' . $user->id);
-        \Log::info('Products: ' . $products->toJson());
 
         return view('mypage', compact('user', 'page', 'products'));
     }
