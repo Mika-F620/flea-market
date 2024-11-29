@@ -1,6 +1,6 @@
 @charset "utf-8";
 
-.purchase {
+.purchase__form {
   display: flex;
   gap: 102px;
 }

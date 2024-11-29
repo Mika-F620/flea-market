@@ -11,15 +11,15 @@
         <button class="header__loginBtn">ログアウト</button>
       </form>
     @endif
-    <p class="header__btnItem">マイページ</p>
-    <p class="header__btnItem">出品</p>
+    <a href="{{ route('mypage') }}" class="header__btnItem">マイページ</a>
+    <a href="{{ route('sell.index') }}" class="header__btnItem">出品</a>
   </div>
 @endsection
 @section('content')
   <section class="item wrapper">
-    <img class="item__img" src="{{ asset('img/dammy3.png') }}" alt="商品画像">
+    <img class="item__img" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
     <div class="item__details">
-      <h2 class="item__name">商品名がここに入る</h2>
+      <h2 class="item__name">{{ $product->name }}</h2>
       <p class="item__subName">ブランド名</p>
       <p class="item__price">¥<span class="item__price--big">47,000</span>(税込)</p>
       <div class="item__click">
@@ -32,25 +32,22 @@
           <p class="item__commentNum">1</p>
         </div>
       </div>
-      <input class="formBtnRed" type="submit" value="購入手続きへ" />
+      <a href="{{ route('purchase.show', ['id' => $product->id]) }}" class="formBtnRed">購入手続きへ</a>
       <div class="item__explanation">
         <h3 class="item__title">商品説明</h3>
-        <p>カラー：グレー</p>
-        <p>新品<br>商品の状態は良好です。傷もありません。</p>
-        <p>購入後、即発送いたします。</p>
+        <p>{{ $product->description }}</p>
       </div>
       <div class="item__info">
         <h3 class="item__title">商品の情報</h3>
         <div class="item__list">
           <h4 class="item__listName">カテゴリー</h4>
           <ul class="item__listTag">
-            <li class="item__listTagItem">洋服</li>
-            <li class="item__listTagItem">メンズ</li>
+            <li class="item__listTagItem">{{ implode(', ', json_decode($product->categories, true)) }}</li>
           </ul>
         </div>
         <div class="item__list">
           <h4 class="item__listName">商品の状態</h4>
-          <p class="item__listCondition">良好</p>
+          <p class="item__listCondition">{{ $product->condition }}</p>
         </div>
       </div>
       <div class="item__comment">

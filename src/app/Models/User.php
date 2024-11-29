@@ -41,4 +41,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function purchasedProducts()
+    {
+        return $this->belongsToMany(Product::class, 'purchases', 'user_id', 'product_id')->withTimestamps();
+    }
 }

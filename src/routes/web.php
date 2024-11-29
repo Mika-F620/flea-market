@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 /*
@@ -73,13 +74,10 @@ Route::middleware(['auth'])->group(function () {
     })->name('sell.index');
 });
 
-Route::get('/item', function () {
-    return view('item');
-});
+Route::get('/item/{id}', [ProductController::class, 'show'])->name('item.show');
 
-Route::get('/purchase', function () {
-    return view('purchase');
-});
+Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show');
+Route::post('/purchase', [PurchaseController::class, 'store'])->name('purchase.store');
 
 Route::get('/purchase/address', function () {
     return view('address');

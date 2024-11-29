@@ -11,8 +11,8 @@
         <button class="header__loginBtn">ログアウト</button>
       </form>
     @endif
-    <p class="header__btnItem">マイページ</p>
-    <p class="header__btnItem">出品</p>
+    <a href="{{ route('mypage') }}" class="header__btnItem">マイページ</a>
+    <a href="{{ route('sell.index') }}" class="header__btnItem">出品</a>
   </div>
 @endsection
 @section('content')
@@ -22,7 +22,7 @@
         <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('img/dammy2.png') }}" class="mypage__infoImg" alt="ユーザー画像">
         <p class="mypage__infoName">{{ $user->name }}</p>
       </div>
-      <button class="mypage__infoBtn">プロフィールを編集</button>
+      <a href="{{ route('profile.edit') }}" class="mypage__infoBtn">プロフィールを編集</a>
     </div>
     <div class="mypage__select">
       <div class="mypage__tab wrapper">
@@ -39,16 +39,35 @@
       </div>
     </div>
     <div class="mypage__contents wrapper">
-      @if ($products->isEmpty())
-        <p>商品がありません。</p>
-      @else
-        @foreach ($products as $product)
-          <div class="mypage__item">
+  @if ($page === 'sell')
+    @if ($products->isEmpty())
+      <p>出品した商品がありません。</p>
+    @else
+      @foreach ($products as $product)
+        <div class="mypage__item">
+          <a href="{{ route('item.show', ['id' => $product->id]) }}">
             <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
             <p class="mypage__itemName">{{ $product->name }}</p>
-          </div>
-        @endforeach
-      @endif
-    </div>
+            <p>商品ID: {{ $product->id }}</p>
+          </a>
+        </div>
+      @endforeach
+    @endif
+  @elseif ($page === 'buy')
+    @if ($products->isEmpty())
+      <p>購入した商品がありません。</p>
+    @else
+      @foreach ($products as $product)
+        <div class="mypage__item">
+          <a href="{{ route('item.show', ['id' => $product->id]) }}">
+            <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+            <p class="mypage__itemName">{{ $product->name }}</p>
+          </a>
+        </div>
+      @endforeach
+    @endif
+  @endif
+</div>
+
   </section>
 @endsection

@@ -11,8 +11,8 @@
         <button class="header__loginBtn">ログアウト</button>
       </form>
     @endif
-    <p class="header__btnItem">マイページ</p>
-    <p class="header__btnItem">出品</p>
+    <a href="{{ route('mypage') }}" class="header__btnItem">マイページ</a>
+    <a href="{{ route('sell.index') }}" class="header__btnItem">出品</a>
   </div>
 @endsection
 @section('content')

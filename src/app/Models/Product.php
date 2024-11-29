@@ -23,4 +23,9 @@ class Product extends Model
     protected $casts = [
         'categories' => 'array',
     ];
+
+    public function buyers()
+    {
+        return $this->belongsToMany(User::class, 'purchases', 'product_id', 'user_id')->withTimestamps();
+    }
 }
