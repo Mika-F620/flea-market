@@ -52,9 +52,9 @@
               <a class="purchase__addressLink" href="{{ route('purchase.address.edit', ['id' => $product->id]) }}">変更する</a>
             </div>
             <p class="purchase__addressDetails">
-              〒{{ $user->postal_code ?? '未設定' }}<br>
-              {{ $user->address ?? '未設定' }}<br>
-              {{ $user->building_name ?? '' }}
+              〒{{ $tempAddress['postal_code'] ?? '未設定' }}<br>
+              {{ $tempAddress['address'] ?? '未設定' }}<br>
+              {{ $tempAddress['building_name'] ?? '' }}
             </p>
 
             <!-- 隠しフィールドで住所情報を送信 -->

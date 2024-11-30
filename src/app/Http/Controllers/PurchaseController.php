@@ -20,15 +20,16 @@ class PurchaseController extends Controller
         $validatedData = $request->validate([
             'product_id' => 'required|exists:products,id',
             'payment_method' => 'required|string',
-            'postal_code' => 'nullable|string',
-            'address' => 'nullable|string',
-            'building_name' => 'nullable|string',
+            // 'postal_code' => 'nullable|string',
+            // 'address' => 'nullable|string',
+            // 'building_name' => 'nullable|string',
         ]);
 
-        // 住所情報を補完
-        $postalCode = $validatedData['postal_code'] ?: $user->postal_code;
-        $address = $validatedData['address'] ?: $user->address;
-        $buildingName = $validatedData['building_name'] ?: $user->building_name;
+        // セッションまたはユーザー情報を利用して配送先情報を補完
+        $tempAddress = session('temp_address', []); // セッション情報を取得
+        $postalCode = $validatedData['postal_code'] ?? $tempAddress['postal_code'] ?? $user->postal_code;
+        $address = $validatedData['address'] ?? $tempAddress['address'] ?? $user->address;
+        $buildingName = $validatedData['building_name'] ?? $tempAddress['building_name'] ?? $user->building_name;
 
         // 必須フィールドが存在しない場合にエラーメッセージを追加
         if (!$postalCode || !$address) {
@@ -56,6 +57,9 @@ class PurchaseController extends Controller
             'building_name' => $buildingName,
         ]);
 
+        // セッションから一時的な住所情報を削除
+        session()->forget('temp_address');
+
         // 購入後にmypage?page=buyにリダイレクト
         return redirect()->route('mypage', ['page' => 'buy'])->with('success', '購入が完了しました！');
     }
@@ -72,8 +76,15 @@ class PurchaseController extends Controller
     public function show($id)
     {
         $product = Product::findOrFail($id); // 商品情報を取得
-        $user = Auth::user(); // ログイン中のユーザー
+        $user = Auth::user();
 
-        return view('purchase', compact('product', 'user'));
+        // セッションから一時的な配送先情報を取得（変更済みの情報がある場合）
+        $tempAddress = session('temp_address', [
+            'postal_code' => $user->postal_code,
+            'address' => $user->address,
+            'building_name' => $user->building_name,
+        ]);
+
+        return view('purchase', compact('product', 'user', 'tempAddress'));
     }
 }
