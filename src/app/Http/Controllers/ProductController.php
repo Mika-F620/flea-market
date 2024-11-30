@@ -54,27 +54,29 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $products = Product::with('user')->latest()->get();
-        return view('products.index', compact('products'));
-
-        $page = $request->query('page', 'recommend'); // デフォルトは'recommend'
-        $user = Auth::user(); // ログイン中のユーザー情報を取得
+        // クエリパラメータでページ種別を取得、デフォルトは 'recommend'
+        $page = $request->query('page', 'recommend'); 
+        $user = Auth::user(); // ログインユーザーの取得
+        $products = collect(); // 空のコレクションを初期化
 
         if ($page === 'mylist') {
+            // マイリスト表示の場合
             if ($user) {
                 // ユーザーのお気に入り商品を取得
                 $products = Like::where('user_id', $user->id)
-                    ->with('product')
+                    ->with('product.user') // 商品とその投稿者情報を取得
                     ->get()
                     ->pluck('product'); // 商品データのみ抽出
             } else {
+                // ログインしていない場合、ログイン画面にリダイレクト
                 return redirect()->route('login')->with('error', 'マイリストを表示するにはログインが必要です。');
             }
         } else {
-            // 'recommend'の場合は全商品の中から表示（例として最新20件を取得）
-            $products = Product::latest()->take(20)->get();
+            // デフォルト (recommend) は全商品の中から最新20件を取得
+            $products = Product::with('user')->latest()->take(20)->get();
         }
 
+        // 適切なビューを返す
         return view('index', compact('products', 'page'));
     }
 

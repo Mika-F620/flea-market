@@ -19,35 +19,37 @@
   <section class="top">
     <div class="top__select">
       <div class="top__tab wrapper">
-        <p class="top__tabList">おすすめ</p>
-        <p class="top__tabList">マイリスト</p>
+        <p class="top__tabList {{ $page === 'recommend' ? 'active' : '' }}">おすすめ</p>
+        <p class="top__tabList {{ $page === 'mylist' ? 'active' : '' }}">マイリスト</p>
       </div>
     </div>
     <div class="top__contents wrapper">
-      <div class="top__item">
-        <img class="top__itemImg" src="{{ asset('img/dammy.png') }}" alt="商品画像">
-        <p class="top__itemName">商品名</p>
-      </div>
-      <div class="top__item">
-        <img class="top__itemImg" src="{{ asset('img/dammy.png') }}" alt="商品画像">
-        <p class="top__itemName">商品名</p>
-      </div>
-      <div class="top__item">
-        <img class="top__itemImg" src="{{ asset('img/dammy.png') }}" alt="商品画像">
-        <p class="top__itemName">商品名</p>
-      </div>
-      <div class="top__item">
-        <img class="top__itemImg" src="{{ asset('img/dammy.png') }}" alt="商品画像">
-        <p class="top__itemName">商品名</p>
-      </div>
-      <div class="top__item">
-        <img class="top__itemImg" src="{{ asset('img/dammy.png') }}" alt="商品画像">
-        <p class="top__itemName">商品名</p>
-      </div>
-      <div class="top__item">
-        <img class="top__itemImg" src="{{ asset('img/dammy.png') }}" alt="商品画像">
-        <p class="top__itemName">商品名</p>
-      </div>
+      @forelse ($products as $product)
+        <a href="{{ route('products.show', $product->id) }}" class="top__item">
+          <div class="top__item">
+            <img class="top__itemImg" src="{{ $product->image ? asset('storage/' . $product->image) : asset('img/dammy.png') }}" alt="{{ $product->name }}">
+            <p class="top__itemName">{{ $product->name }}</p>
+            <p class="top__itemPrice">¥{{ number_format($product->price) }}</p>
+          </div>
+        </a>
+      @empty
+        <p>商品が見つかりません。</p>
+      @endforelse
     </div>
   </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabs = document.querySelectorAll('.top__tabList');
+      const contents = document.querySelector('.top__contents');
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => {
+          const queryParam = index === 0 ? 'recommend' : 'mylist';
+          window.location.href = `?page=${queryParam}`;
+        });
+      });
+    });
+
+  </script>
 @endsection

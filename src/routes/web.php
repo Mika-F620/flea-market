@@ -103,3 +103,5 @@ Route::get('/', [ProductController::class, 'index'])->name('home');
 Route::middleware(['auth'])->group(function () {
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 });
+
+Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
