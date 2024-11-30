@@ -32,7 +32,7 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'postal_code' => ['nullable', 'string', 'max:8', 'regex:/^\d{3}-\d{4}$/'], // 例: 123-4567
             'address' => ['nullable', 'string', 'max:255'],
-            'building' => ['nullable', 'string', 'max:255'],
+            'building_name' => ['nullable', 'string', 'max:255'],
             'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:2048'], // 画像のバリデーション
         ]);
 
@@ -52,7 +52,7 @@ class ProfileController extends Controller
         $user->name = $request->input('name');
         $user->postal_code = $request->input('postal_code');
         $user->address = $request->input('address');
-        $user->building = $request->input('building');
+        $user->building_name = $request->input('building_name');
         $user->save();
 
         // 更新後に指定ページへリダイレクト

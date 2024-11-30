@@ -54,8 +54,8 @@
             </div>
             <div class="profile__item">
                 <label class="profile__label" for="building">建物名</label>
-                <input class="profile__input" type="text" name="building" id="building" value="{{ old('building', $user->building) }}">
-                @error('building')
+                <input class="profile__input" type="text" name="building_name" id="building" value="{{ old('building_name', $user->building_name) }}">
+                @error('building_name')
                     <p class="form__error">{{ $message }}</p>
                 @enderror
             </div>
