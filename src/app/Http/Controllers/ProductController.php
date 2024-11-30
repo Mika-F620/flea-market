@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\Like;
 use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
@@ -51,19 +52,44 @@ class ProductController extends Controller
     /**
      * 商品一覧の表示
      */
-    public function index()
+    public function index(Request $request)
     {
         $products = Product::with('user')->latest()->get();
         return view('products.index', compact('products'));
+
+        $page = $request->query('page', 'recommend'); // デフォルトは'recommend'
+        $user = Auth::user(); // ログイン中のユーザー情報を取得
+
+        if ($page === 'mylist') {
+            if ($user) {
+                // ユーザーのお気に入り商品を取得
+                $products = Like::where('user_id', $user->id)
+                    ->with('product')
+                    ->get()
+                    ->pluck('product'); // 商品データのみ抽出
+            } else {
+                return redirect()->route('login')->with('error', 'マイリストを表示するにはログインが必要です。');
+            }
+        } else {
+            // 'recommend'の場合は全商品の中から表示（例として最新20件を取得）
+            $products = Product::latest()->take(20)->get();
+        }
+
+        return view('index', compact('products', 'page'));
     }
 
     public function show($id)
     {
-        // 商品を取得（idを元に取得）
-        $product = Product::findOrFail($id); // 該当する商品がなければ404エラーを返す
+        $product = Product::findOrFail($id);
+        $user = Auth::user();
 
-        // ビューにデータを渡す
-        return view('item', compact('product'));
+        // いいねの初期状態を取得
+        $isLiked = $user ? $product->likes()->where('user_id', $user->id)->exists() : false;
+
+        // いいねの合計数を取得
+        $likeCount = $product->likes()->count();
+
+        return view('item', compact('product', 'isLiked', 'likeCount'));
     }
 
     public function purchase(Request $request)
@@ -115,5 +141,5 @@ class ProductController extends Controller
         }
 
         return view('mypage', compact('user', 'page', 'products'));
-        }
+    }
 }

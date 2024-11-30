@@ -57,4 +57,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Product::class, 'purchases', 'user_id', 'product_id')
             ->withPivot('payment_method', 'created_at', 'updated_at');
     }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
 }

@@ -32,3 +32,7 @@
   font-size: 3.6rem;
   font-weight: bold;
 }
+
+.item__likeImg {
+  width: 60px;
+}

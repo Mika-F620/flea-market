@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\LikeController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 /*
@@ -88,3 +89,12 @@ Route::post('/purchase', [PurchaseController::class, 'store'])->name('purchase.s
 Route::get('/purchase/address/{id}', [AddressController::class, 'edit'])->name('purchase.address.edit');
 Route::post('/purchase/address/{id}', [AddressController::class, 'update'])->name('purchase.address.update');
 Route::put('/purchase/address/{id}', [AddressController::class, 'update'])->name('purchase.address.update');
+
+// Route::post('/like/{productId}', [LikeController::class, 'toggleLike'])->name('like.toggle');
+
+Route::post('/like/{productId}', [LikeController::class, 'store'])->name('like.store');
+Route::delete('/like/{product}', [LikeController::class, 'destroy'])->middleware('auth')->name('like.destroy');
+Route::post('/like/toggle/{productId}', [LikeController::class, 'toggleLike'])->name('like.toggle');
+
+// トップページのルート設定
+Route::get('/', [ProductController::class, 'index'])->name('home');

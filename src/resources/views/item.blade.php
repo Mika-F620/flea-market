@@ -21,14 +21,22 @@
     <div class="item__details">
       <h2 class="item__name">{{ $product->name }}</h2>
       <p class="item__subName">ブランド名</p>
-      <p class="item__price">¥<span class="item__price--big">47,000</span>(税込)</p>
+      <p class="item__price">¥<span class="item__price--big">{{ number_format($product->price) }}</span>(税込)</p>
       <div class="item__click">
         <div class="item__like">
-          <img class="item__likeImg" src="{{ asset('img/star.svg') }}" alt="星">
-          <p class="item__likeNum">3</p>
+          <img 
+            class="item__likeImg" 
+            id="like-icon" 
+            src="{{ $isLiked ? asset('img/star-filled.svg') : asset('img/star.svg') }}" 
+            alt="星" 
+            data-liked="{{ $isLiked ? 'true' : 'false' }}" 
+            data-product-id="{{ $product->id }}" 
+            style="cursor: pointer;"
+          />
+          <p class="item__likeNum" id="like-count">{{ $product->likes->count() }}</p>
         </div>
         <div class="item__comment">
-          <img class="item__commentImg" src="{{ asset('img/bubble.svg') }}" alt="星">
+          <img class="item__commentImg" src="{{ asset('img/bubble.svg') }}" alt="吹き出し">
           <p class="item__commentNum">1</p>
         </div>
       </div>
@@ -65,4 +73,48 @@
       </div>
     </div>
   </section>
+
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const likeButton = document.querySelector('#like-icon'); // いいねアイコンの取得
+    const likeCountElement = document.querySelector('#like-count'); // いいね数の取得
+    const productId = likeButton.dataset.productId; // 商品IDの取得
+
+    if (likeButton && likeCountElement) {
+        likeButton.addEventListener('click', async () => {
+            try {
+                // サーバーにリクエストを送信
+                const response = await fetch(`/like/toggle/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // いいね状態の切り替え
+                if (data.liked) {
+                    likeButton.src = '{{ asset("img/star-filled.svg") }}'; // いいねされた状態
+                } else {
+                    likeButton.src = '{{ asset("img/star.svg") }}'; // いいねされていない状態
+                }
+
+                // いいね数を更新
+                likeCountElement.textContent = data.likeCount;
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+});
+
+</script>
+
 @endsection
