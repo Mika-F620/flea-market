@@ -14,32 +14,46 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+
         // バリデーション
-        $request->validate([
+        $validatedData = $request->validate([
             'product_id' => 'required|exists:products,id',
             'payment_method' => 'required|string',
-            'postal_code' => 'required|string|max:10',
-            'address' => 'required|string|max:255',
-            'building_name' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string',
+            'address' => 'nullable|string',
+            'building_name' => 'nullable|string',
         ]);
 
-        $user = Auth::user();
+        // 住所情報を補完
+        $postalCode = $validatedData['postal_code'] ?: $user->postal_code;
+        $address = $validatedData['address'] ?: $user->address;
+        $buildingName = $validatedData['building_name'] ?: $user->building_name;
+
+        // 必須フィールドが存在しない場合にエラーメッセージを追加
+        if (!$postalCode || !$address) {
+            return back()->withErrors([
+                'postal_code' => '郵便番号を入力するか、既存の住所を確認してください。',
+                'address' => '住所を入力するか、既存の住所を確認してください。',
+            ])->withInput();
+        }
+
         $product = Product::findOrFail($request->product_id);
 
-        $user->purchases()->attach($product->id, [
-            'payment_method' => $request->payment_method,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // $user->purchases()->attach($product->id, [
+        //     'payment_method' => $request->payment_method,
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
 
         // 購入データの保存
         Purchase::create([
-            'user_id' => Auth::id(),
-            'product_id' => $request->input('product_id'),
-            'payment_method' => $request->input('payment_method'),
-            'postal_code' => $request->input('postal_code'),
-            'address' => $request->input('address'),
-            'building_name' => $request->input('building_name'),
+            'user_id' => $user->id,
+            'product_id' => $validatedData['product_id'],
+            'payment_method' => $validatedData['payment_method'],
+            'postal_code' => $postalCode,
+            'address' => $address,
+            'building_name' => $buildingName,
         ]);
 
         // 購入後にmypage?page=buyにリダイレクト

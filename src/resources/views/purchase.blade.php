@@ -51,7 +51,16 @@
               <label class="purchase__addressTitle">配送先</label>
               <a class="purchase__addressLink" href="{{ route('purchase.address.edit', ['id' => $product->id]) }}">変更する</a>
             </div>
-            <p class="purchase__addressDetails">〒{{ $user->postal_code ?? '未設定' }}<br>{{ $user->address ?? '未設定' }}</p>
+            <p class="purchase__addressDetails">
+              〒{{ $user->postal_code ?? '未設定' }}<br>
+              {{ $user->address ?? '未設定' }}<br>
+              {{ $user->building_name ?? '' }}
+            </p>
+
+            <!-- 隠しフィールドで住所情報を送信 -->
+            <input type="hidden" name="postal_code" value="{{ $user->postal_code }}">
+            <input type="hidden" name="address" value="{{ $user->address }}">
+            <input type="hidden" name="building_name" value="{{ $user->building_name }}">
           </div>
         </div>
         <div class="purchase__right">

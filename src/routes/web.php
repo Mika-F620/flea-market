@@ -79,7 +79,9 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/item/{id}', [ProductController::class, 'show'])->name('item.show');
 
-Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show');
+Route::get('/purchase/{id}', [PurchaseController::class, 'show'])
+    ->name('purchase.show')
+    ->middleware('auth'); // 認証を強制する
 Route::post('/purchase', [PurchaseController::class, 'store'])->name('purchase.store');
 
 Route::get('/purchase/address/{id}', [AddressController::class, 'edit'])->name('purchase.address.edit');
