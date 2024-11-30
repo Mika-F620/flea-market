@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\CommentController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 /*
@@ -98,3 +99,7 @@ Route::post('/like/toggle/{productId}', [LikeController::class, 'toggleLike'])->
 
 // トップページのルート設定
 Route::get('/', [ProductController::class, 'index'])->name('home');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+});

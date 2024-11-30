@@ -37,7 +37,7 @@
         </div>
         <div class="item__comment">
           <img class="item__commentImg" src="{{ asset('img/bubble.svg') }}" alt="吹き出し">
-          <p class="item__commentNum">1</p>
+          <p class="item__commentNum">{{ $product->comments->count() }}</p>
         </div>
       </div>
       <a href="{{ route('purchase.show', ['id' => $product->id]) }}" class="formBtnRed">購入手続きへ</a>
@@ -59,62 +59,128 @@
         </div>
       </div>
       <div class="item__comment">
-        <p class="item__commentNum">コメント(1)</p>
+        <p class="item__commentNum">コメント(<span id="comment-count">{{ $product->comments->count() }}</span>)</p>
         <div class="item__commentUser">
-          <img class="item__commentUserImg" src="{{ asset('img/dammy2.png') }}" alt="画像">
-          <p class="item__commentUserName">admin</p>
+          <img class="item__commentUserImg" src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('img/dammy2.png') }}" alt="画像">
+          <p class="item__commentUserName">{{ $user->name }}</p>
         </div>
-        <ul class="item__commentList">
-          <li>こちらにコメントが入ります。</li>
+        <ul class="item__commentList" id="comment-list">
+          @foreach ($product->comments as $comment)
+            <li>{{ $comment->user->name }}: {{ $comment->content }}</li>
+          @endforeach
         </ul>
-        <h4 class="item__listName">商品へのコメント</h4>
-        <textarea></textarea>
-        <input class="formBtnRed" type="submit" value="コメントを送信する" />
+        @auth
+          <h4 class="item__listName">商品へのコメント</h4>
+          <textarea id="comment-content" rows="3" placeholder="コメントを入力してください"></textarea>
+          <button class="formBtnRed" id="submit-comment">コメントを送信する</button>
+        @else
+          <p>コメントを投稿するにはログインしてください。</p>
+        @endauth
       </div>
     </div>
   </section>
 
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const likeButton = document.querySelector('#like-icon'); // いいねアイコンの取得
-    const likeCountElement = document.querySelector('#like-count'); // いいね数の取得
-    const productId = likeButton.dataset.productId; // 商品IDの取得
+    document.addEventListener('DOMContentLoaded', () => {
+      const likeButton = document.querySelector('#like-icon'); // いいねアイコンの取得
+      const likeCountElement = document.querySelector('#like-count'); // いいね数の取得
+      const productId = likeButton.dataset.productId; // 商品IDの取得
 
-    if (likeButton && likeCountElement) {
+      if (likeButton && likeCountElement) {
         likeButton.addEventListener('click', async () => {
+          try {
+            // サーバーにリクエストを送信
+            const response = await fetch(`/like/toggle/${productId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // いいね状態の切り替え
+            if (data.liked) {
+              likeButton.src = '{{ asset("img/star-filled.svg") }}'; // いいねされた状態
+            } else {
+              likeButton.src = '{{ asset("img/star.svg") }}'; // いいねされていない状態
+            }
+
+            // いいね数を更新
+            likeCountElement.textContent = data.likeCount;
+
+          } catch (error) {
+            console.error('Error:', error);
+          }
+        });
+      }
+    });
+  </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const submitButton = document.querySelector('#submit-comment');
+    const commentContent = document.querySelector('#comment-content');
+    const commentList = document.querySelector('#comment-list');
+    const commentCount = document.querySelector('#comment-count'); // 修正: IDで取得
+    const productId = {{ $product->id }};
+
+    if (submitButton) {
+        submitButton.addEventListener('click', async () => {
+            const content = commentContent.value.trim();
+
+            if (content === '') {
+                alert('コメントを入力してください。');
+                return;
+            }
+
             try {
-                // サーバーにリクエストを送信
-                const response = await fetch(`/like/toggle/${productId}`, {
+                const response = await fetch('{{ route('comments.store') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        content: content,
+                    }),
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorData = await response.json();
+                    console.error(errorData);
+                    alert(errorData.message || 'コメントの送信に失敗しました。');
+                    return;
                 }
 
                 const data = await response.json();
 
-                // いいね状態の切り替え
-                if (data.liked) {
-                    likeButton.src = '{{ asset("img/star-filled.svg") }}'; // いいねされた状態
-                } else {
-                    likeButton.src = '{{ asset("img/star.svg") }}'; // いいねされていない状態
-                }
+                // 新しいコメントをリストに追加
+                const newComment = document.createElement('li');
+                newComment.textContent = `${data.user_name}: ${data.comment.content}`;
+                commentList.appendChild(newComment);
 
-                // いいね数を更新
-                likeCountElement.textContent = data.likeCount;
+                // コメント数を更新
+                commentCount.textContent = parseInt(commentCount.textContent) + 1;
 
+                // フォームをリセット
+                commentContent.value = '';
             } catch (error) {
-                console.error('Error:', error);
+                console.error('コメントの送信に失敗しました:', error);
+                alert('予期しないエラーが発生しました。');
             }
         });
     }
 });
 
-</script>
+
+  </script>
+
 
 @endsection

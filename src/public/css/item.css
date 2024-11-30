@@ -36,3 +36,7 @@
 .item__likeImg {
   width: 60px;
 }
+
+.item__commentUserImg {
+  width: 100%;
+}

@@ -80,7 +80,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::with(['comments.user', 'likes'])->findOrFail($id);
         $user = Auth::user();
 
         // いいねの初期状態を取得
@@ -89,7 +89,10 @@ class ProductController extends Controller
         // いいねの合計数を取得
         $likeCount = $product->likes()->count();
 
-        return view('item', compact('product', 'isLiked', 'likeCount'));
+        // コメントの取得（関連モデルを使用）
+        $comments = $product->comments()->with('user')->get();
+
+        return view('item', compact('product', 'isLiked', 'likeCount', 'comments', 'user'));
     }
 
     public function purchase(Request $request)
