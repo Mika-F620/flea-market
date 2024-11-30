@@ -18,6 +18,9 @@ class PurchaseController extends Controller
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'payment_method' => 'required|string',
+            'postal_code' => 'required|string|max:10',
+            'address' => 'required|string|max:255',
+            'building_name' => 'nullable|string|max:255',
         ]);
 
         $user = Auth::user();
@@ -30,11 +33,14 @@ class PurchaseController extends Controller
         ]);
 
         // 購入データの保存
-        // Purchase::create([
-        //     'user_id' => Auth::id(),
-        //     'product_id' => $request->input('product_id'),
-        //     'payment_method' => $request->input('payment_method'),
-        // ]);
+        Purchase::create([
+            'user_id' => Auth::id(),
+            'product_id' => $request->input('product_id'),
+            'payment_method' => $request->input('payment_method'),
+            'postal_code' => $request->input('postal_code'),
+            'address' => $request->input('address'),
+            'building_name' => $request->input('building_name'),
+        ]);
 
         // 購入後にmypage?page=buyにリダイレクト
         return redirect()->route('mypage', ['page' => 'buy'])->with('success', '購入が完了しました！');

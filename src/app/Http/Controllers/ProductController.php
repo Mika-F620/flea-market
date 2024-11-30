@@ -96,20 +96,24 @@ class ProductController extends Controller
 
     public function mypage(Request $request)
     {
-        $user = Auth::user();
-        $page = $request->query('page', 'sell');
+        // ログイン状態を確認
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'ログインが必要です。');
+        }
 
-        // 出品した商品
+        // ログイン中のユーザーを取得
+        $user = Auth::user();
+        $page = $request->query('page', 'sell'); // デフォルトで 'sell'
+
+        // 出品商品か購入商品を取得
         if ($page === 'sell') {
             $products = Product::where('user_id', $user->id)->get();
-        }
-        // 購入した商品
-        elseif ($page === 'buy') {
-            $products = $user->purchasedProducts()->latest()->get(); // リレーションを使用
+        } elseif ($page === 'buy') {
+            $products = $user->purchasedProducts()->latest()->get(); // 購入した商品
         } else {
             $products = collect(); // 空のコレクション
         }
 
         return view('mypage', compact('user', 'page', 'products'));
-    }
+        }
 }

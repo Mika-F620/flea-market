@@ -49,7 +49,7 @@
           <div class="purchase__address">
             <div class="purchase__addressHeading">
               <label class="purchase__addressTitle">配送先</label>
-              <a class="purchase__addressLink" href="#">変更する</a>
+              <a class="purchase__addressLink" href="{{ route('purchase.address.edit', ['id' => $product->id]) }}">変更する</a>
             </div>
             <p class="purchase__addressDetails">〒{{ $user->postal_code ?? '未設定' }}<br>{{ $user->address ?? '未設定' }}</p>
           </div>

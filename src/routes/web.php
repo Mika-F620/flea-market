@@ -82,6 +82,6 @@ Route::get('/item/{id}', [ProductController::class, 'show'])->name('item.show');
 Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show');
 Route::post('/purchase', [PurchaseController::class, 'store'])->name('purchase.store');
 
-Route::get('/purchase/address', function () {
-    return view('address');
-});
+Route::get('/purchase/address/{id}', [AddressController::class, 'edit'])->name('purchase.address.edit');
+Route::post('/purchase/address/{id}', [AddressController::class, 'update'])->name('purchase.address.update');
+
