@@ -37,7 +37,7 @@
         </div>
         <div class="item__comment">
           <img class="item__commentImg" src="{{ asset('img/bubble.svg') }}" alt="吹き出し">
-          <p class="item__commentNum">{{ $product->comments->count() }}</p>
+          <p class="item__commentNum"><span id="comment-count-bubble">{{ $product->comments->count() }}</span></p>
         </div>
       </div>
       <a href="{{ route('purchase.show', ['id' => $product->id]) }}" class="formBtnRed">購入手続きへ</a>
@@ -122,65 +122,67 @@
     });
   </script>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const submitButton = document.querySelector('#submit-comment');
-    const commentContent = document.querySelector('#comment-content');
-    const commentList = document.querySelector('#comment-list');
-    const commentCount = document.querySelector('#comment-count'); // 修正: IDで取得
-    const productId = {{ $product->id }};
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const submitButton = document.querySelector('#submit-comment');
+      const commentContent = document.querySelector('#comment-content');
+      const commentList = document.querySelector('#comment-list');
+      const commentCount = document.querySelector('#comment-count'); // 詳細エリアのコメント数
+      const commentCountBubble = document.querySelector('#comment-count-bubble'); // バブルエリアのコメント数
+      const productId = {{ $product->id }};
 
-    if (submitButton) {
+      if (submitButton) {
         submitButton.addEventListener('click', async () => {
-            const content = commentContent.value.trim();
+          const content = commentContent.value.trim();
 
-            if (content === '') {
-                alert('コメントを入力してください。');
-                return;
+          if (content === '') {
+            alert('コメントを入力してください。');
+            return;
+          }
+
+          try {
+            const response = await fetch('{{ route('comments.store') }}', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              },
+              body: JSON.stringify({
+                product_id: productId,
+                content: content,
+              }),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              console.error(errorData);
+              alert(errorData.message || 'コメントの送信に失敗しました。');
+              return;
             }
 
-            try {
-                const response = await fetch('{{ route('comments.store') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    },
-                    body: JSON.stringify({
-                        product_id: productId,
-                        content: content,
-                    }),
-                });
+            const data = await response.json();
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error(errorData);
-                    alert(errorData.message || 'コメントの送信に失敗しました。');
-                    return;
-                }
+            // 新しいコメントをリストに追加
+            const newComment = document.createElement('li');
+            newComment.textContent = `${data.user_name}: ${data.comment.content}`;
+            commentList.appendChild(newComment);
 
-                const data = await response.json();
-
-                // 新しいコメントをリストに追加
-                const newComment = document.createElement('li');
-                newComment.textContent = `${data.user_name}: ${data.comment.content}`;
-                commentList.appendChild(newComment);
-
-                // コメント数を更新
-                commentCount.textContent = parseInt(commentCount.textContent) + 1;
-
-                // フォームをリセット
-                commentContent.value = '';
-            } catch (error) {
-                console.error('コメントの送信に失敗しました:', error);
-                alert('予期しないエラーが発生しました。');
+            // コメント数を更新
+            const currentCount = parseInt(commentCount.textContent);
+            const newCount = currentCount + 1;
+            commentCount.textContent = newCount;
+            if (commentCountBubble) {
+              commentCountBubble.textContent = newCount; // バブルのコメント数も更新
             }
+
+            // フォームをリセット
+            commentContent.value = '';
+          } catch (error) {
+            console.error('コメントの送信に失敗しました:', error);
+            alert('予期しないエラーが発生しました。');
+          }
         });
-    }
-});
-
-
+      }
+    });
   </script>
-
-
 @endsection
