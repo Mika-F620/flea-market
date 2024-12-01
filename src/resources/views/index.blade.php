@@ -19,8 +19,8 @@
   <section class="top">
     <div class="top__select">
       <div class="top__tab wrapper">
-        <p class="top__tabList {{ $page === 'recommend' ? 'active' : '' }}">おすすめ</p>
-        <p class="top__tabList {{ $page === 'mylist' ? 'active' : '' }}">マイリスト</p>
+        <a href="{{ url('/') }}" class="top__tabList {{ $page === 'recommend' ? 'active' : '' }}">おすすめ</a>
+        <a href="{{ url('/?page=mylist') }}" class="top__tabList {{ $page === 'mylist' ? 'active' : '' }}">マイリスト</a>
       </div>
     </div>
     <div class="top__contents wrapper">

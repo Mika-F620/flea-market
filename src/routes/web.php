@@ -22,9 +22,7 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 |
 */
 
-Route::get('/', function () {
-    return view('index');
-});
+Route::get('/', [ProductController::class, 'index'])->name('index');
 
 // Route::get('/mypage', function (Illuminate\Http\Request $request) {
 //     $user = Auth::user();
