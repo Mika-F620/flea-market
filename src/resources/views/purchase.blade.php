@@ -17,15 +17,6 @@
 @endsection
 @section('content')
   <section class="purchase wrapper">
-  @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
     <form class="purchase__form" action="{{ route('purchase.store') }}" method="POST">
       @csrf
         <!-- 商品IDを隠しフィールドで送信 -->
@@ -45,6 +36,9 @@
               <option value="コンビニ払い">コンビニ払い</option>
               <option value="カード払い">カード払い</option>
             </select>
+            @error('payment_method')
+              <p class="form__error">{{ $message }}</p>
+            @enderror
           </div>
           <div class="purchase__address">
             <div class="purchase__addressHeading">

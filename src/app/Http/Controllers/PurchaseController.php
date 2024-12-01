@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\PurchaseRequest;
 use App\Models\Purchase;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
@@ -12,18 +13,24 @@ class PurchaseController extends Controller
     /**
      * 購入処理
      */
-    public function store(Request $request)
+    public function store(PurchaseRequest $request)
     {
         $user = Auth::user();
 
         // バリデーション
-        $validatedData = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'payment_method' => 'required|string',
-            // 'postal_code' => 'nullable|string',
-            // 'address' => 'nullable|string',
-            // 'building_name' => 'nullable|string',
-        ]);
+        // $validatedData = $request->validate([
+        //     'product_id' => 'required|exists:products,id',
+        //     'payment_method' => 'required|string',
+        //     // 'postal_code' => 'nullable|string',
+        //     // 'address' => 'nullable|string',
+        //     // 'building_name' => 'nullable|string',
+        // ]);
+
+        // バリデーションは自動的に行われます（PurchaseRequestに定義されたルール）
+        $validatedData = $request->validated(); // バリデーション済みデータ
+
+        // 商品IDをリクエストから取得
+        $productId = $validatedData['product_id'];
 
         // セッションまたはユーザー情報を利用して配送先情報を補完
         $tempAddress = session('temp_address', []); // セッション情報を取得
@@ -39,7 +46,8 @@ class PurchaseController extends Controller
             ])->withInput();
         }
 
-        $product = Product::findOrFail($request->product_id);
+        $product = Product::findOrFail($productId);
+        // $product = Product::findOrFail($validatedData['product_id']); // 商品IDから商品を取得
 
         // $user->purchases()->attach($product->id, [
         //     'payment_method' => $request->payment_method,
@@ -50,7 +58,7 @@ class PurchaseController extends Controller
         // 購入データの保存
         Purchase::create([
             'user_id' => $user->id,
-            'product_id' => $validatedData['product_id'],
+            'product_id' => $productId,
             'payment_method' => $validatedData['payment_method'],
             'postal_code' => $postalCode,
             'address' => $address,
