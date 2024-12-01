@@ -20,21 +20,34 @@
     <div class="top__select">
       <div class="top__tab wrapper">
         <a href="{{ url('/') }}" class="top__tabList {{ $page === 'recommend' ? 'active' : '' }}">おすすめ</a>
-        <a href="{{ url('/?page=mylist') }}" class="top__tabList {{ $page === 'mylist' ? 'active' : '' }}">マイリスト</a>
+        @if (Auth::check()) <!-- ログインしている場合のみ表示 -->
+          <a href="{{ url('/?page=mylist') }}" class="top__tabList {{ $page === 'mylist' ? 'active' : '' }}">マイリスト</a>
+        @else
+          <!-- ログインしていない場合はリンクを表示しない -->
+          <span class="top__tabList disabled" data-disabled="true">マイリスト</span>
+        @endif
       </div>
     </div>
     <div class="top__contents wrapper">
       @forelse ($products as $product)
-        <a href="{{ route('products.show', $product->id) }}" class="top__item">
+        @if ($product->is_sold) <!-- 購入済みの商品 -->
           <div class="top__item">
             <img class="top__itemImg" src="{{ $product->image ? asset('storage/' . $product->image) : asset('img/dammy.png') }}" alt="{{ $product->name }}">
-            <p class="top__itemName">{{ $product->name }}</p>
+            <p class="top__itemName">{{ $product->name }} <span class="solid-label">Sold</span></p>
             <p class="top__itemPrice">¥{{ number_format($product->price) }}</p>
           </div>
-        </a>
-      @empty
-        <p>商品が見つかりません。</p>
-      @endforelse
+        @else <!-- 購入されていない商品 -->
+          <a href="{{ route('products.show', $product->id) }}" class="top__item">
+            <div class="top__item">
+              <img class="top__itemImg" src="{{ $product->image ? asset('storage/' . $product->image) : asset('img/dammy.png') }}" alt="{{ $product->name }}">
+              <p class="top__itemName">{{ $product->name }}</p>
+              <p class="top__itemPrice">¥{{ number_format($product->price) }}</p>
+            </div>
+          </a>
+        @endif
+        @empty
+          <p>商品が見つかりません。</p>
+        @endforelse
     </div>
   </section>
 
@@ -50,6 +63,18 @@
         });
       });
     });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabs = document.querySelectorAll('.top__tabList');
 
+      tabs.forEach((tab) => {
+        // ログインしていない場合、「マイリスト」タブに pointer-events: none を適用
+        if (tab.classList.contains('disabled')) {
+          tab.style.pointerEvents = 'none'; // クリック無効化
+          tab.style.color = '#ccc'; // 任意: 色を変更して無効感を示す
+        }
+      });
+    });
   </script>
 @endsection

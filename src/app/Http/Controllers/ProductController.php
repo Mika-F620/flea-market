@@ -76,6 +76,11 @@ class ProductController extends Controller
             $products = Product::with('user')->latest()->take(20)->get();
         }
 
+        // 商品が購入済みかどうかを判定して、それをビューに渡す
+        foreach ($products as $product) {
+            $product->is_sold = Purchase::where('product_id', $product->id)->exists();
+        }
+
         // 適切なビューを返す
         return view('index', compact('products', 'page'));
     }
