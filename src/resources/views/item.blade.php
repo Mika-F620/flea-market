@@ -61,8 +61,12 @@
       <div class="item__comment">
         <p class="item__commentNum">コメント(<span id="comment-count">{{ $product->comments->count() }}</span>)</p>
         <div class="item__commentUser">
-          <img class="item__commentUserImg" src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('img/dammy2.png') }}" alt="画像">
-          <p class="item__commentUserName">{{ $user->name }}</p>
+          @if (Auth::check())
+            <img class="item__commentUserImg" src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('img/dammy2.png') }}" alt="画像">
+            <p class="item__commentUserName">{{ $user->name }}</p>
+          @else
+            <p>未登録のユーザーです。</p>
+          @endif
         </div>
         <ul class="item__commentList" id="comment-list">
           @foreach ($product->comments as $comment)
