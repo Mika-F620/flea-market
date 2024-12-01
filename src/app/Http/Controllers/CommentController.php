@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\CommentRequest;
 use App\Models\Comment;
 use App\Models\Product;
 
 class CommentController extends Controller
 {
-    public function store(Request $request)
+    public function store(CommentRequest $request)
     {
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',

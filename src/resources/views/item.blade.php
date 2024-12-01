@@ -75,8 +75,16 @@
         </ul>
         @auth
           <h4 class="item__listName">商品へのコメント</h4>
-          <textarea id="comment-content" rows="3" placeholder="コメントを入力してください"></textarea>
-          <button class="formBtnRed" id="submit-comment">コメントを送信する</button>
+          <form action="{{ route('comments.store') }}" method="POST">
+            @csrf
+              <textarea name="content" rows="3" placeholder="コメントを入力してください">{{ old('content') }}</textarea>
+            
+              <!-- バリデーションエラーの表示 -->
+              @error('content')
+                <p class="form__error">{{ $message }}</p>
+              @enderror
+              <button class="formBtnRed" id="submit-comment">コメントを送信する</button>
+          </form>
         @else
           <p>コメントを投稿するにはログインしてください。</p>
         @endauth
