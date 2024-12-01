@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\SellRequest;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Like;
@@ -13,21 +14,23 @@ class ProductController extends Controller
     /**
      * 商品の登録処理
      */
-    public function store(Request $request)
+    public function store(SellRequest $request)
     {
+        // バリデーションが通過した後、画像の価格を処理
+        $validated = $request->validated();
         $request->merge([
             'price' => str_replace('¥', '', $request->input('price')) // ¥をサーバー側でも削除
         ]);
 
-        $request->validate([
-            'image' => ['nullable', 'image', 'max:2048'], // 画像は任意
-            'categories' => ['required', 'array'], // カテゴリーは配列で必須
-            'categories.*' => ['string', 'max:255'], // 配列内の要素を文字列としてバリデーション
-            'condition' => ['required', 'string', 'max:255'], // 商品の状態
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'price' => ['required', 'integer', 'min:1'],
-        ]);
+        // $request->validate([
+        //     'image' => ['nullable', 'image', 'max:2048'], // 画像は任意
+        //     'categories' => ['required', 'array'], // カテゴリーは配列で必須
+        //     'categories.*' => ['string', 'max:255'], // 配列内の要素を文字列としてバリデーション
+        //     'condition' => ['required', 'string', 'max:255'], // 商品の状態
+        //     'name' => ['required', 'string', 'max:255'],
+        //     'description' => ['required', 'string'],
+        //     'price' => ['required', 'integer', 'min:1'],
+        // ]);
 
         // 画像を保存
         $imagePath = $request->hasFile('image') 

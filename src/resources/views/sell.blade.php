@@ -18,15 +18,6 @@
 @section('content')
   <section class="sell wrapper">
     <h2 class="sectionTitle">商品の出品</h2>
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
     <form action="{{ route('sell.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
         <div class="sell__item">
@@ -36,6 +27,9 @@
               <input type="file" name="image" id="image" class="sell__dropZoneInput" accept="image/*">
               <div id="preview-container" class="sell__previewContainer"></div> <!-- プレビュー画像用 -->
           </div>
+          @error('image')
+            <p class="form__error">{{ $message }}</p>
+          @enderror
         </div>
         <h3 class="sell__SubTitle">商品の詳細</h3>
         <div class="sell__item">
@@ -51,11 +45,14 @@
               </li>
             @endforeach
           </ul>
+          @error('categories')
+            <p class="form__error">{{ $message }}</p>
+          @enderror
         </div>
         <div class="sell__item">
           <label class="sell__itemTitle">商品の状態</label>
           <div class="sell__select">
-            <select name="condition" id="condition" class="sell__selectDrop" required>
+            <select name="condition" id="condition" class="sell__selectDrop">
               <option value="" disabled selected>選択してください</option>
               <option value="良好">良好</option>
               <option value="目立った傷や汚れなし">目立った傷や汚れなし</option>
@@ -63,19 +60,31 @@
               <option value="状態が悪い">状態が悪い</option>
             </select>
           </div>
+          @error('condition')
+            <p class="form__error">{{ $message }}</p>
+          @enderror
         </div>
         <h3 class="sell__SubTitle">商品名と説明</h3>
         <div class="sell__item">
           <label class="sell__itemTitle" for="name">商品名</label>
           <input type="text" name="name" class="sell__itemInput" id="name" value="{{ old('name') }}">
+          @error('name')
+            <p class="form__error">{{ $message }}</p>
+          @enderror
         </div>
         <div class="sell__item">
           <label class="sell__itemTitle">商品の説明</label>
           <textarea name="description" class="sell__itemArea" id="description">{{ old('description') }}</textarea>
+          @error('description')
+            <p class="form__error">{{ $message }}</p>
+          @enderror
         </div>
         <div class="sell__item">
           <label class="sell__itemTitle">販売価格</label>
-          <input type="text" name="price" class="sell__itemPrice" id="price" value="¥{{ old('price') }}" required>
+          <input type="text" name="price" class="sell__itemPrice" id="price" value="¥{{ old('price') }}">
+          @error('price')
+            <p class="form__error">{{ $message }}</p>
+          @enderror
         </div>
         <input class="formBtnRed" type="submit" value="出品する" />
     </form>
