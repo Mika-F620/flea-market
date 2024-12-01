@@ -11,10 +11,16 @@
           <div class="login__item">
             <label class="login__label" for="login_identifier">ユーザー名 / メールアドレス</label>
             <input class="login__input" type="text" name="login_identifier" id="login_identifier" value="{{ old('login_identifier') }}">
+            @error('login_identifier')
+              <p class="form__error">{{ $message }}</p>
+            @enderror
           </div>
           <div class="login__item">
             <label class="login__label" for="pass">パスワード</label>
             <input class="login__input" type="password" name="password" class="" id="pass">
+            @error('password')
+              <p class="form__error">{{ $message }}</p>
+            @enderror
           </div>
         </div>
         <div class="login__btn">
@@ -22,14 +28,5 @@
           <a href="{{ route('register') }}" class="formLink">会員登録はこちら</a>
         </div>
     </form>
-    @if($errors->any())
-  <div class="formErrors">
-    <ul>
-      @foreach ($errors->all() as $error)
-        <li class="formErrorItem">{{ $error }}</li>
-      @endforeach
-    </ul>
-  </div>
-@endif
   </section>
 @endsection

@@ -46,7 +46,7 @@ return [
 
     'attributes' => [
         'name' => 'お名前',
-        'email' => 'あメールアドレス',
+        'email' => 'メールアドレス',
         'login_identifier' => 'ユーザー名またはメールアドレス', // 追加
         'password' => 'パスワード',
         'password_confirmation' => '確認用パスワード',
