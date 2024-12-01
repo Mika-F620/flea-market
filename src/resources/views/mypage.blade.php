@@ -39,34 +39,38 @@
       </div>
     </div>
     <div class="mypage__contents wrapper">
-  @if ($page === 'sell')
-    @if ($products->isEmpty())
-      <p>出品した商品がありません。</p>
-    @else
-      @foreach ($products as $product)
-        <div class="mypage__item">
-          <a href="{{ route('item.show', ['id' => $product->id]) }}">
-            <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
-            <p class="mypage__itemName">{{ $product->name }}</p>
-          </a>
-        </div>
-      @endforeach
-    @endif
-  @elseif ($page === 'buy')
-    @if ($products->isEmpty())
-      <p>購入した商品がありません。</p>
-    @else
-      @foreach ($products as $product)
-        <div class="mypage__item">
-          <a href="{{ route('item.show', ['id' => $product->id]) }}">
-            <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
-            <p class="mypage__itemName">{{ $product->name }}</p>
-          </a>
-        </div>
-      @endforeach
-    @endif
-  @endif
-</div>
-
+      @if ($page === 'sell')
+        @if ($products->isEmpty())
+          <p>出品した商品がありません。</p>
+        @else
+          @foreach ($products as $product)
+            <div class="mypage__item">
+              <a href="{{ route('item.show', ['id' => $product->id]) }}" 
+                @if ($product->is_sold) style="pointer-events: none;" @endif>
+                <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                <p class="mypage__itemName">{{ $product->name }}</p>
+                @if ($product->is_sold) <!-- 購入済みの商品 -->
+                  <span class="sold-label">Sold</span>
+                @endif
+              </a>
+            </div>
+          @endforeach
+        @endif
+      @elseif ($page === 'buy')
+        @if ($products->isEmpty())
+          <p>購入した商品がありません。</p>
+        @else
+          @foreach ($products as $product)
+            <div class="mypage__item">
+              <a href="{{ route('item.show', ['id' => $product->id]) }}" style="pointer-events: none;">
+                <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                <p class="mypage__itemName">{{ $product->name }}</p>
+                <span class="sold-label">Sold</span> <!-- 購入済み商品には「Sold」を表示 -->
+              </a>
+            </div>
+          @endforeach
+        @endif
+      @endif
+    </div>
   </section>
 @endsection

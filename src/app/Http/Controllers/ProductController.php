@@ -144,11 +144,21 @@ class ProductController extends Controller
         // 出品商品か購入商品を取得
         if ($page === 'sell') {
             $products = Product::where('user_id', $user->id)->get();
+            // 出品した商品が購入されたかどうか確認
+            foreach ($products as $product) {
+                // 商品が購入されたかどうかを判定
+                $product->is_sold = Purchase::where('product_id', $product->id)->exists();
+            }
         } elseif ($page === 'buy') {
-            $products = $user->purchasedProducts()->latest()->get(); // 購入した商品
-        } else {
-            $products = collect(); // 空のコレクション
-        }
+            // $products = $user->purchasedProducts()->latest()->get(); // 購入した商品
+            // 購入済み商品を取得
+            $products = Purchase::where('user_id', $user->id)
+            ->with('product') // 購入商品情報を取得
+            ->get()
+            ->pluck('product'); // 購入商品データのみ抽出
+            } else {
+                $products = collect(); // 空のコレクション
+            }
 
         return view('mypage', compact('user', 'page', 'products'));
     }
