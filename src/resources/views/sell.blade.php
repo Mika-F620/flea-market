@@ -40,7 +40,8 @@
             @endphp
             @foreach ($categories as $index => $category)
               <li class="sell__tagItem" data-index="{{ $index }}">
-                <input type="checkbox" id="category_{{ $index }}" name="categories[]" value="{{ $category }}" hidden>
+                <input type="checkbox" id="category_{{ $index }}" name="categories[]" value="{{ $category }}" 
+                  @if(in_array($category, old('categories', []))) checked @endif hidden>
                 <label class="sell__tagItemLabel" for="category_{{ $index }}">{{ $category }}</label>
               </li>
             @endforeach
@@ -54,10 +55,10 @@
           <div class="sell__select">
             <select name="condition" id="condition" class="sell__selectDrop">
               <option value="" disabled selected>選択してください</option>
-              <option value="良好">良好</option>
-              <option value="目立った傷や汚れなし">目立った傷や汚れなし</option>
-              <option value="やや傷や汚れあり">やや傷や汚れあり</option>
-              <option value="状態が悪い">状態が悪い</option>
+              <option value="良好" @if(old('condition') == '良好') selected @endif>良好</option>
+              <option value="目立った傷や汚れなし" @if(old('condition') == '目立った傷や汚れなし') selected @endif>目立った傷や汚れなし</option>
+              <option value="やや傷や汚れあり" @if(old('condition') == 'やや傷や汚れあり') selected @endif>やや傷や汚れあり</option>
+              <option value="状態が悪い" @if(old('condition') == '状態が悪い') selected @endif>状態が悪い</option>
             </select>
           </div>
           @error('condition')
@@ -171,33 +172,46 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-      const form = document.querySelector('form'); // フォームを取得
+      const form = document.querySelector('form');
       const priceInput = document.getElementById('price');
 
       // フォーム送信時に¥を削除
-      form.addEventListener('submit', () => {
-        if (priceInput.value.startsWith('¥')) {
-            priceInput.value = priceInput.value.slice(1).trim(); // ¥を削除
+      form.addEventListener('submit', function(event) {
+        let price = priceInput.value;
+
+        // 価格の先頭の「¥」を削除
+        price = price.replace(/[^\d]/g, '');  // 数字以外の文字（¥記号含む）を削除
+
+        // 数値でない場合、エラーを表示
+        if (isNaN(price) || price === '') {
+          event.preventDefault();  // フォーム送信を停止
+          alert('販売価格は有効な整数で入力してください');
+          return;
         }
+
+        priceInput.value = price;  // 修正された価格をフォームに設定
+        console.log('送信する価格:', price);  // コンソールに送信される価格を表示
       });
 
       // フォーカス時に¥を削除
       priceInput.addEventListener('focus', () => {
-        if (priceInput.value.startsWith('¥')) {
-            priceInput.value = priceInput.value.slice(1).trim(); // ¥を削除
+        let price = priceInput.value;
+        if (price.startsWith('¥')) {
+          priceInput.value = price.slice(1).trim();  // ¥を削除
         }
       });
 
       // フォーカスアウト時に¥を追加
       priceInput.addEventListener('blur', () => {
-        if (priceInput.value && !priceInput.value.startsWith('¥')) {
-            priceInput.value = '¥' + priceInput.value.trim();
+        let price = priceInput.value;
+        if (price && !price.startsWith('¥')) {
+          priceInput.value = '¥' + price.trim();  // ¥を追加
         }
       });
 
       // 入力中の動作を制御（数値のみ入力を許可）
       priceInput.addEventListener('input', () => {
-        priceInput.value = priceInput.value.replace(/[^\d]/g, ''); // 数値以外を削除
+        priceInput.value = priceInput.value.replace(/[^\d]/g, '');  // 数字以外を削除
       });
     });
   </script>

@@ -29,7 +29,8 @@ class SellRequest extends FormRequest
             'condition' => 'required|string', // 商品の状態
             'name' => 'required|string|max:255', // 商品名
             'description' => 'required|string', // 商品説明
-            'price' => 'required|integer|min:1', // 価格は1円以上
+            // 'price' => 'required|integer|min:1', // 価格は1円以上
+            'price' => 'required|min:1',
         ];
     }
 
