@@ -35,11 +35,13 @@
           </div>
           <div class="purchase__pay">
             <label class="purchase__payTitle">支払い方法</label>
-            <select name="payment_method" id="payment-method-select">
-              <option value="" disabled selected>選択してください</option>
-              <option value="コンビニ払い">コンビニ払い</option>
-              <option value="カード払い">カード払い</option>
-            </select>
+            <div class="purchase__select">
+              <select class="purchase__selectDrop" name="payment_method" id="payment-method-select">
+                <option value="" disabled selected>選択してください</option>
+                <option value="コンビニ払い">コンビニ払い</option>
+                <option value="カード払い">カード払い</option>
+              </select>
+            </div>
             @error('payment_method')
               <p class="form__error">{{ $message }}</p>
             @enderror
