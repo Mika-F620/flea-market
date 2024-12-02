@@ -47,14 +47,16 @@
       <a href="{{ route('purchase.show', ['id' => $product->id]) }}" class="formBtnRed">購入手続きへ</a>
       <div class="item__explanation">
         <h3 class="item__title">商品説明</h3>
-        <p>{{ $product->description }}</p>
+        <p class="item__description">{{ $product->description }}</p>
       </div>
       <div class="item__info">
         <h3 class="item__title">商品の情報</h3>
         <div class="item__list">
           <h4 class="item__listName">カテゴリー</h4>
           <ul class="item__listTag">
-            <li class="item__listTagItem">{{ implode(', ', json_decode($product->categories, true)) }}</li>
+            @foreach (json_decode($product->categories, true) as $category)
+              <li class="item__listTagItem">{{ $category }}</li>
+            @endforeach
           </ul>
         </div>
         <div class="item__list">
@@ -63,13 +65,13 @@
         </div>
       </div>
       <div class="item__comment">
-        <p class="item__commentNum">コメント(<span id="comment-count">{{ $product->comments->count() }}</span>)</p>
+        <p class="item__commentNumText">コメント(<span id="comment-count">{{ $product->comments->count() }}</span>)</p>
         <div class="item__commentUser">
           @if (Auth::check())
             <img class="item__commentUserImg" src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('img/dammy2.png') }}" alt="画像">
             <p class="item__commentUserName">{{ $user->name }}</p>
           @else
-            <p>未登録のユーザーです。</p>
+            <p class="item__unknow">未登録のユーザーです。</p>
           @endif
         </div>
         <ul class="item__commentList" id="comment-list">
@@ -81,7 +83,7 @@
           <h4 class="item__listName">商品へのコメント</h4>
           <form action="{{ route('comments.store') }}" method="POST">
             @csrf
-              <textarea name="content" rows="3" placeholder="コメントを入力してください">{{ old('content') }}</textarea>
+              <textarea class="item__formArea" name="content" rows="3" placeholder="コメントを入力してください">{{ old('content') }}</textarea>
             
               <!-- バリデーションエラーの表示 -->
               @error('content')
@@ -90,7 +92,7 @@
               <button class="formBtnRed" id="submit-comment">コメントを送信する</button>
           </form>
         @else
-          <p>コメントを投稿するにはログインしてください。</p>
+          <p class="item__unknow">コメントを投稿するには<a href="{{ route('login') }}">ログイン</a>してください。</p>
         @endauth
       </div>
     </div>
@@ -141,14 +143,16 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const submitButton = document.querySelector('#submit-comment');
-      const commentContent = document.querySelector('#comment-content');
-      const commentList = document.querySelector('#comment-list');
-      const commentCount = document.querySelector('#comment-count'); // 詳細エリアのコメント数
-      const commentCountBubble = document.querySelector('#comment-count-bubble'); // バブルエリアのコメント数
-      const productId = {{ $product->id }};
+      const commentContent = document.querySelector('textarea[name="content"]'); // コメントのテキストエリア
+      const commentList = document.querySelector('#comment-list'); // コメントリストの要素
+      const commentCount = document.querySelector('#comment-count'); // コメント数の表示要素
+      const commentCountBubble = document.querySelector('#comment-count-bubble'); // バブルのコメント数表示
+      const productId = {{ $product->id }}; // 商品ID
 
       if (submitButton) {
-        submitButton.addEventListener('click', async () => {
+        submitButton.addEventListener('click', async (event) => {
+          event.preventDefault(); // デフォルトのフォーム送信を防止
+
           const content = commentContent.value.trim();
 
           if (content === '') {
