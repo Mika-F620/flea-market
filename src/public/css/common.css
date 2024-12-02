@@ -33,7 +33,7 @@ body {
   padding: 15px 1.7195767195767195vw;
   margin: 0 auto;
   display: flex;
-  gap: min(6.349206349206349vw, 96px);
+  gap: min(6.349206349206349vw, 40px);
   justify-content: space-between;
   align-items: center;
 }
@@ -102,7 +102,7 @@ body {
 .header__btn {
   display: flex;
   /* gap: 21px; */
-  gap: 1.3888888888888888vw;
+  gap: min(1.3888888888888888vw, 21px);
   align-items: center;
 }
 
@@ -112,6 +112,7 @@ body {
   color: #fff;
   text-decoration: none;
   font-size: min(1.5873015873015872vw, 2.4rem);
+  transition: all .3s;
 }
 
 @media screen and (max-width: 768px) {
@@ -124,12 +125,17 @@ body {
   .header__loginBtn {
     font-size: 3.3333333333333335vw;
   }
+}
+
+.header__loginBtn:hover {
+  opacity: 0.8;
 }
 
 .header__myLink {
   color: #fff;
   text-decoration: none;
   font-size: min(1.5873015873015872vw, 2.4rem);
+  transition: all .3s;
 }
 
 @media screen and (max-width: 768px) {
@@ -142,6 +148,10 @@ body {
   .header__myLink {
     font-size: 3.3333333333333335vw;
   }
+}
+
+.header__myLink:hover {
+  opacity: 0.8;
 }
 
 .header__sellLink {
@@ -151,6 +161,8 @@ body {
   border-radius: 4px;
   font-size: min(1.5873015873015872vw, 2.4rem);
   text-decoration: none;
+  transition: all .3s;
+  border: 1px solid #000;
 }
 
 @media screen and (max-width: 768px) {
@@ -163,6 +175,12 @@ body {
   .header__sellLink {
     font-size: 3.3333333333333335vw;
   }
+}
+
+.header__sellLink:hover {
+  background-color: #000;
+  color: #fff;
+  border: 1px solid #fff;
 }
 
 .sectionTitle {
