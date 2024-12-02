@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Http\Requests\AddressRequest;
 use Illuminate\Support\Facades\Auth;
 
 class AddressController extends Controller
@@ -16,7 +17,7 @@ class AddressController extends Controller
         return view('address', compact('user', 'product'));
     }
 
-    public function update(Request $request, $id)
+    public function update(AddressRequest $request, $id)
     {
         $user = Auth::user();
 

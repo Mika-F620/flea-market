@@ -6,6 +6,10 @@
   align-items: flex-start;
 }
 
+.item__img {
+  width: 50%;
+}
+
 .item__name {
   font-size: 4.5rem;
   font-weight: bold;
