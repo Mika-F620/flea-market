@@ -30,12 +30,19 @@ body {
 
 .header__contents {
   max-width: 1512px;
-  padding: 15px 40px;
+  padding: 15px 1.7195767195767195vw;
   margin: 0 auto;
   display: flex;
-  gap: 96px;
+  gap: min(6.349206349206349vw, 96px);
   justify-content: space-between;
   align-items: center;
+}
+
+@media screen and (max-width: 768px) {
+  .header__contents {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
 
 .header__title {
@@ -43,33 +50,119 @@ body {
 }
 
 .header__logo {
-  width: 100%;
+  width: 24.47089947089947vw;
+  max-width: 370px;
 }
 
 .header__search {
   max-width: 500px;
-  width: 100%;
+  width: 33.06878306878307vw;
   padding: 10px;
-  font-size: 2.4rem;
+  font-size: min(1.5873015873015872vw, 2.4rem);
+}
+
+@media screen and (max-width: 768px) {
+  .header__search {
+    max-width: none;
+    width: 100%;
+    font-size: 2rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header__search {
+    font-size: 1.6rem;
+  }
+}
+
+.header__searchPC {
+  display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .header__searchPC {
+    display: none;
+  }
+}
+
+.header__searchSP {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .header__searchSP {
+    display: block;
+  }
+}
+
+.header__btnItem {
+  margin: 0;
 }
 
 .header__btn {
   display: flex;
-  gap: 24px;
+  /* gap: 21px; */
+  gap: 1.3888888888888888vw;
   align-items: center;
 }
 
-.header__btnItem {
+.header__loginBtn {
+  border: none;
+  background-color: unset;
   color: #fff;
-  font-size: 2.4rem;
-  margin: 0;
+  text-decoration: none;
+  font-size: min(1.5873015873015872vw, 2.4rem);
 }
 
-.header__btnItem:last-child {
+@media screen and (max-width: 768px) {
+  .header__loginBtn {
+    font-size: 1.8rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header__loginBtn {
+    font-size: 3.3333333333333335vw;
+  }
+}
+
+.header__myLink {
+  color: #fff;
+  text-decoration: none;
+  font-size: min(1.5873015873015872vw, 2.4rem);
+}
+
+@media screen and (max-width: 768px) {
+  .header__myLink {
+    font-size: 1.8rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header__myLink {
+    font-size: 3.3333333333333335vw;
+  }
+}
+
+.header__sellLink {
   background-color: #fff;
   color: #000;
   padding: 8px 16px;
   border-radius: 4px;
+  font-size: min(1.5873015873015872vw, 2.4rem);
+  text-decoration: none;
+}
+
+@media screen and (max-width: 768px) {
+  .header__sellLink {
+    font-size: 1.8rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header__sellLink {
+    font-size: 3.3333333333333335vw;
+  }
 }
 
 .sectionTitle {

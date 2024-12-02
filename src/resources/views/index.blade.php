@@ -3,17 +3,21 @@
   <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 @endsection
 @section('btn')
-  <input type="text" class="header__search" placeholder="なにをお探しですか？">
+  <input type="text" class="header__search header__searchPC" placeholder="なにをお探しですか？">
   <div class="header__btn">
     @if (Auth::check())
       <form class="header__loginLink" action="/logout" method="post">
         @csrf
         <button class="header__loginBtn">ログアウト</button>
       </form>
+    @else
+      <!-- ログインしていない場合、ログインボタンを表示 -->
+      <p class="header__btnItem"><a href="{{ route('login') }}" class="header__loginBtn">ログイン</a></p>
     @endif
-    <p class="header__btnItem"><a href="{{ route('mypage') }}" class="">マイページ</a></p>
-    <p class="header__btnItem">出品</p>
+    <p class="header__btnItem"><a href="{{ route('mypage') }}" class="header__myLink">マイページ</a></p>
+    <p class="header__btnItem"><a href="{{ route('sell.index') }}" class="header__sellLink">出品</a></p>
   </div>
+  <input type="text" class="header__search header__searchSP" placeholder="なにをお探しですか？">
 @endsection
 @section('content')
   <section class="top">
