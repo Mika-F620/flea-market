@@ -7,12 +7,29 @@
 .mypage__tab {
   display: flex;
   gap: 48px;
-  padding: 0;
   padding: 0 69px;
+}
+
+@media screen and (max-width: 480px) {
+  .mypage__tab  {
+    padding: 0 16px;
+  }
 }
 
 .mypage__tabList {
   font-size: 2.4rem;
+}
+
+@media screen and (max-width: 768px) {
+  .mypage__tabList  {
+    font-size: 3.125vw;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .mypage__tabList  {
+    font-size: 2rem;
+  }
 }
 
 .maypage__info {
@@ -24,9 +41,22 @@
   padding: 78px 69px;
 }
 
+@media screen and (max-width: 768px) {
+  .maypage__info  {
+    flex-direction: column;
+    gap: 40px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .maypage__info  {
+    padding: 68px 16px;
+  }
+}
+
 .mypage__infoUser {
   display: flex;
-  gap: 57px;
+  gap: min(3.7698412698412698vw, 57px);
   align-items: center;
 }
 
@@ -40,6 +70,12 @@
   font-weight: bold;
 }
 
+@media screen and (max-width: 480px) {
+  .mypage__infoName  {
+    font-size: 2.8rem;
+  }
+}
+
 .mypage__infoBtn {
   border: 2px solid #ff5555;
   color: #ff5555;
@@ -48,25 +84,80 @@
   font-weight: bold;
   padding: 14px 32px;
   background-color: #fff;
+  text-decoration: none;
+}
+
+@media screen and (max-width: 480px) {
+  .mypage__infoBtn  {
+    font-size: 5.416666666666667vw;
+    width: 100%;
+    text-align: center;
+  }
 }
 
 .mypage__contents {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 72px;
+}
+
+.mypage__tabListLink {
+  text-decoration: none;
+  color: #000;
+}
+
+@media screen and (max-width: 480px) {
+  .mypage__tabListLink  {
+    font-size: 4.166666666666666vw;
+  }
 }
 
 .mypage__item {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+}
+
+.sold__itemMask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+}
+
+.mypage__itemLink {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all .3s;
+}
+
+.mypage__itemLink:hover {
+  opacity: 0.8;
+}
+
+.sold-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 2.4rem;
+  font-weight: bold;
 }
 
 .mypage__itemImg {
   width: 100%;
+  height: 170px;
+  object-fit: cover;
 }
 
 .mypage__itemName {
   font-size: 2.4rem;
   margin: 0;
+  color: #000;
 }

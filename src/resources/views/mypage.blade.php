@@ -31,12 +31,12 @@
     <div class="mypage__select">
       <div class="mypage__tab wrapper">
         <p class="mypage__tabList">
-          <a href="{{ route('mypage', ['page' => 'sell']) }}" class="{{ $page === 'sell' ? 'active' : '' }}">
+          <a href="{{ route('mypage', ['page' => 'sell']) }}" class="mypage__tabListLink {{ $page === 'sell' ? 'active' : '' }}">
             出品した商品
           </a>
         </p>
         <p class="mypage__tabList">
-          <a href="{{ route('mypage', ['page' => 'buy']) }}" class="{{ $page === 'buy' ? 'active' : '' }}">
+          <a href="{{ route('mypage', ['page' => 'buy']) }}" class="mypage__tabListLink {{ $page === 'buy' ? 'active' : '' }}">
             購入した商品
           </a>
         </p>
@@ -49,11 +49,12 @@
         @else
           @foreach ($products as $product)
             <div class="mypage__item">
-              <a href="{{ route('item.show', ['id' => $product->id]) }}" 
+              <a class="mypage__itemLink" href="{{ route('item.show', ['id' => $product->id]) }}" 
                 @if ($product->is_sold) style="pointer-events: none;" @endif>
                 <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
                 <p class="mypage__itemName">{{ $product->name }}</p>
                 @if ($product->is_sold) <!-- 購入済みの商品 -->
+                  <div class="sold__itemMask"></div>
                   <span class="sold-label">Sold</span>
                 @endif
               </a>
@@ -66,9 +67,10 @@
         @else
           @foreach ($products as $product)
             <div class="mypage__item">
-              <a href="{{ route('item.show', ['id' => $product->id]) }}" style="pointer-events: none;">
+              <a class="mypage__itemLink" href="{{ route('item.show', ['id' => $product->id]) }}" style="pointer-events: none;">
                 <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
                 <p class="mypage__itemName">{{ $product->name }}</p>
+                <div class="sold__itemMask"></div>
                 <span class="sold-label">Sold</span> <!-- 購入済み商品には「Sold」を表示 -->
               </a>
             </div>

@@ -33,7 +33,7 @@ body {
   padding: 15px 1.7195767195767195vw;
   margin: 0 auto;
   display: flex;
-  gap: min(6.349206349206349vw, 40px);
+  gap: min(6.349206349206349vw, 20px);
   justify-content: space-between;
   align-items: center;
 }
