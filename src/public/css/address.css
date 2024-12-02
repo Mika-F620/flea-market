@@ -10,6 +10,12 @@
   gap: 90px;
 }
 
+@media screen and (max-width: 768px) {
+  .address__form {
+    gap: 64px;
+  }
+}
+
 .address__item {
   display: flex;
   flex-direction: column;
@@ -19,6 +25,12 @@
 .address__label {
   font-size: 2.4rem;
   font-weight: bold;
+}
+
+@media screen and (max-width: 480px) {
+  .address__label {
+    font-size: 1.8rem;
+  }
 }
 
 .address__input {
