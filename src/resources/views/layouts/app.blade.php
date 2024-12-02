@@ -16,7 +16,9 @@
   <header class="header">
     <div class="header__contents">
       <h1 class="header__title">
-        <img class="header__logo" src="{{ asset('img/logo.svg') }}" alt="COACHTECH">
+        <a href="{{ url('/') }}">
+          <img class="header__logo" src="{{ asset('img/logo.svg') }}" alt="COACHTECH">
+        </a>
       </h1>
       @yield('btn')
     </div>

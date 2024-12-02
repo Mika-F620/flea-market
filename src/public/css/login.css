@@ -24,9 +24,21 @@
   font-weight: bold;
 }
 
+@media screen and (max-width: 480px) {
+  .login__label {
+    font-size: 1.8rem;
+  }
+}
+
 .login__input {
   height: 59px;
   font-size: 2.4rem;
+}
+
+@media screen and (max-width: 480px) {
+  .login__input {
+    font-size: 1.8rem;
+  }
 }
 
 .login__btn {
