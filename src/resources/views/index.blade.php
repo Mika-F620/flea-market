@@ -36,18 +36,17 @@
       @forelse ($products as $product)
         @if ($product->is_sold) <!-- 購入済みの商品 -->
           <div class="top__item">
+            <div class="top__itemMask"></div>
             <img class="top__itemImg" src="{{ $product->image ? asset('storage/' . $product->image) : asset('img/dammy.png') }}" alt="{{ $product->name }}">
             <p class="top__itemName">{{ $product->name }} <span class="solid-label">Sold</span></p>
-            <p class="top__itemPrice">¥{{ number_format($product->price) }}</p>
           </div>
         @else <!-- 購入されていない商品 -->
-          <a href="{{ route('products.show', $product->id) }}" class="top__item">
-            <div class="top__item">
+          <div class="top__item">
+            <a class="top__itemLink" href="{{ route('products.show', $product->id) }}" class="top__item">
               <img class="top__itemImg" src="{{ $product->image ? asset('storage/' . $product->image) : asset('img/dammy.png') }}" alt="{{ $product->name }}">
               <p class="top__itemName">{{ $product->name }}</p>
-              <p class="top__itemPrice">¥{{ number_format($product->price) }}</p>
-            </div>
-          </a>
+            </a>
+          </div>
         @endif
         @empty
           <p>商品が見つかりません。</p>

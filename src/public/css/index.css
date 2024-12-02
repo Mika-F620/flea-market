@@ -7,17 +7,30 @@
 .top__tab {
   display: flex;
   gap: 48px;
-  padding: 0;
-  padding: 0 69px;
+  padding: 47px 69px 8px;
+}
+
+@media screen and (max-width: 480px) {
+  .top__tab {
+    padding: 47px 16px 8px;
+  }
 }
 
 .top__tabList {
   font-size: 2.4rem;
+  text-decoration: none;
+  color: #000;
+}
+
+@media screen and (max-width: 480px) {
+  .top__tabList {
+    font-size: 2rem;
+  }
 }
 
 .top__contents {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 72px;
 }
 
@@ -25,13 +38,48 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
 }
+
+.top__itemMask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+}
+
+.top__itemLink {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all .3s;
+}
+
+.top__itemLink:hover {
+  opacity: 0.8;
+} 
 
 .top__itemImg {
   width: 100%;
+  height: 170px;
+  object-fit: cover;
 }
 
 .top__itemName {
   font-size: 2.4rem;
   margin: 0;
+  color: #000;
+}
+
+.solid-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 2.4rem;
+  font-weight: bold;
 }
