@@ -28,6 +28,13 @@
   }
 }
 
+.top__result {
+  max-width: 1374px;
+  margin: 0 auto;
+  padding: 69px 69px 0;
+  width: 100%;
+}
+
 .top__contents {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

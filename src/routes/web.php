@@ -22,7 +22,7 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 |
 */
 
-Route::get('/', [ProductController::class, 'index'])->name('index');
+Route::get('/', [ProductController::class, 'index'])->name('products.index');
 
 // Route::get('/mypage', function (Illuminate\Http\Request $request) {
 //     $user = Auth::user();
@@ -96,7 +96,7 @@ Route::delete('/like/{product}', [LikeController::class, 'destroy'])->middleware
 Route::post('/like/toggle/{productId}', [LikeController::class, 'toggleLike'])->name('like.toggle');
 
 // トップページのルート設定
-Route::get('/', [ProductController::class, 'index'])->name('home');
+// Route::get('/', [ProductController::class, 'index'])->name('home');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');

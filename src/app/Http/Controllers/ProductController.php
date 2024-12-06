@@ -22,16 +22,6 @@ class ProductController extends Controller
             'price' => str_replace('¥', '', $request->input('price')) // ¥をサーバー側でも削除
         ]);
 
-        // $request->validate([
-        //     'image' => ['nullable', 'image', 'max:2048'], // 画像は任意
-        //     'categories' => ['required', 'array'], // カテゴリーは配列で必須
-        //     'categories.*' => ['string', 'max:255'], // 配列内の要素を文字列としてバリデーション
-        //     'condition' => ['required', 'string', 'max:255'], // 商品の状態
-        //     'name' => ['required', 'string', 'max:255'],
-        //     'description' => ['required', 'string'],
-        //     'price' => ['required', 'integer', 'min:1'],
-        // ]);
-
         // 画像を保存
         $imagePath = $request->hasFile('image') 
             ? $request->file('image')->store('product_images', 'public') 
@@ -57,46 +47,49 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // クエリパラメータでページ種別を取得、デフォルトは 'recommend'
-        $page = $request->query('page', 'recommend'); 
-        $user = Auth::user(); // ログインユーザーの取得
-        $products = collect(); // 空のコレクションを初期化
+        $page = $request->query('page', 'recommend');
+        $user = Auth::user();
+        $searchQuery = $request->query('search', '');
+
+        // // 商品リストを初期化
+        // $productsQuery = Product::query();
 
         if ($page === 'mylist') {
-            // マイリスト表示の場合
-            if ($user) {
-                // ユーザーのお気に入り商品を取得
-                $products = Like::where('user_id', $user->id)
-                    ->with('product.user') // 商品とその投稿者情報を取得
-                    ->get()
-                    ->pluck('product'); // 商品データのみ抽出
-            } else {
-                // ログインしていない場合、ログイン画面にリダイレクト
-                return redirect()->route('login')->with('error', 'マイリストを表示するにはログインが必要です。');
+
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'ログインが必要です。');
             }
+            
+
+            // ユーザーがいいねした商品の中で検索クエリが一致するものを取得
+            $products = $user->likes()
+                ->whereHas('product', function ($query) use ($searchQuery) {
+                    if (!empty($searchQuery)) {
+                        $query->where('name', 'LIKE', '%' . $searchQuery . '%');
+                    }
+                })
+                ->with('product')
+                ->get()
+                ->pluck('product');
         } else {
-            // デフォルト (recommend) は全商品の中から最新20件を取得
-            // $products = Product::with('user')->latest()->take(20)->get();
-
-            // デフォルト (recommend) の場合
-            $query = Product::with('user')->latest();
-
-            if ($user) {
-                // 自分が出品した商品を除外
-                $query->where('user_id', '!=', $user->id);
-            }
-
-            // 最新20件を取得
-            $products = $query->take(20)->get();
+            // 全商品の中で検索クエリが一致するものを取得
+            $products = Product::query()
+                ->when(!empty($searchQuery), function ($query) use ($searchQuery) {
+                    $query->where('name', 'LIKE', '%' . $searchQuery . '%');
+                })
+                ->when($user, function ($query) use ($user) {
+                    $query->where('user_id', '!=', $user->id); // ログインユーザーの出品商品を除外
+                })
+                ->latest()
+                ->get();
         }
 
-        // 商品が購入済みかどうかを判定して、それをビューに渡す
+        // 購入済みフラグを設定
         foreach ($products as $product) {
             $product->is_sold = Purchase::where('product_id', $product->id)->exists();
         }
 
-        // 適切なビューを返す
-        return view('index', compact('products', 'page'));
+        return view('index', compact('products', 'page', 'searchQuery'));
     }
 
     public function show($id)
