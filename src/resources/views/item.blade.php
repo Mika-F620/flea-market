@@ -3,7 +3,17 @@
   <link rel="stylesheet" href="{{ asset('css/item.css') }}">
 @endsection
 @section('btn')
-  <input type="text" class="header__search header__searchPC" placeholder="なにをお探しですか？">
+  <form method="GET" action="{{ route('products.index') }}" class="header__search header__searchPC">
+    <input type="hidden" name="page" value="{{ $page }}">
+    <input 
+      type="text" 
+      name="search" 
+      class="header__search header__searchPC" 
+      placeholder="なにをお探しですか？" 
+      value="{{ $searchQuery ?? '' }}" 
+    />
+    <button type="submit" style="display: none;"></button>
+  </form>
   <div class="header__btn">
     @if (Auth::check())
       <form class="header__loginLink" action="/logout" method="post">
@@ -17,7 +27,17 @@
     <p class="header__btnItem"><a href="{{ route('mypage') }}" class="header__myLink">マイページ</a></p>
     <p class="header__btnItem"><a href="{{ route('sell.index') }}" class="header__sellLink">出品</a></p>
   </div>
-  <input type="text" class="header__search header__searchSP" placeholder="なにをお探しですか？">
+  <form method="GET" action="{{ route('products.index') }}" class="header__search header__searchSP">
+    <input type="hidden" name="page" value="{{ $page }}">
+    <input 
+      type="text" 
+      name="search" 
+      class="header__search header__searchSP" 
+      placeholder="なにをお探しですか？" 
+      value="{{ $searchQuery ?? '' }}" 
+    />
+    <button type="submit" style="display: none;"></button>
+  </form>
 @endsection
 @section('content')
   <section class="item wrapper">

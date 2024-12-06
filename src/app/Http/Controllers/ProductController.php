@@ -106,7 +106,13 @@ class ProductController extends Controller
         // コメントの取得（関連モデルを使用）
         $comments = $product->comments()->with('user')->get();
 
-        return view('item', compact('product', 'isLiked', 'likeCount', 'comments', 'user'));
+        // `page` のデフォルト値を設定
+        $page = 'recommend';
+
+        // 検索クエリをデフォルト値として渡す
+        $searchQuery = request()->query('search', '');
+
+        return view('item', compact('product', 'isLiked', 'likeCount', 'comments', 'user', 'page', 'searchQuery'));
     }
 
     public function purchase(Request $request)

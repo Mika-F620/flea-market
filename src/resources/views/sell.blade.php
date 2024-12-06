@@ -3,7 +3,17 @@
   <link rel="stylesheet" href="{{ asset('css/sell.css') }}">
 @endsection
 @section('btn')
-  <input type="text" class="header__search header__searchPC" placeholder="なにをお探しですか？">
+  <form method="GET" action="{{ route('products.index') }}" class="header__search header__searchPC">
+    <input type="hidden" name="page" value="{{ $page ?? 'default' }}">
+    <input 
+      type="text" 
+      name="search" 
+      class="header__search header__searchPC" 
+      placeholder="なにをお探しですか？" 
+      value="{{ $searchQuery ?? '' }}" 
+    />
+    <button type="submit" style="display: none;"></button>
+  </form>
   <div class="header__btn">
     @if (Auth::check())
       <form class="header__loginLink" action="/logout" method="post">
@@ -17,7 +27,17 @@
     <p class="header__btnItem"><a href="{{ route('mypage') }}" class="header__myLink">マイページ</a></p>
     <p class="header__btnItem"><a href="{{ route('sell.index') }}" class="header__sellLink">出品</a></p>
   </div>
-  <input type="text" class="header__search header__searchSP" placeholder="なにをお探しですか？">
+  <form method="GET" action="{{ route('products.index') }}" class="header__search header__searchSP">
+    <input type="hidden" name="page" value="{{ $page ?? 'default' }}">
+    <input 
+      type="text" 
+      name="search" 
+      class="header__search header__searchSP" 
+      placeholder="なにをお探しですか？" 
+      value="{{ $searchQuery ?? '' }}" 
+    />
+    <button type="submit" style="display: none;"></button>
+  </form>
 @endsection
 @section('content')
   <section class="sell wrapper">
@@ -186,12 +206,12 @@
         // 価格の先頭の「¥」を削除
         price = price.replace(/[^\d]/g, '');  // 数字以外の文字（¥記号含む）を削除
 
-        // 数値でない場合、エラーを表示
-        if (isNaN(price) || price === '') {
-          event.preventDefault();  // フォーム送信を停止
-          alert('販売価格は有効な整数で入力してください');
-          return;
-        }
+        // // 数値でない場合、エラーを表示
+        // if (isNaN(price) || price === '') {
+        //   event.preventDefault();  // フォーム送信を停止
+        //   alert('販売価格は有効な整数で入力してください');
+        //   return;
+        // }
 
         priceInput.value = price;  // 修正された価格をフォームに設定
         console.log('送信する価格:', price);  // コンソールに送信される価格を表示

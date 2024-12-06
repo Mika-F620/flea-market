@@ -36,14 +36,14 @@ class AddressController extends Controller
             ],
         ]);
 
-        // $user->update([
-        //     'postal_code' => $request->input('postal_code'),
-        //     'address' => $request->input('address'),
-        //     'building_name' => $request->input('building_name'),
-        // ]);
-
         // 購入画面にリダイレクト
         return redirect()->route('purchase.show', ['id' => $id])->with('success', '配送先を更新しました！');
+    }
+
+    public function index(Request $request)
+    {
+        $page = $request->query('page', 'default'); // 'default' はデフォルト値です
+        return view('address', compact('page'));
     }
 
 }
