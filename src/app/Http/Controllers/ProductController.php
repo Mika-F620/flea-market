@@ -76,7 +76,18 @@ class ProductController extends Controller
             }
         } else {
             // デフォルト (recommend) は全商品の中から最新20件を取得
-            $products = Product::with('user')->latest()->take(20)->get();
+            // $products = Product::with('user')->latest()->take(20)->get();
+
+            // デフォルト (recommend) の場合
+            $query = Product::with('user')->latest();
+
+            if ($user) {
+                // 自分が出品した商品を除外
+                $query->where('user_id', '!=', $user->id);
+            }
+
+            // 最新20件を取得
+            $products = $query->take(20)->get();
         }
 
         // 商品が購入済みかどうかを判定して、それをビューに渡す
