@@ -28,6 +28,10 @@
   }
 }
 
+.top__tabList.active {
+  color: #ff0000;
+}
+
 .top__result {
   max-width: 1374px;
   margin: 0 auto;

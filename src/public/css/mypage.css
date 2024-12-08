@@ -112,6 +112,10 @@
   }
 }
 
+.mypage__tabListLink.active {
+  color: #ff0000;
+}
+
 .mypage__item {
   display: flex;
   flex-direction: column;
