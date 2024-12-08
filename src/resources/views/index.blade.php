@@ -43,9 +43,9 @@
   <section class="top">
     <div class="top__select">
       <div class="top__tab wrapper">
-        <a href="{{ url('/') }}" class="top__tabList {{ $page === 'recommend' ? 'active' : '' }}">おすすめ</a>
+        <a href="{{ url('/?page=recommend&search=' . urlencode($searchQuery ?? '')) }}" class="top__tabList {{ $page === 'recommend' ? 'active' : '' }}">おすすめ</a>
         @if (Auth::check()) <!-- ログインしている場合のみ表示 -->
-          <a href="{{ url('/?page=mylist') }}" class="top__tabList {{ $page === 'mylist' ? 'active' : '' }}">マイリスト</a>
+          <a href="{{ url('/?page=mylist&search=' . urlencode($searchQuery ?? '')) }}" class="top__tabList {{ $page === 'mylist' ? 'active' : '' }}">マイリスト</a>
         @else
           <!-- ログインしていない場合はリンクを表示しない -->
           <span class="top__tabList disabled" data-disabled="true">マイリスト</span>
