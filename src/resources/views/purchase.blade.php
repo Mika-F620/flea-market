@@ -41,7 +41,7 @@
 @endsection
 @section('content')
   <section class="purchase wrapper">
-    <form class="purchase__form" action="{{ route('purchase.store') }}" method="POST">
+    <form class="purchase__form" action="{{ route('payment.store') }}" method="POST">
       @csrf
         <!-- 商品IDを隠しフィールドで送信 -->
         <input type="hidden" name="product_id" value="{{ $product->id ?? '' }}">
@@ -78,9 +78,9 @@
             </p>
 
             <!-- 隠しフィールドで住所情報を送信 -->
-            <input type="hidden" name="postal_code" value="{{ $user->postal_code }}">
-            <input type="hidden" name="address" value="{{ $user->address }}">
-            <input type="hidden" name="building_name" value="{{ $user->building_name }}">
+            <input type="hidden" name="postal_code" value="{{ $tempAddress['postal_code'] ?? $user->postal_code }}">
+            <input type="hidden" name="address" value="{{ $tempAddress['address'] ?? $user->address }}">
+            <input type="hidden" name="building_name" value="{{ $tempAddress['building_name'] ?? $user->building_name }}">
           </div>
         </div>
         <div class="purchase__right">

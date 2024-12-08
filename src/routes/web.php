@@ -9,6 +9,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\StripePaymentsController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 /*
@@ -80,9 +81,9 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/item/{id}', [ProductController::class, 'show'])->name('item.show');
 
-Route::get('/purchase/{id}', [PurchaseController::class, 'show'])
-    ->name('purchase.show')
-    ->middleware('auth'); // 認証を強制する
+// Route::get('/purchase/{id}', [PurchaseController::class, 'show'])
+//     ->name('purchase.show')
+//     ->middleware('auth'); // 認証を強制する
 Route::post('/purchase', [PurchaseController::class, 'store'])->name('purchase.store');
 
 Route::get('/purchase/address/{id}', [AddressController::class, 'edit'])->name('purchase.address.edit');
@@ -98,8 +99,25 @@ Route::post('/like/toggle/{productId}', [LikeController::class, 'toggleLike'])->
 // トップページのルート設定
 // Route::get('/', [ProductController::class, 'index'])->name('home');
 
+// Route::get('/purchase/show/{id}', [PurchaseController::class, 'show'])->name('purchase.show')->middleware('auth');
+// Route::get('/purchase/{id}', [StripePaymentsController::class, 'purchase'])->name('purchase.index');
+
+
 Route::middleware(['auth'])->group(function () {
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 });
 
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+
+
+// 商品購入ページ（商品情報を表示するページ）
+Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show'); 
+
+// Stripe決済ページ（決済処理）
+Route::post('/payment', [PurchaseController::class, 'payment'])->name('payment.store');
+
+// 決済成功後に表示するサンクスページ（completeページ）
+Route::get('/payment/success', [PurchaseController::class, 'success'])->name('payment.success');
+
+// 完了ページ
+Route::get('/complete', [PurchaseController::class, 'complete'])->name('complete');

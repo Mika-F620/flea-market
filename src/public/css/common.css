@@ -113,6 +113,7 @@ body {
   text-decoration: none;
   font-size: min(1.5873015873015872vw, 2.4rem);
   transition: all .3s;
+  cursor: pointer;
 }
 
 @media screen and (max-width: 768px) {
