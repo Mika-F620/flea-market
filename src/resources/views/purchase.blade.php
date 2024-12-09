@@ -47,7 +47,7 @@
         <input type="hidden" name="product_id" value="{{ $product->id ?? '' }}">
         <div class="purchase__left">
           <div class="purchase__product">
-            <img class="purchase__productImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+            <img class="purchase__productImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
             <div class="purchase__productInfo">
               <h2 class="product__productName">{{ $product->name }}</h2>
               <p class="product__productPrice">¥<span class="product__productPrice--big">{{ number_format($product->price) }}</span></p>

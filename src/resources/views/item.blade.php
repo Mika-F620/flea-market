@@ -41,7 +41,7 @@
 @endsection
 @section('content')
   <section class="item wrapper">
-    <img class="item__img" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+    <img class="item__img" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
     <div class="item__details">
       <h2 class="item__name">{{ $product->name }}</h2>
       <p class="item__subName">ブランド名</p>
@@ -74,9 +74,13 @@
         <div class="item__list">
           <h4 class="item__listName">カテゴリー</h4>
           <ul class="item__listTag">
-            @foreach (json_decode($product->categories, true) as $category)
-              <li class="item__listTagItem">{{ $category }}</li>
-            @endforeach
+            @if($product->categories && is_array(json_decode($product->categories, true)))
+              @foreach (json_decode($product->categories, true) as $category)
+                <li class="item__listTagItem">{{ $category }}</li>
+              @endforeach
+            @else
+              <li>カテゴリー情報がありません</li>
+            @endif
           </ul>
         </div>
         <div class="item__list">

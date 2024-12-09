@@ -71,7 +71,7 @@
             <div class="mypage__item">
               <a class="mypage__itemLink" href="{{ route('item.show', ['id' => $product->id]) }}" 
                 @if ($product->is_sold) style="pointer-events: none;" @endif>
-                <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                <img class="mypage__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
                 <p class="mypage__itemName">{{ $product->name }}</p>
                 @if ($product->is_sold) <!-- 購入済みの商品 -->
                   <div class="sold__itemMask"></div>
@@ -88,7 +88,7 @@
           @foreach ($products as $product)
             <div class="mypage__item">
               <a class="mypage__itemLink" href="{{ route('item.show', ['id' => $product->id]) }}" style="pointer-events: none;">
-                <img class="mypage__itemImg" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                <img class="mypage__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
                 <p class="mypage__itemName">{{ $product->name }}</p>
                 <div class="sold__itemMask"></div>
                 <span class="sold-label">Sold</span> <!-- 購入済み商品には「Sold」を表示 -->

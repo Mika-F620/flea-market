@@ -60,13 +60,13 @@
         @if ($product->is_sold) <!-- 購入済みの商品 -->
           <div class="top__item">
             <div class="top__itemMask"></div>
-            <img class="top__itemImg" src="{{ $product->image ? asset('storage/' . $product->image) : asset('img/dammy.png') }}" alt="{{ $product->name }}">
+            <img class="top__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
             <p class="top__itemName">{{ $product->name }} <span class="solid-label">Sold</span></p>
           </div>
         @else <!-- 購入されていない商品 -->
           <div class="top__item">
             <a class="top__itemLink" href="{{ route('products.show', $product->id) }}" class="top__item">
-              <img class="top__itemImg" src="{{ $product->image ? asset('storage/' . $product->image) : asset('img/dammy.png') }}" alt="{{ $product->name }}">
+              <img class="top__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
               <p class="top__itemName">{{ $product->name }}</p>
             </a>
           </div>
