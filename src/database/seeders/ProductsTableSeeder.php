@@ -26,6 +26,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => 'スタイリッシュなデザインのメンズ腕時計',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Armani+Mens+Clock.jpg',
                 'condition' => '良好',
+                'categories' => json_encode(['メンズ']),
             ],
             [
                 'user_id' => $user->id,
@@ -34,6 +35,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => '高速で信頼性の高いハードディスク',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/HDD+Hard+Disk.jpg',
                 'condition' => '目立った傷や汚れなし',
+                'categories' => json_encode(['家電']),
             ],
             [
                 'user_id' => $user->id,
@@ -42,6 +44,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => '新鮮な玉ねぎ3束のセット',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/iLoveIMG+d.jpg',
                 'condition' => 'やや傷や汚れあり',
+                'categories' => json_encode(['キッチン']),
             ],
             [
                 'user_id' => $user->id,
@@ -50,6 +53,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => 'クラシックなデザインの革靴',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Leather+Shoes+Product+Photo.jpg',
                 'condition' => '状態が悪い',
+                'categories' => json_encode(['メンズ']),
             ],
             [
                 'user_id' => $user->id,
@@ -58,6 +62,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => '高性能なノートパソコン',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Living+Room+Laptop.jpg',
                 'condition' => '良好',
+                'categories' => json_encode(['家電']),
             ],
             [
                 'user_id' => $user->id,
@@ -66,6 +71,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => '高音質のレコーディング用マイク',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Music+Mic+4632231.jpg',
                 'condition' => '目立った傷や汚れなし',
+                'categories' => json_encode(['家電']),
             ],
             [
                 'user_id' => $user->id,
@@ -74,6 +80,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => 'おしゃれなショルダーバッグ',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Purse+fashion+pocket.jpg',
                 'condition' => 'やや傷や汚れあり',
+                'categories' => json_encode(['レディース']),
             ],
             [
                 'user_id' => $user->id,
@@ -82,6 +89,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => '使いやすいタンブラー',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Tumbler+souvenir.jpg',
                 'condition' => '状態が悪い',
+                'categories' => json_encode(['キッチン']),
             ],
             [
                 'user_id' => $user->id,
@@ -90,6 +98,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => '手動のコーヒーミル',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Waitress+with+Coffee+Grinder.jpg',
                 'condition' => '良好',
+                'categories' => json_encode(['キッチン']),
             ],
             [
                 'user_id' => $user->id,
@@ -98,6 +107,7 @@ class ProductsTableSeeder extends Seeder
                 'description' => '便利なメイクアップセット',
                 'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/%E5%A4%96%E5%87%BA%E3%83%A1%E3%82%A4%E3%82%AF%E3%82%A2%E3%83%83%E3%83%95%E3%82%9A%E3%82%BB%E3%83%83%E3%83%88.jpg',
                 'condition' => '目立った傷や汚れなし',
+                'categories' => json_encode(['コスメ']),
             ],
         ]);
     }

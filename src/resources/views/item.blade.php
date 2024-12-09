@@ -74,8 +74,12 @@
         <div class="item__list">
           <h4 class="item__listName">カテゴリー</h4>
           <ul class="item__listTag">
-            @if($product->categories && is_array(json_decode($product->categories, true)))
+            @if($product->categories && is_string($product->categories))
               @foreach (json_decode($product->categories, true) as $category)
+                <li class="item__listTagItem">{{ $category }}</li>
+              @endforeach
+            @elseif(is_array($product->categories))
+              @foreach ($product->categories as $category)
                 <li class="item__listTagItem">{{ $category }}</li>
               @endforeach
             @else
