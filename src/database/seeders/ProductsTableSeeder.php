@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage; // Storage をインポート
 use App\Models\User;
 
 class ProductsTableSeeder extends Seeder
@@ -18,13 +19,14 @@ class ProductsTableSeeder extends Seeder
         // 最初のユーザーを取得
         $user = User::first();
 
+        // 商品データをシーディング
         DB::table('products')->insert([
             [
                 'user_id' => $user->id,
                 'name' => '腕時計',
                 'price' => 15000,
                 'description' => 'スタイリッシュなデザインのメンズ腕時計',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Armani+Mens+Clock.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Armani+Mens+Clock.jpg'),
                 'condition' => '良好',
                 'categories' => json_encode(['メンズ']),
             ],
@@ -33,7 +35,7 @@ class ProductsTableSeeder extends Seeder
                 'name' => 'HDD',
                 'price' => 5000,
                 'description' => '高速で信頼性の高いハードディスク',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/HDD+Hard+Disk.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/HDD+Hard+Disk.jpg'),
                 'condition' => '目立った傷や汚れなし',
                 'categories' => json_encode(['家電']),
             ],
@@ -42,7 +44,7 @@ class ProductsTableSeeder extends Seeder
                 'name' => '玉ねぎ3束',
                 'price' => 300,
                 'description' => '新鮮な玉ねぎ3束のセット',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/iLoveIMG+d.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/iLoveIMG+d.jpg'),
                 'condition' => 'やや傷や汚れあり',
                 'categories' => json_encode(['キッチン']),
             ],
@@ -51,7 +53,7 @@ class ProductsTableSeeder extends Seeder
                 'name' => '革靴',
                 'price' => 4000,
                 'description' => 'クラシックなデザインの革靴',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Leather+Shoes+Product+Photo.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Leather+Shoes+Product+Photo.jpg'),
                 'condition' => '状態が悪い',
                 'categories' => json_encode(['メンズ']),
             ],
@@ -60,7 +62,7 @@ class ProductsTableSeeder extends Seeder
                 'name' => 'ノートPC',
                 'price' => 45000,
                 'description' => '高性能なノートパソコン',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Living+Room+Laptop.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Living+Room+Laptop.jpg'),
                 'condition' => '良好',
                 'categories' => json_encode(['家電']),
             ],
@@ -69,7 +71,7 @@ class ProductsTableSeeder extends Seeder
                 'name' => 'マイク',
                 'price' => 8000,
                 'description' => '高音質のレコーディング用マイク',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Music+Mic+4632231.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Music+Mic+4632231.jpg'),
                 'condition' => '目立った傷や汚れなし',
                 'categories' => json_encode(['家電']),
             ],
@@ -78,7 +80,7 @@ class ProductsTableSeeder extends Seeder
                 'name' => 'ショルダーバッグ',
                 'price' => 3500,
                 'description' => 'おしゃれなショルダーバッグ',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Purse+fashion+pocket.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Purse+fashion+pocket.jpg'),
                 'condition' => 'やや傷や汚れあり',
                 'categories' => json_encode(['レディース']),
             ],
@@ -87,7 +89,7 @@ class ProductsTableSeeder extends Seeder
                 'name' => 'タンブラー',
                 'price' => 500,
                 'description' => '使いやすいタンブラー',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Tumbler+souvenir.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Tumbler+souvenir.jpg'),
                 'condition' => '状態が悪い',
                 'categories' => json_encode(['キッチン']),
             ],
@@ -96,7 +98,7 @@ class ProductsTableSeeder extends Seeder
                 'name' => 'コーヒーミル',
                 'price' => 4000,
                 'description' => '手動のコーヒーミル',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Waitress+with+Coffee+Grinder.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/Waitress+with+Coffee+Grinder.jpg'),
                 'condition' => '良好',
                 'categories' => json_encode(['キッチン']),
             ],
@@ -105,10 +107,30 @@ class ProductsTableSeeder extends Seeder
                 'name' => 'メイクセット',
                 'price' => 2500,
                 'description' => '便利なメイクアップセット',
-                'image' => 'https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/%E5%A4%96%E5%87%BA%E3%83%A1%E3%82%A4%E3%82%AF%E3%82%A2%E3%83%83%E3%83%95%E3%82%9A%E3%82%BB%E3%83%83%E3%83%88.jpg',
+                'image' => $this->storeImage('https://coachtech-matter.s3.ap-northeast-1.amazonaws.com/image/%E5%A4%96%E5%87%BA%E3%83%A1%E3%82%A4%E3%82%AF%E3%82%A2%E3%83%83%E3%83%95%E3%82%9A%E3%82%BB%E3%83%83%E3%83%88.jpg'),
                 'condition' => '目立った傷や汚れなし',
                 'categories' => json_encode(['コスメ']),
             ],
         ]);
+    }
+
+    /**
+     * 画像URLをストレージに保存
+     *
+     * @param string $url
+     * @return string 保存された画像のパス
+     */
+    private function storeImage($url)
+    {
+        // 画像URLを取得
+        $imageContent = file_get_contents($url);
+
+        // 保存するユニークな画像名を生成
+        $imagePath = 'product_images/' . uniqid() . '.jpg';
+
+        // 画像を public ストレージに保存
+        Storage::disk('public')->put($imagePath, $imageContent);
+
+        return $imagePath;
     }
 }
