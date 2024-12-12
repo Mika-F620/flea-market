@@ -75,6 +75,9 @@ class PurchaseController extends Controller
         // セッションから一時的な住所情報を削除
         session()->forget('temp_address');
 
+        // 支払い方法をセッションに保存
+        session(['payment_method' => $validatedData['payment_method']]);
+
         // 決済処理へリダイレクト
         return redirect()->route('payment.store', ['product_id' => $product->id]); // 決済処理にリダイレクト
     }
