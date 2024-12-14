@@ -216,6 +216,35 @@ class ProductTest extends TestCase
     $response->assertDontSee($product2->name); // 部分一致しない商品が表示されないことを確認
   }
 
+  /**
+     * 商品出品画面で情報が正しく保存されることを確認するテスト
+     *
+     * @return void
+     */
+    // public function test_product_information_is_saved_correctly()
+    // {
+    //     // 1. 商品情報を用意
+    //     $productData = [
+    //         'name' => 'Test Product',
+    //         'description' => 'This is a test product description.',
+    //         'price' => 1000,
+    //         'categories' => 'electronics',
+    //         'condition' => 'new',
+    //     ];
+    
+    //     // 2. 商品を出品（保存）
+    //     $response = $this->post(route('sell.store'), $productData);
+    
+    //     // 3. データベースに商品が正しく保存されていることを確認
+    //     $this->assertDatabaseHas('products', [
+    //         'name' => 'Test Product',
+    //         'description' => 'This is a test product description.',
+    //         'price' => 1000,
+    //         'categories' => 'electronics',
+    //         'condition' => 'new',
+    //     ]);
+    // }
+
 
 
 
