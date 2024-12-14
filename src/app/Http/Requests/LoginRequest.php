@@ -34,6 +34,7 @@ class LoginRequest extends FormRequest
             'login_identifier.max' => '255文字以内で入力してください。',
             'password.required' => 'パスワードを入力してください。',
             'password.min' => 'パスワードは8文字以上で入力してください。',
+            'email_not_verified' => '未認証ユーザーです。認証を確認してください。',
         ];
     }
 

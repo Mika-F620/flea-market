@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
@@ -51,13 +52,26 @@ Route::get('/login', [AuthenticatedSessionController::class, 'create'])
     ->name('login');
 
 // ログイン処理
-Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-    ->middleware(['guest']);
+// Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+//     ->middleware(['guest']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // ログアウト処理
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware(['auth'])
     ->name('logout');
+
+    // メール認証用
+    Route::get('email/verify', function () {
+        return view('auth.verify'); // メール認証画面
+    })->name('verification.notice');
+
+    Route::get('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+
+    Route::middleware(['auth', 'verified'])->get('/mypage/profile', [ProfileController::class, 'show'])->name('mypage.profile');
+
+// 認証後、アクセスするページ
+Route::get('home', [HomeController::class, 'index'])->middleware('verified')->name('home');
 
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
 Route::post('/register', [AuthController::class, 'register'])->name('register');

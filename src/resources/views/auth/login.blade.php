@@ -22,6 +22,11 @@
               <p class="form__error">{{ $message }}</p>
             @enderror
           </div>
+          @if (session('errors') && session('errors')->has('login_error'))
+            <div class="form__error">
+              {{ session('errors')->first('login_error') }}
+            </div>
+          @endif
         </div>
         <div class="login__btn">
           <input class="formBtnRed" type="submit" value="ログインする" />
