@@ -25,6 +25,20 @@ DB_PASSWORD=laravel_pass
 7.シーディングの実行<br>
 `php artisan db:seed`
 
+### MailHog環境構築
+1.`docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog`<br>
+2..envに以下の環境変数を追加<br>
+```
+MAIL_MAILER=smtp
+MAIL_HOST=host.docker.internal
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=no-reply@example.com
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
 ## 使用技術(実行環境)
 PHP8.3.13<br>
 Laravel8.83.28<br>
