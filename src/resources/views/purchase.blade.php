@@ -77,6 +77,11 @@
               {{ $tempAddress['building_name'] ?? '' }}
             </p>
 
+            <!-- 配送先が未設定の場合エラーメッセージを表示 -->
+            @if (!$tempAddress['postal_code'] || !$tempAddress['address'])
+              <p class="form__error">配送先情報が未設定です。配送先を設定してください。</p>
+            @endif
+
             <!-- 隠しフィールドで住所情報を送信 -->
             <input type="hidden" name="postal_code" value="{{ $tempAddress['postal_code'] ?? $user->postal_code }}">
             <input type="hidden" name="address" value="{{ $tempAddress['address'] ?? $user->address }}">
