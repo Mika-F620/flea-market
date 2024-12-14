@@ -49,4 +49,5 @@ MySQL10.3.39
 
 ## URL
 開発環境：http://localhost:8085/<br>
-phpMyAdmin:http://localhost:8080/
+phpMyAdmin:http://localhost:8080/<br>
+MailHog:http://localhost:8025/
