@@ -81,9 +81,6 @@ public function verifyEmail($id, $hash)
         // 自動でユーザーをログインさせる
         Auth::login($user);
 
-        // dd() で `email_verified_at` の値を確認
-        dd('email_verified_at: ' . $user->email_verified_at);  // ここで`email_verified_at`がNULLかどうかを確認
-
         // 認証後、mypage/profileにリダイレクト
         return redirect('mypage/profile');
     }
@@ -92,7 +89,7 @@ public function verifyEmail($id, $hash)
     return redirect()->route('verification.notice');
 }
 
-public function login(Request $request)
+public function login(LoginRequest $request)
 {
     $credentials = $request->only('login_identifier', 'password');
 
@@ -118,7 +115,7 @@ public function login(Request $request)
 
     // 資格情報が一致しない場合のエラーメッセージ
     return back()->withErrors([
-        'login_identifier' => 'The provided credentials do not match our records.',
+        'login_identifier' => 'ログイン情報が登録されていません。',
     ]);
 }
 

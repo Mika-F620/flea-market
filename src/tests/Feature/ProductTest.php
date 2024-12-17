@@ -42,30 +42,31 @@ class ProductTest extends TestCase
 
     // ProductTest.phpの中で、購入済みの商品を作成するテストの例
 
-//     public function testSoldLabelIsDisplayedForPurchasedProduct()
-// {
-//     // ユーザーを作成
-//     $user = User::factory()->create();
+    public function testSoldProductHasSoldLabel()
+{
+    // 商品を作成
+    $product = Product::factory()->create([
+        'name' => 'Sample Product',
+        'price' => 1000,
+        'image' => 'dummy_image.jpg', // ダミー画像
+    ]);
 
-//     // 商品を作成
-//     $product = Product::factory()->create();
+    // 購入したユーザーを作成
+    $user = User::factory()->create();
 
-//     // 購入データを作成
-//     Purchase::create([
-//         'user_id' => $user->id,
-//         'product_id' => $product->id,
-//         'payment_method' => 'カード払い', // 日本語でカード払いを設定
-//         'postal_code' => '123-4567',
-//         'address' => '東京都渋谷区1-1-1',
-//         'building_name' => '渋谷ビル',
-//     ]);
+    // 購入レコードを作成して、商品を購入済みにする
+    $user->purchases()->attach($product->id, ['payment_method' => 'コンビニ払い']);  // payment_methodを指定
 
-//     // 商品ページにアクセス
-//     $response = $this->get(route('products.show', $product->id));
+    // 商品一覧ページにアクセス
+    $response = $this->get(route('products.index')); // 商品一覧ページにアクセス
 
-//     // 購入済み商品の場合、「Sold」のラベルが表示されることを確認
-//     $response->assertSee('Sold');
-// }
+    // 商品がページに表示されていることを確認
+    $response->assertSee($product->name);
+
+    // 商品が「Sold」と表示されていることを確認
+    $response->assertSee('Sold'); // 「Sold」のラベルが表示されていることを確認
+}
+
 
   public function testProductDoesNotShowUpInRecommendedForUserWhoListedIt()
   {
@@ -104,59 +105,88 @@ class ProductTest extends TestCase
     $response->assertSee($product->name); // 商品名が表示されることを確認
   }
 
-  // public function testPurchasedProductsShowSoldLabel()
-  // {
-  //   // 1. ユーザーを作成してログイン
-  //   $user = User::factory()->create();
-  //   $this->actingAs($user);
+  public function testSoldProductHasSoldLabelInMyList()
+  {
+      // ユーザーを作成してログイン
+      $user = User::factory()->create();
+      $this->actingAs($user);
 
-  //   // 2. 商品を作成
-  //   $product = Product::factory()->create();
+      // 商品を作成
+      $product = Product::factory()->create([
+          'name' => 'Sample Product',
+          'price' => 1000,
+          'condition' => '新品',
+      ]);
 
-  //   // 3. ユーザーが商品を購入
-  //   $purchase = Purchase::create([
-  //       'user_id' => $user->id,
-  //       'product_id' => $product->id,
-  //       'payment_method' => 'カード払い', // 支払い方法
-  //       'postal_code' => '123-4567',
-  //       'address' => '東京都千代田区',
-  //       'building_name' => 'ビル名',
-  //   ]);
+      // ユーザーが商品を「いいね」する（likesテーブルにレコードを追加）
+      $user->likes()->create(['product_id' => $product->id]);
 
-  //   // 4. マイリストページを開く
-  //   $response = $this->get(route('products.index', ['page' => 'mylist']));
+      // 商品を購入済みとして関連付け
+      $purchase = Purchase::create([
+          'user_id' => $user->id,
+          'product_id' => $product->id,
+          'payment_method' => 'カード払い',
+      ]);
 
-  //   // 5. 購入済み商品に「Sold」のラベルが表示されていることを確認
-  //   $response->assertSee('Sold');
-  //   $response->assertSee($product->name); // 商品名も表示されることを確認
-  // }
+      // 商品が「Sold」と表示されているかを確認
+      $response = $this->get(route('products.index'));  // ここでのルートが「マイリスト」に相当する場合
+      $response->assertSee('Sold');
+  }
 
-//   public function testUserDoesNotSeeTheirOwnProductInMyList()
-// {
-//     // 1. ユーザーを作成してログイン
-//     $user = User::factory()->create();
-//     $this->actingAs($user);
+  public function testProductDoesNotShowUpInMyListForUserWhoListedIt()
+{
+    // ログインするユーザーを作成
+    $user = User::factory()->create();
+    $this->actingAs($user);  // ログイン
 
-//     // 2. ユーザーが出品した商品を作成
-//     $product = Product::factory()->create([
-//         'user_id' => $user->id, // このユーザーが出品した商品
-//     ]);
+    // ユーザーが出品した商品
+    $product = Product::factory()->create([
+        'user_id' => $user->id, // 出品者としてログインユーザーを設定
+        'name' => 'Sample Product',
+        'price' => 1000,
+        'condition' => '新品',
+    ]);
 
-//     // 3. 他のユーザーが出品した商品を作成（確認のため）
-//     $otherUser = User::factory()->create();
-//     $otherProduct = Product::factory()->create([
-//         'user_id' => $otherUser->id, // 他のユーザーが出品した商品
-//     ]);
+    // ユーザーがその商品を「いいね」する
+    $user->likes()->create(['product_id' => $product->id]);
 
-//     // 4. マイリストページを開く
-//     $response = $this->get(route('products.index', ['page' => 'mylist']));
+    // マイリストページにアクセス
+    $response = $this->get('/?page=mylist&search=');
 
-//     // 5. 自分が出品した商品が表示されていないことを確認
-//     $response->assertDontSee($product->name); // 自分が出品した商品名は表示されない
+    // 出品者が出品した商品はマイリストに表示されないことを確認
+    $response->assertDontSee($product->name);  // 出品者が出品した商品は表示されない
 
-//     // 6. 他のユーザーが出品した商品が表示されていることを確認
-//     $response->assertSee($otherProduct->name); // 他のユーザーが出品した商品名は表示される
-// }
+    // 他のユーザーが出品した商品
+    $anotherUser = User::factory()->create();
+    $likedProduct = Product::factory()->create([
+        'user_id' => $anotherUser->id, // 異なるユーザーが出品した商品
+        'name' => 'Liked Product',
+        'price' => 500,
+        'condition' => '新品',
+    ]);
+
+    // ユーザーがその商品を「いいね」する
+    $user->likes()->create(['product_id' => $likedProduct->id]);
+
+    // 再度マイリストページにアクセス
+    $response = $this->get('/?page=mylist&search=');
+
+    // いいねした商品は表示されることを確認
+    $response->assertSee($likedProduct->name);  // ユーザーが「いいね」した商品は表示される
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   public function testNothingIsDisplayedForUnauthenticatedUser()
   {

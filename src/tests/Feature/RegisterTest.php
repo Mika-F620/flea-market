@@ -84,21 +84,21 @@ class RegisterTest extends TestCase
 
     /** @test */
     public function all_fields_are_filled_and_user_is_registered_and_redirected_to_login_page()
-    {
-        $response = $this->post(route('register'), [
-            'name' => 'Test User', // 正しい名前
-            'email' => 'testuser@example.com', // 正しいメールアドレス
-            'password' => 'password123', // 8文字以上のパスワード
-            'password_confirmation' => 'password123', // パスワード確認用
-        ]);
+{
+    $response = $this->post(route('register'), [
+        'name' => 'Test User', // 正しい名前
+        'email' => 'testuser@example.com', // 正しいメールアドレス
+        'password' => 'password123', // 8文字以上のパスワード
+        'password_confirmation' => 'password123', // パスワード確認用
+    ]);
 
-        // ユーザーが作成され、homeページにリダイレクトされることを確認
-        $response->assertRedirect(route('home')); // homeページにリダイレクトされることを確認
+    // ユーザーが作成され、email/verifyページにリダイレクトされることを確認
+    $response->assertRedirect(route('verification.notice')); // ここを修正
 
-        // 作成されたユーザーがデータベースに保存されていることを確認
-        $this->assertDatabaseHas('users', [
-            'email' => 'testuser@example.com',
-            'name' => 'Test User',
-        ]);
-    }
+    // 作成されたユーザーがデータベースに保存されていることを確認
+    $this->assertDatabaseHas('users', [
+        'email' => 'testuser@example.com',
+        'name' => 'Test User',
+    ]);
+}
 }

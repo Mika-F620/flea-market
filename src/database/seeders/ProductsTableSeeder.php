@@ -16,9 +16,6 @@ class ProductsTableSeeder extends Seeder
      */
     public function run()
     {
-        // 最初のユーザーを取得
-        $user = User::first();
-
         // 商品データをシーディング
         DB::table('products')->insert([
             [

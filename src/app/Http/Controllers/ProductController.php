@@ -62,15 +62,22 @@ class ProductController extends Controller
             
 
             // ユーザーがいいねした商品の中で検索クエリが一致するものを取得
-            $products = $user->likes()
-                ->whereHas('product', function ($query) use ($searchQuery) {
-                    if (!empty($searchQuery)) {
-                        $query->where('name', 'LIKE', '%' . $searchQuery . '%');
-                    }
-                })
-                ->with('product')
-                ->get()
-                ->pluck('product');
+            // $products = $user->likes()
+            //     ->whereHas('product', function ($query) use ($searchQuery) {
+            //         if (!empty($searchQuery)) {
+            //             $query->where('name', 'LIKE', '%' . $searchQuery . '%');
+            //         }
+            //     })
+            //     ->with('product')
+            //     ->get()
+            //     ->pluck('product');
+            // ユーザーがいいねした商品の中で、出品者が出品した商品を除外し、検索クエリが一致するものを取得
+        $products = Product::where('user_id', '!=', $user->id)  // 出品者が出品した商品は除外
+        ->whereIn('id', $user->likes()->pluck('product_id'))  // ユーザーが「いいね」した商品のみ
+        ->when($searchQuery, function ($query) use ($searchQuery) {
+            $query->where('name', 'LIKE', '%' . $searchQuery . '%');  // 検索クエリがある場合
+        })
+        ->get();
         } else {
             // 全商品の中で検索クエリが一致するものを取得
             $products = Product::query()
