@@ -6,6 +6,8 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Comment;
+use App\Models\Like;
+use Database\Factories\LikeFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ProductDetailTest extends TestCase
@@ -17,168 +19,195 @@ class ProductDetailTest extends TestCase
      *
      * @return void
      */
-    // public function testRequiredInformationIsDisplayedOnProductDetailPage()
-    // {
-    //     // ユーザーを作成してログイン
-    //     $user = User::factory()->create();
-    //     $this->actingAs($user);
+    public function testProductDetailsDisplayRequiredInfo()
+{
+    // ユーザーを作成
+    $user = User::factory()->create();
+    
+    // 商品と関連データを作成
+    $product = Product::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'サンプル商品',
+        'price' => 1000,
+        'description' => 'これはサンプル商品の説明です。',
+        'condition' => '新品',
+        'categories' => json_encode(['カテゴリ1', 'カテゴリ2']),
+    ]);
+    
+    // 商品にコメントを作成
+    $comment = Comment::factory()->create([
+        'product_id' => $product->id,
+        'user_id' => $user->id,
+        'content' => '素晴らしい商品！',
+    ]);
 
-    //     // 商品を作成
-    //     $product = Product::factory()->create([
-    //         'name' => 'テスト商品',
-    //         'image' => 'dummy_image.jpg',
-    //         'description' => '商品説明です。',
-    //         'price' => 5000,
-    //         'condition' => '新品',
-    //     ]);
+    // 商品にいいねを作成
+    Like::factory()->create([
+        'user_id' => $user->id,
+        'product_id' => $product->id,
+    ]);
 
-    //     // ブランド名を設定（仮にbrand_nameとして）
-    //     $product->brand_name = 'テストブランド';
-    //     $product->save();
+    // 商品詳細ページにアクセス
+    $response = $this->get(route('products.show', ['id' => $product->id]));
 
-    //     // いいね数を作成
-    //     $product->likes()->create([
-    //         'user_id' => $user->id,
-    //     ]);
+    // レスポンスの内容を確認
+    // dd($response->getContent());  // レスポンスのHTMLを確認する
 
-    //     // コメントを作成
-    //     $comment = Comment::create([
-    //         'user_id' => $user->id,
-    //         'product_id' => $product->id,
-    //         'content' => 'コメント内容です。',
-    //     ]);
+    // 必要な情報が表示されていることを確認
+    $response->assertStatus(200);
+    $response->assertSee($product->name);
+    $response->assertSee(number_format($product->price));  // 価格をカンマ区切りで確認
+    $response->assertSee($product->description);
+    $response->assertSee($product->condition);
+    
+    // カテゴリが表示されているかを確認
+    foreach (json_decode($product->categories, true) as $category) {
+        $response->assertSee($category);
+    }
 
-    //     // 商品詳細ページにアクセス
-    //     $response = $this->get(route('products.show', $product->id));
+    // コメント内容とユーザー名を確認
+    $response->assertSee($comment->content);
+    $response->assertSee($user->name);
 
-    //     // 商品ページに必要な情報が表示されていることを確認
-    //     $response->assertSee($product->name);  // 商品名
-    //     $response->assertSee($product->brand_name);  // ブランド名
-    //     $response->assertSee($product->description);  // 商品説明
-    //     $response->assertSee('¥' . number_format($product->price));  // 価格
-    //     $response->assertSee($product->condition);  // 商品状態
-    //     $response->assertSee('いいね数: 1');  // いいね数
-    //     $response->assertSee('コメント数: 1');  // コメント数
-    //     $response->assertSee($comment->content);  // コメント内容
-    //     $response->assertSee($user->name);  // コメントしたユーザー名
-    // }
+    // いいね数とコメント数が表示されていることを確認
+    $response->assertSee($product->likes->count());
+    $response->assertSee($product->comments->count());
+}
 
-    // public function testCategoriesAreDisplayedOnProductDetailPage()
-    // {
-    //     // 1. ユーザーを作成してログイン
-    //     $user = User::factory()->create();
-    //     $this->actingAs($user);
+public function testMultipleCategoriesAreDisplayed()
+{
+    // ユーザーを作成
+    $user = User::factory()->create();
+    
+    // 商品と関連データを作成（複数のカテゴリを追加）
+    $product = Product::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'サンプル商品',
+        'price' => 1000,
+        'description' => 'これはサンプル商品の説明です。',
+        'condition' => '新品',
+        'categories' => json_encode(['カテゴリ1', 'カテゴリ2', 'カテゴリ3']), // 複数カテゴリを追加
+    ]);
 
-    //     // 2. 複数のカテゴリを持つ商品を作成
-    //     $product = Product::create([
-    //         'name' => 'Test Product',
-    //         'description' => 'Test Description',
-    //         'price' => 1000,
-    //         'user_id' => $user->id,
-    //         'image' => 'dummy_image.jpg',
-    //         'condition' => 'new',
-    //         'categories' => json_encode(['カテゴリー1', 'カテゴリー2']), // 複数カテゴリ
-    //     ]);
+    // 商品詳細ページにアクセス
+    $response = $this->get(route('products.show', ['id' => $product->id]));
 
-    //     // 3. 商品詳細ページを開く
-    //     $response = $this->get(route('products.show', ['product' => $product->id]));
-
-    //     // 4. 商品詳細ページにカテゴリが表示されているか確認
-    //     $response->assertSee('カテゴリー'); // カテゴリの見出し
-    //     $response->assertSee('カテゴリー1'); // 複数カテゴリが表示されているか
-    //     $response->assertSee('カテゴリー2');
-    // }
-
-//     public function testUserCanLikeProductAndLikeCountIncreases()
-// {
-//     // ユーザーを作成してログイン
-//     $user = User::factory()->create();
-//     $this->actingAs($user);
-
-//     // 商品を作成
-//     $product = Product::factory()->create();
-
-//     // 商品詳細ページを開く
-//     $response = $this->get(route('products.show', $product->id));
-
-//     // 商品詳細ページに「いいね」アイコンが存在することを確認（エスケープされた文字列で一致する）
-//     $response->assertSeeText('id="like-icon"');
-
-//     // 商品のいいね数を記録
-//     $initialLikeCount = $product->likes->count();
-
-//     // いいねアイコンをクリックする（JavaScriptで非同期処理が行われる場合も想定してPOSTリクエストを送る）
-//     $response = $this->post(route('like.toggle', $product->id));
-
-//     // いいねが正常に登録され、いいね数が増加したことを確認
-//     $response->assertStatus(200);  // 正常なレスポンスであることを確認
-
-//     // 商品のいいね数が増加したことを確認
-//     $this->assertDatabaseHas('likes', [
-//         'user_id' => $user->id,
-//         'product_id' => $product->id
-//     ]);
-
-//     // 商品詳細ページでいいね数が増加したことを確認
-//     $response = $this->get(route('products.show', $product->id));
-//     $response->assertSee((string) ($initialLikeCount + 1));  // いいね数が1増えたことを確認
-// }
-
-// public function testLikeIconChangesColor()
-// {
-//     // 1. ユーザーにログインする
-//     $user = User::factory()->create();
-//     $this->actingAs($user);
-
-//     // 2. 商品詳細ページを開く
-//     $product = Product::factory()->create();
-//     $response = $this->get(route('products.show', $product->id));
-
-//     // ページが正しく読み込まれたことを確認
-//     $response->assertStatus(200);
-
-//     // 初期状態で「いいね」アイコンの表示を確認（エスケープされた状態）
-//     $response->assertSeeText('&lt;img alt=&quot;星&quot; src=&quot;http://localhost/img/star.svg&quot;');
-
-//     // いいねボタンをクリック（通常はAJAXリクエストでいいね状態を更新）
-//     $this->postJson(route('like.toggle', $product->id), ['like' => true]);
-
-//     // ページを再読み込みして、アイコンが色が変わっていることを確認（エスケープされた状態）
-//     $response = $this->get(route('products.show', $product->id));
-//     $response->assertSeeText('&lt;img alt=&quot;星&quot; src=&quot;http://localhost/img/star-filled.svg&quot;');
-// }
+    // レスポンスの内容を確認
+    $response->assertStatus(200);
+    
+    // 複数カテゴリが商品詳細ページに表示されていることを確認
+    foreach (json_decode($product->categories, true) as $category) {
+        $response->assertSee($category);
+    }
+}
 
 
-// public function testLikeIconCanBeToggled()
-// {
-//     // 1. ユーザーにログインする
-//     $user = User::factory()->create();
-//     $this->actingAs($user);
+public function testUserCanLikeProduct()
+{
+    // ユーザーを作成してログイン
+    $user = User::factory()->create();
+    $this->actingAs($user); // ログイン
 
-//     // 2. 商品詳細ページを開く
-//     $product = Product::factory()->create();
-//     $response = $this->get(route('products.show', $product->id));
+    // 商品と関連データを作成
+    $product = Product::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'サンプル商品',
+        'price' => 1000,
+        'description' => 'これはサンプル商品の説明です。',
+        'condition' => '新品',
+        'categories' => json_encode(['カテゴリ1', 'カテゴリ2']),
+    ]);
 
-//     // ページが正しく読み込まれたことを確認
-//     $response->assertStatus(200);
+    // いいねがまだされていないことを確認
+    $this->assertEquals(0, $product->likes()->count());
 
-//     // 初期状態でいいねアイコンが「未いいね」の状態で表示されることを確認
-//     $response->assertSee('src="http://localhost/img/star.svg"'); // 初期状態で未いいねアイコンの確認
+    // 商品詳細ページにアクセス
+    $response = $this->get(route('products.show', ['id' => $product->id]));
 
-//     // 3. いいねアイコンを押下（いいねを付ける）
-//     $this->postJson(route('like.toggle', $product->id), ['like' => true]);
+    // レスポンスの内容を確認
+    $response->assertStatus(200);
 
-//     // いいねが追加された後、合計いいね数が増加したことを確認
-//     $response = $this->get(route('products.show', $product->id));
-//     $response->assertSeeText('1'); // いいね合計数が1になっていることを確認
+    // いいねアイコンを押下（正しいパラメータを渡す）
+    $response = $this->post(route('like.toggle', ['productId' => $product->id]));
 
-//     // 4. 再度いいねアイコンを押下（いいねを解除する）
-//     $this->postJson(route('like.toggle', $product->id), ['like' => false]);
+    // レスポンスが JSON 形式で返ってくることを確認
+    $response->assertStatus(200);  // いいねが成功した場合のステータスコードを確認
+    
+    // レスポンスの JSON 内容を確認
+    $response->assertJson([
+        'success' => true,
+        'liked' => true,
+        'likeCount' => 1
+    ]);
 
-//     // いいねが解除された後、合計いいね数が減少したことを確認
-//     $response = $this->get(route('products.show', $product->id));
-//     $response->assertSeeText('0'); // いいね合計数が0になっていることを確認
-// }
+    // いいねが登録され、合計値が増加したことを確認
+    $this->assertEquals(1, $product->likes()->count());
+}
+
+
+
+public function testLikeIconChangesColorWhenLiked()
+{
+    // テスト用ユーザーと商品を作成
+    $user = User::factory()->create();
+    $product = Product::factory()->create();
+
+    // ユーザーにログイン
+    $this->actingAs($user);
+
+    // 商品詳細ページを開く
+    $response = $this->get(route('products.show', ['id' => $product->id]));
+
+    // 初期状態でのアイコンのsrc（色が変化する前）
+    $initialIconSrc = 'http://localhost/img/star.svg';
+
+    // アイコンが最初に "star" アイコンであることを確認
+    $response->assertSee($initialIconSrc);
+
+    // いいねアイコンを押下して「いいね」状態にする
+    $this->post(route('like.toggle', ['productId' => $product->id]));
+
+    // アイコンの色（画像）が変化していることを確認
+    $response = $this->get(route('products.show', ['id' => $product->id]));
+
+    // アイコンが "star-filled" に変わったことを確認
+    $response->assertSee('http://localhost/img/star-filled.svg');
+}
+
+public function testLikeCanBeToggled()
+{
+    // テスト用ユーザーと商品を作成
+    $user = User::factory()->create();
+    $product = Product::factory()->create();
+
+    // 初期の「いいね」数を取得
+    $initialLikeCount = Like::where('product_id', $product->id)->count();
+
+    // ユーザーにログイン
+    $this->actingAs($user);
+
+    // 商品詳細ページを開く
+    $response = $this->get(route('products.show', ['id' => $product->id]));
+
+    // 最初の「いいね」を押下
+    $this->post(route('like.toggle', ['productId' => $product->id]));
+
+    // いいね数が増加していることを確認
+    $this->assertEquals($initialLikeCount + 1, Like::where('product_id', $product->id)->count());
+
+    // 再度いいねアイコンを押下（いいねを解除する）
+    $this->post(route('like.toggle', ['productId' => $product->id]));
+
+    // いいね数が減少していることを確認
+    $this->assertEquals($initialLikeCount, Like::where('product_id', $product->id)->count());
+}
+
+
+
+
+
+
+
 
     public function testLoggedInUserCanSubmitComment()
     {
@@ -246,32 +275,35 @@ class ProductDetailTest extends TestCase
         ]);
     }
     
-//     public function testValidationMessageForLongComment()
-// {
-//     // 1. ユーザーにログイン
-//     $user = User::factory()->create();  // ユーザーを作成
-//     $this->actingAs($user);  // ログイン状態にする
-
-//     // 商品を作成
-//     $product = Product::factory()->create();
-
-//     // 2. 256文字以上のコメントを入力する
-//     $longComment = str_repeat('a', 257);  // 257文字以上のコメント
-
-//     // 3. コメントボタンを押す
-//     $response = $this->postJson(route('comments.store'), [
-//         'product_id' => $product->id,
-//         'content' => $longComment,
-//         '_token' => csrf_token(), // CSRFトークンも必要
-//     ]);
-
-//     // 4. バリデーションメッセージが表示されることを確認
-//     $response->assertStatus(422); // バリデーションエラーで422エラー
-//     $response->assertJsonValidationErrors(['content']);  // 'content'フィールドにエラーがあることを確認
-//     $response->assertJson([
-//         'message' => 'The content field must be less than 255 characters.'
-//     ]); // バリデーションエラーメッセージが返っていることを確認
-// }
+    public function testValidationMessageIsDisplayedWhenCommentExceedsMaxLength()
+    {
+        // テスト用ユーザーを作成
+        $user = User::factory()->create();
+        $product = Product::factory()->create();
+    
+        // ユーザーにログイン
+        $this->actingAs($user);
+    
+        // 商品詳細ページを開く
+        $response = $this->get(route('products.show', ['id' => $product->id]));
+    
+        // 256文字以上のコメントを入力（コメント文字列を生成）
+        $longComment = str_repeat('a', 257);  // 257文字のコメント
+    
+        // コメントの送信
+        $response = $this->post(route('comments.store'), [
+            'product_id' => $product->id,
+            'content' => $longComment,  // 256文字以上のコメント
+        ]);
+    
+        // バリデーションエラーメッセージを確認
+        $response->assertSessionHasErrors('content');  // 'content'はコメントフォームのフィールド名と一致させる
+    
+        // バリデーションメッセージが正しく表示されることを確認
+        $response->assertSessionHas('errors');
+        $this->assertTrue(session('errors')->has('content'));  // 'content'フィールドにエラーがあるか確認
+    }
+    
 
 
     public function testValidationMessageForLongComment()
