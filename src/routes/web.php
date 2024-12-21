@@ -26,25 +26,7 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 Route::get('/', [ProductController::class, 'index'])->name('products.index');
 
-// Route::get('/mypage', function (Illuminate\Http\Request $request) {
-//     $user = Auth::user();
-//     $page = $request->query('page', 'sell'); // デフォルトを'sell'に設定
-
-//     // ログインしているユーザーの商品を取得
-//     if ($page === 'sell') {
-//         $products = \App\Models\Product::where('user_id', $user->id)->latest()->get();
-//     } elseif ($page === 'buy') {
-//         // 購入履歴を取得する処理（購入テーブルがあればここで対応）
-//         $products = collect(); // 現時点では空のコレクションとしておく
-//     } else {
-//         $products = collect(); // 不明なページの場合も空にする
-//     }
-
-//     return view('mypage', compact('user', 'products', 'page'));
-// })->name('mypage')->middleware('auth');
-
 Route::get('/mypage', [ProductController::class, 'mypage'])->name('mypage');
-
 
 // ログインフォームの表示
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])
@@ -52,8 +34,6 @@ Route::get('/login', [AuthenticatedSessionController::class, 'create'])
     ->name('login');
 
 // ログイン処理
-// Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-//     ->middleware(['guest']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // ログアウト処理
@@ -61,14 +41,14 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware(['auth'])
     ->name('logout');
 
-    // メール認証用
-    Route::get('email/verify', function () {
-        return view('auth.verify'); // メール認証画面
-    })->name('verification.notice');
+// メール認証用
+Route::get('email/verify', function () {
+    return view('auth.verify'); // メール認証画面
+})->name('verification.notice');
 
-    Route::get('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+Route::get('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
 
-    Route::middleware(['auth', 'verified'])->get('/mypage/profile', [ProfileController::class, 'show'])->name('mypage.profile');
+Route::middleware(['auth', 'verified'])->get('/mypage/profile', [ProfileController::class, 'show'])->name('mypage.profile');
 
 // 認証後、アクセスするページ
 Route::get('home', [HomeController::class, 'index'])->middleware('verified')->name('home');
@@ -95,34 +75,21 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/item/{id}', [ProductController::class, 'show'])->name('item.show');
 
-// Route::get('/purchase/{id}', [PurchaseController::class, 'show'])
-//     ->name('purchase.show')
-//     ->middleware('auth'); // 認証を強制する
 Route::post('/purchase', [PurchaseController::class, 'store'])->name('purchase.store');
 
 Route::get('/purchase/address/{id}', [AddressController::class, 'edit'])->name('purchase.address.edit');
 Route::post('/purchase/address/{id}', [AddressController::class, 'update'])->name('purchase.address.update');
 Route::put('/purchase/address/{id}', [AddressController::class, 'update'])->name('purchase.address.update');
 
-// Route::post('/like/{productId}', [LikeController::class, 'toggleLike'])->name('like.toggle');
-
 Route::post('/like/{productId}', [LikeController::class, 'store'])->name('like.store');
 Route::delete('/like/{product}', [LikeController::class, 'destroy'])->middleware('auth')->name('like.destroy');
 Route::post('/like/toggle/{productId}', [LikeController::class, 'toggleLike'])->name('like.toggle');
-
-// トップページのルート設定
-// Route::get('/', [ProductController::class, 'index'])->name('home');
-
-// Route::get('/purchase/show/{id}', [PurchaseController::class, 'show'])->name('purchase.show')->middleware('auth');
-// Route::get('/purchase/{id}', [StripePaymentsController::class, 'purchase'])->name('purchase.index');
-
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 });
 
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
-
 
 // 商品購入ページ（商品情報を表示するページ）
 Route::get('/purchase/{id}', [PurchaseController::class, 'show'])->name('purchase.show'); 

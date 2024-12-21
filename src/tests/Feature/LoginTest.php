@@ -4,7 +4,6 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-// use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -12,8 +11,6 @@ use App\Models\User;
 
 class LoginTest extends TestCase
 {
-  // use RefreshDatabase;
-  // use DatabaseTransactions;
   use DatabaseTransactions;
 
   /**

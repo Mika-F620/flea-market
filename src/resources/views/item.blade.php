@@ -111,13 +111,13 @@
           <h4 class="item__listName">商品へのコメント</h4>
           <form action="{{ route('comments.store') }}" method="POST">
             @csrf
-              <textarea class="item__formArea" name="content" rows="3" placeholder="コメントを入力してください">{{ old('content') }}</textarea>
-            
-              <!-- バリデーションエラーの表示 -->
-              @error('content')
-                <p class="form__error">{{ $message }}</p>
-              @enderror
-              <button class="formBtnRed" id="submit-comment">コメントを送信する</button>
+            <textarea class="item__formArea" name="content" rows="3" placeholder="コメントを入力してください">{{ old('content') }}</textarea>
+          
+            <!-- バリデーションエラーの表示 -->
+            @error('content')
+              <p class="form__error">{{ $message }}</p>
+            @enderror
+            <button class="formBtnRed" id="submit-comment">コメントを送信する</button>
           </form>
         @else
           <p class="item__unknow">コメントを投稿するには<a href="{{ route('login') }}">ログイン</a>してください。</p>

@@ -30,11 +30,11 @@
   <form method="GET" action="{{ route('products.index') }}" class="header__search header__searchSP">
     <input type="hidden" name="page" value="{{ $page }}">
     <input 
-        type="text" 
-        name="search" 
-        class="header__search header__searchSP" 
-        placeholder="なにをお探しですか？" 
-        value="{{ $searchQuery ?? '' }}" 
+      type="text" 
+      name="search" 
+      class="header__search header__searchSP" 
+      placeholder="なにをお探しですか？" 
+      value="{{ $searchQuery ?? '' }}" 
     />
     <button type="submit" style="display: none;"></button>
   </form>

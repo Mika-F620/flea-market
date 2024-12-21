@@ -51,33 +51,19 @@ class ProductController extends Controller
         $user = Auth::user();
         $searchQuery = $request->query('search', '');
 
-        // // 商品リストを初期化
-        // $productsQuery = Product::query();
-
         if ($page === 'mylist') {
 
             if (!$user) {
                 return redirect()->route('login')->with('error', 'ログインが必要です。');
             }
             
-
-            // ユーザーがいいねした商品の中で検索クエリが一致するものを取得
-            // $products = $user->likes()
-            //     ->whereHas('product', function ($query) use ($searchQuery) {
-            //         if (!empty($searchQuery)) {
-            //             $query->where('name', 'LIKE', '%' . $searchQuery . '%');
-            //         }
-            //     })
-            //     ->with('product')
-            //     ->get()
-            //     ->pluck('product');
             // ユーザーがいいねした商品の中で、出品者が出品した商品を除外し、検索クエリが一致するものを取得
-        $products = Product::where('user_id', '!=', $user->id)  // 出品者が出品した商品は除外
-        ->whereIn('id', $user->likes()->pluck('product_id'))  // ユーザーが「いいね」した商品のみ
-        ->when($searchQuery, function ($query) use ($searchQuery) {
-            $query->where('name', 'LIKE', '%' . $searchQuery . '%');  // 検索クエリがある場合
-        })
-        ->get();
+            $products = Product::where('user_id', '!=', $user->id)  // 出品者が出品した商品は除外
+            ->whereIn('id', $user->likes()->pluck('product_id'))  // ユーザーが「いいね」した商品のみ
+            ->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->where('name', 'LIKE', '%' . $searchQuery . '%');  // 検索クエリがある場合
+            })
+            ->get();
         } else {
             // 全商品の中で検索クエリが一致するものを取得
             $products = Product::query()
@@ -170,15 +156,14 @@ class ProductController extends Controller
                 $product->is_sold = Purchase::where('product_id', $product->id)->exists();
             }
         } elseif ($page === 'buy') {
-            // $products = $user->purchasedProducts()->latest()->get(); // 購入した商品
             // 購入済み商品を取得
             $products = Purchase::where('user_id', $user->id)
             ->with('product') // 購入商品情報を取得
             ->get()
             ->pluck('product'); // 購入商品データのみ抽出
-            } else {
-                $products = collect(); // 空のコレクション
-            }
+        } else {
+            $products = collect(); // 空のコレクション
+        }
 
         return view('mypage', compact('user', 'page', 'products'));
     }

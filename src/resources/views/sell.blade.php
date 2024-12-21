@@ -44,74 +44,74 @@
     <h2 class="sectionTitle">商品の出品</h2>
     <form action="{{ route('sell.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
-        <div class="sell__item">
-          <label class="sell__itemTitle" for="image">商品画像</label>
-          <div id="drop-zone" class="sell__dropZone">
-              <p class="sell__dropZoneText"><button type="button" id="file-select" class="sell__fileButton">画像を選択する</button></p>
-              <input type="file" name="image" id="image" class="sell__dropZoneInput" accept="image/*">
-              <div id="preview-container" class="sell__previewContainer"></div> <!-- プレビュー画像用 -->
-          </div>
-          @error('image')
-            <p class="form__error">{{ $message }}</p>
-          @enderror
+      <div class="sell__item">
+        <label class="sell__itemTitle" for="image">商品画像</label>
+        <div id="drop-zone" class="sell__dropZone">
+          <p class="sell__dropZoneText"><button type="button" id="file-select" class="sell__fileButton">画像を選択する</button></p>
+          <input type="file" name="image" id="image" class="sell__dropZoneInput" accept="image/*">
+          <div id="preview-container" class="sell__previewContainer"></div> <!-- プレビュー画像用 -->
         </div>
-        <h3 class="sell__SubTitle">商品の詳細</h3>
-        <div class="sell__item">
-          <label class="sell__itemTitle">カテゴリー</label>
-          <ul class="sell__tag">
-            @php
-              $categories = ['ファッション', '家電', 'インテリア', 'レディース', 'メンズ', 'コスメ', '本', 'ゲーム', 'スポーツ', 'キッチン', 'ハンドメイド', 'アクセサリー', 'おもちゃ', 'ベビー・キッズ'];
-            @endphp
-            @foreach ($categories as $index => $category)
-              <li class="sell__tagItem" data-index="{{ $index }}">
-                <input type="checkbox" id="category_{{ $index }}" name="categories[]" value="{{ $category }}" 
-                  @if(in_array($category, old('categories', []))) checked @endif hidden>
-                <label class="sell__tagItemLabel" for="category_{{ $index }}">{{ $category }}</label>
-              </li>
-            @endforeach
-          </ul>
-          @error('categories')
-            <p class="form__error">{{ $message }}</p>
-          @enderror
+        @error('image')
+          <p class="form__error">{{ $message }}</p>
+        @enderror
+      </div>
+      <h3 class="sell__SubTitle">商品の詳細</h3>
+      <div class="sell__item">
+        <label class="sell__itemTitle">カテゴリー</label>
+        <ul class="sell__tag">
+          @php
+            $categories = ['ファッション', '家電', 'インテリア', 'レディース', 'メンズ', 'コスメ', '本', 'ゲーム', 'スポーツ', 'キッチン', 'ハンドメイド', 'アクセサリー', 'おもちゃ', 'ベビー・キッズ'];
+          @endphp
+          @foreach ($categories as $index => $category)
+            <li class="sell__tagItem" data-index="{{ $index }}">
+              <input type="checkbox" id="category_{{ $index }}" name="categories[]" value="{{ $category }}" 
+                @if(in_array($category, old('categories', []))) checked @endif hidden>
+              <label class="sell__tagItemLabel" for="category_{{ $index }}">{{ $category }}</label>
+            </li>
+          @endforeach
+        </ul>
+        @error('categories')
+          <p class="form__error">{{ $message }}</p>
+        @enderror
+      </div>
+      <div class="sell__item">
+        <label class="sell__itemTitle">商品の状態</label>
+        <div class="sell__select">
+          <select name="condition" id="condition" class="sell__selectDrop">
+            <option value="" disabled selected>選択してください</option>
+            <option value="良好" @if(old('condition') == '良好') selected @endif>良好</option>
+            <option value="目立った傷や汚れなし" @if(old('condition') == '目立った傷や汚れなし') selected @endif>目立った傷や汚れなし</option>
+            <option value="やや傷や汚れあり" @if(old('condition') == 'やや傷や汚れあり') selected @endif>やや傷や汚れあり</option>
+            <option value="状態が悪い" @if(old('condition') == '状態が悪い') selected @endif>状態が悪い</option>
+          </select>
         </div>
-        <div class="sell__item">
-          <label class="sell__itemTitle">商品の状態</label>
-          <div class="sell__select">
-            <select name="condition" id="condition" class="sell__selectDrop">
-              <option value="" disabled selected>選択してください</option>
-              <option value="良好" @if(old('condition') == '良好') selected @endif>良好</option>
-              <option value="目立った傷や汚れなし" @if(old('condition') == '目立った傷や汚れなし') selected @endif>目立った傷や汚れなし</option>
-              <option value="やや傷や汚れあり" @if(old('condition') == 'やや傷や汚れあり') selected @endif>やや傷や汚れあり</option>
-              <option value="状態が悪い" @if(old('condition') == '状態が悪い') selected @endif>状態が悪い</option>
-            </select>
-          </div>
-          @error('condition')
-            <p class="form__error">{{ $message }}</p>
-          @enderror
-        </div>
-        <h3 class="sell__SubTitle">商品名と説明</h3>
-        <div class="sell__item">
-          <label class="sell__itemTitle" for="name">商品名</label>
-          <input type="text" name="name" class="sell__itemInput" id="name" value="{{ old('name') }}">
-          @error('name')
-            <p class="form__error">{{ $message }}</p>
-          @enderror
-        </div>
-        <div class="sell__item">
-          <label class="sell__itemTitle">商品の説明</label>
-          <textarea name="description" class="sell__itemArea" id="description">{{ old('description') }}</textarea>
-          @error('description')
-            <p class="form__error">{{ $message }}</p>
-          @enderror
-        </div>
-        <div class="sell__item">
-          <label class="sell__itemTitle">販売価格</label>
-          <input type="text" name="price" class="sell__itemPrice" id="price" value="¥{{ old('price') }}">
-          @error('price')
-            <p class="form__error">{{ $message }}</p>
-          @enderror
-        </div>
-        <input class="formBtnRed" type="submit" value="出品する" />
+        @error('condition')
+          <p class="form__error">{{ $message }}</p>
+        @enderror
+      </div>
+      <h3 class="sell__SubTitle">商品名と説明</h3>
+      <div class="sell__item">
+        <label class="sell__itemTitle" for="name">商品名</label>
+        <input type="text" name="name" class="sell__itemInput" id="name" value="{{ old('name') }}">
+        @error('name')
+          <p class="form__error">{{ $message }}</p>
+        @enderror
+      </div>
+      <div class="sell__item">
+        <label class="sell__itemTitle">商品の説明</label>
+        <textarea name="description" class="sell__itemArea" id="description">{{ old('description') }}</textarea>
+        @error('description')
+          <p class="form__error">{{ $message }}</p>
+        @enderror
+      </div>
+      <div class="sell__item">
+        <label class="sell__itemTitle">販売価格</label>
+        <input type="text" name="price" class="sell__itemPrice" id="price" value="¥{{ old('price') }}">
+        @error('price')
+          <p class="form__error">{{ $message }}</p>
+        @enderror
+      </div>
+      <input class="formBtnRed" type="submit" value="出品する" />
     </form>
   </section>
   <script>
@@ -140,8 +140,8 @@
         dropZone.classList.remove('dragover');
         const files = e.dataTransfer.files;
         if (files.length > 0) {
-            fileInput.files = files; // inputにファイルを設定
-            showPreview(files[0]); // プレビュー表示
+          fileInput.files = files; // inputにファイルを設定
+          showPreview(files[0]); // プレビュー表示
         }
       });
 
@@ -153,7 +153,7 @@
       // ファイル選択時にプレビュー表示を更新
       fileInput.addEventListener('change', () => {
         if (fileInput.files.length > 0) {
-            showPreview(fileInput.files[0]); // プレビュー表示
+          showPreview(fileInput.files[0]); // プレビュー表示
         }
       });
 
@@ -161,11 +161,11 @@
       function showPreview(file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            previewContainer.innerHTML = ''; // プレビューをクリア
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.alt = 'プレビュー画像';
-            previewContainer.appendChild(img);
+          previewContainer.innerHTML = ''; // プレビューをクリア
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.alt = 'プレビュー画像';
+          previewContainer.appendChild(img);
         };
         reader.readAsDataURL(file);
       }
@@ -205,13 +205,6 @@
 
         // 価格の先頭の「¥」を削除
         price = price.replace(/[^\d]/g, '');  // 数字以外の文字（¥記号含む）を削除
-
-        // // 数値でない場合、エラーを表示
-        // if (isNaN(price) || price === '') {
-        //   event.preventDefault();  // フォーム送信を停止
-        //   alert('販売価格は有効な整数で入力してください');
-        //   return;
-        // }
 
         priceInput.value = price;  // 修正された価格をフォームに設定
         console.log('送信する価格:', price);  // コンソールに送信される価格を表示

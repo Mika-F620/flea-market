@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Purchase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+
 
 class ProductTest extends TestCase
 {
@@ -40,15 +43,18 @@ class ProductTest extends TestCase
     $response->assertSee($product->image);  // 商品画像が表示される（画像のURLが含まれていることを確認）
   }
 
-    // ProductTest.phpの中で、購入済みの商品を作成するテストの例
-
-    public function testSoldProductHasSoldLabel()
-{
+  /**
+   * 購入済み商品は「Sold」と表示されるテスト
+   *
+   * @return void
+   */
+  public function testSoldProductHasSoldLabel()
+  {
     // 商品を作成
     $product = Product::factory()->create([
-        'name' => 'Sample Product',
-        'price' => 1000,
-        'image' => 'dummy_image.jpg', // ダミー画像
+      'name' => 'Sample Product',
+      'price' => 1000,
+      'image' => 'dummy_image.jpg', // ダミー画像
     ]);
 
     // 購入したユーザーを作成
@@ -65,9 +71,13 @@ class ProductTest extends TestCase
 
     // 商品が「Sold」と表示されていることを確認
     $response->assertSee('Sold'); // 「Sold」のラベルが表示されていることを確認
-}
+  }
 
-
+  /**
+   * 自分が出品した商品は表示されないテスト
+   *
+   * @return void
+   */
   public function testProductDoesNotShowUpInRecommendedForUserWhoListedIt()
   {
     // 1. ユーザーを作成してログイン
@@ -86,6 +96,11 @@ class ProductTest extends TestCase
     $response->assertDontSee($product->name); // 商品名が表示されていないことを確認
   }
 
+  /**
+   * いいねした商品だけが表示されるテスト
+   *
+   * @return void
+   */
   public function testLikedProductsAreShownInMyList()
   {
     // 1. ユーザーを作成してログイン
@@ -105,46 +120,56 @@ class ProductTest extends TestCase
     $response->assertSee($product->name); // 商品名が表示されることを確認
   }
 
+  /**
+   * 購入済み商品は「Sold」と表示されるテスト
+   *
+   * @return void
+   */
   public function testSoldProductHasSoldLabelInMyList()
   {
-      // ユーザーを作成してログイン
-      $user = User::factory()->create();
-      $this->actingAs($user);
+    // ユーザーを作成してログイン
+    $user = User::factory()->create();
+    $this->actingAs($user);
 
-      // 商品を作成
-      $product = Product::factory()->create([
-          'name' => 'Sample Product',
-          'price' => 1000,
-          'condition' => '新品',
-      ]);
+    // 商品を作成
+    $product = Product::factory()->create([
+      'name' => 'Sample Product',
+      'price' => 1000,
+      'condition' => '新品',
+    ]);
 
-      // ユーザーが商品を「いいね」する（likesテーブルにレコードを追加）
-      $user->likes()->create(['product_id' => $product->id]);
+    // ユーザーが商品を「いいね」する（likesテーブルにレコードを追加）
+    $user->likes()->create(['product_id' => $product->id]);
 
-      // 商品を購入済みとして関連付け
-      $purchase = Purchase::create([
-          'user_id' => $user->id,
-          'product_id' => $product->id,
-          'payment_method' => 'カード払い',
-      ]);
+    // 商品を購入済みとして関連付け
+    $purchase = Purchase::create([
+      'user_id' => $user->id,
+      'product_id' => $product->id,
+      'payment_method' => 'カード払い',
+    ]);
 
-      // 商品が「Sold」と表示されているかを確認
-      $response = $this->get(route('products.index'));  // ここでのルートが「マイリスト」に相当する場合
-      $response->assertSee('Sold');
+    // 商品が「Sold」と表示されているかを確認
+    $response = $this->get(route('products.index'));  // ここでのルートが「マイリスト」に相当する場合
+    $response->assertSee('Sold');
   }
 
+  /**
+   * 自分が出品した商品は表示されないテスト
+   *
+   * @return void
+   */
   public function testProductDoesNotShowUpInMyListForUserWhoListedIt()
-{
+  {
     // ログインするユーザーを作成
     $user = User::factory()->create();
     $this->actingAs($user);  // ログイン
 
     // ユーザーが出品した商品
     $product = Product::factory()->create([
-        'user_id' => $user->id, // 出品者としてログインユーザーを設定
-        'name' => 'Sample Product',
-        'price' => 1000,
-        'condition' => '新品',
+      'user_id' => $user->id, // 出品者としてログインユーザーを設定
+      'name' => 'Sample Product',
+      'price' => 1000,
+      'condition' => '新品',
     ]);
 
     // ユーザーがその商品を「いいね」する
@@ -159,10 +184,10 @@ class ProductTest extends TestCase
     // 他のユーザーが出品した商品
     $anotherUser = User::factory()->create();
     $likedProduct = Product::factory()->create([
-        'user_id' => $anotherUser->id, // 異なるユーザーが出品した商品
-        'name' => 'Liked Product',
-        'price' => 500,
-        'condition' => '新品',
+      'user_id' => $anotherUser->id, // 異なるユーザーが出品した商品
+      'name' => 'Liked Product',
+      'price' => 500,
+      'condition' => '新品',
     ]);
 
     // ユーザーがその商品を「いいね」する
@@ -173,33 +198,30 @@ class ProductTest extends TestCase
 
     // いいねした商品は表示されることを確認
     $response->assertSee($likedProduct->name);  // ユーザーが「いいね」した商品は表示される
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  public function testNothingIsDisplayedForUnauthenticatedUser()
-  {
-      // 未認証状態でマイリストページにアクセス
-      $response = $this->get(route('products.index', ['page' => 'mylist']));
-
-      // ログインしていない場合、ログインページにリダイレクトされることを確認
-      $response->assertRedirect(route('login')); // ログインページにリダイレクトされることを確認
-
-      // リダイレクト先のURLを確認する
-      $response->assertStatus(302); // 302リダイレクトステータスコードを確認
   }
 
+  /**
+   * 未認証の場合は何も表示されないテスト
+   *
+   * @return void
+   */
+  public function testNothingIsDisplayedForUnauthenticatedUser()
+  {
+    // 未認証状態でマイリストページにアクセス
+    $response = $this->get(route('products.index', ['page' => 'mylist']));
+
+    // ログインしていない場合、ログインページにリダイレクトされることを確認
+    $response->assertRedirect(route('login')); // ログインページにリダイレクトされることを確認
+
+    // リダイレクト先のURLを確認する
+    $response->assertStatus(302); // 302リダイレクトステータスコードを確認
+  }
+
+  /**
+   * 「商品名」で部分一致検索ができるテスト
+   *
+   * @return void
+   */
   public function testPartialSearchByProductName()
   {
     // ユーザーを作成してログイン
@@ -220,6 +242,11 @@ class ProductTest extends TestCase
     $response->assertDontSee($product3->name);
   }
 
+  /**
+   * 検索状態がマイリストでも保持されているテスト
+   *
+   * @return void
+   */
   public function testSearchQueryIsPersistedOnMyListPage()
   {
     // ユーザーを作成してログイン
@@ -245,50 +272,4 @@ class ProductTest extends TestCase
     $response->assertSee($product1->name);
     $response->assertDontSee($product2->name); // 部分一致しない商品が表示されないことを確認
   }
-
-  /**
-     * 商品出品画面で情報が正しく保存されることを確認するテスト
-     *
-     * @return void
-     */
-    // public function test_product_information_is_saved_correctly()
-    // {
-    //     // 1. 商品情報を用意
-    //     $productData = [
-    //         'name' => 'Test Product',
-    //         'description' => 'This is a test product description.',
-    //         'price' => 1000,
-    //         'categories' => 'electronics',
-    //         'condition' => 'new',
-    //     ];
-    
-    //     // 2. 商品を出品（保存）
-    //     $response = $this->post(route('sell.store'), $productData);
-    
-    //     // 3. データベースに商品が正しく保存されていることを確認
-    //     $this->assertDatabaseHas('products', [
-    //         'name' => 'Test Product',
-    //         'description' => 'This is a test product description.',
-    //         'price' => 1000,
-    //         'categories' => 'electronics',
-    //         'condition' => 'new',
-    //     ]);
-    // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -71,9 +71,9 @@
             </a>
           </div>
         @endif
-        @empty
-          <p>商品が見つかりません。</p>
-        @endforelse
+      @empty
+        <p>商品が見つかりません。</p>
+      @endforelse
     </div>
   </section>
 

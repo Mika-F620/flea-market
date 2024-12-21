@@ -11,7 +11,7 @@ class RegisterTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * 名前が入力されていない場合にバリデーションエラーが発生することを確認
+     * 名前が入力されていない場合、バリデーションメッセージが表示されるテスト
      *
      * @return void
      */
@@ -33,7 +33,11 @@ class RegisterTest extends TestCase
         $this->assertEquals('お名前を入力してください。', $response->getSession()->get('errors')->get('name')[0]);
     }
 
-    /** @test */
+    /**
+     * メールアドレスが入力されていない場合、バリデーションメッセージが表示されるテスト
+     *
+     * @return void
+     */
     public function email_is_required()
     {
         $response = $this->post(route('register'), [
@@ -50,7 +54,11 @@ class RegisterTest extends TestCase
         $this->assertEquals('メールアドレスを入力してください。', $response->getSession()->get('errors')->get('email')[0]);
     }
 
-    /** @test */
+    /**
+     * パスワードが7文字以下の場合、バリデーションメッセージが表示されるテスト
+     *
+     * @return void
+     */
     public function password_must_be_at_least_8_characters()
     {
         $response = $this->post(route('register'), [
@@ -67,7 +75,11 @@ class RegisterTest extends TestCase
         $this->assertEquals('パスワードは8文字以上で入力してください。', $response->getSession()->get('errors')->get('password')[0]);
     }
 
-    /** @test */
+    /**
+     * パスワードが確認用パスワードと一致しない場合、バリデーションメッセージが表示されるテスト
+     *
+     * @return void
+     */
     public function password_confirmation_must_match()
     {
         $response = $this->post(route('register'), [
@@ -82,23 +94,28 @@ class RegisterTest extends TestCase
         $this->assertTrue($response->getSession()->get('errors')->has('password'));
     }
 
+    /**
+     * 全ての項目が入力されている場合、会員情報が登録され、ログイン画面に遷移されるテスト
+     *
+     * @return void
+     */
     /** @test */
     public function all_fields_are_filled_and_user_is_registered_and_redirected_to_login_page()
-{
-    $response = $this->post(route('register'), [
-        'name' => 'Test User', // 正しい名前
-        'email' => 'testuser@example.com', // 正しいメールアドレス
-        'password' => 'password123', // 8文字以上のパスワード
-        'password_confirmation' => 'password123', // パスワード確認用
-    ]);
+    {
+        $response = $this->post(route('register'), [
+            'name' => 'Test User', // 正しい名前
+            'email' => 'testuser@example.com', // 正しいメールアドレス
+            'password' => 'password123', // 8文字以上のパスワード
+            'password_confirmation' => 'password123', // パスワード確認用
+        ]);
 
-    // ユーザーが作成され、email/verifyページにリダイレクトされることを確認
-    $response->assertRedirect(route('verification.notice')); // ここを修正
+        // ユーザーが作成され、email/verifyページにリダイレクトされることを確認
+        $response->assertRedirect(route('verification.notice')); // ここを修正
 
-    // 作成されたユーザーがデータベースに保存されていることを確認
-    $this->assertDatabaseHas('users', [
-        'email' => 'testuser@example.com',
-        'name' => 'Test User',
-    ]);
-}
+        // 作成されたユーザーがデータベースに保存されていることを確認
+        $this->assertDatabaseHas('users', [
+            'email' => 'testuser@example.com',
+            'name' => 'Test User',
+        ]);
+    }
 }

@@ -40,14 +40,8 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']), // パスワードをハッシュ化
         ]);
 
-        // ログイン状態にする
-        // auth()->login($user);
-
         // メール認証用イベントを発行
         event(new Registered($user));
-
-        // ログイン後のリダイレクト先
-        // return redirect()->route('home')->with('success', '登録が完了しました！');
 
         // ユーザーにメール認証リンクを送信後、認証通知ページにリダイレクト
         return redirect()->route('verification.notice');
@@ -65,64 +59,56 @@ class AuthController extends Controller
     /**
      * メール認証処理
      */
+    public function verifyEmail($id, $hash)
+    {
+        $user = User::findOrFail($id);
 
-public function verifyEmail($id, $hash)
-{
-    $user = User::findOrFail($id);
-
-    // ユーザーがまだ認証されていない場合
-    if ($user->hasVerifiedEmail()) {
-        // すでに認証済みの場合は、mypage/profileにリダイレクト
-        return redirect()->route('mypage.profile');
-    }
-
-    // メール認証をマークしてからログイン
-    if ($user->markEmailAsVerified()) {
-        // 自動でユーザーをログインさせる
-        Auth::login($user);
-
-        // 認証後、mypage/profileにリダイレクト
-        return redirect('mypage/profile');
-    }
-
-    // メール認証が失敗した場合
-    return redirect()->route('verification.notice');
-}
-
-public function login(LoginRequest $request)
-{
-    $credentials = $request->only('login_identifier', 'password');
-
-    // ユーザー名またはメールアドレスでユーザーを検索
-    $user = User::where('email', $credentials['login_identifier'])
-                ->orWhere('name', $credentials['login_identifier'])
-                ->first();
-
-    if ($user) {
-        // ユーザーが存在し、パスワードが一致する場合
-        if (Auth::attempt(['email' => $user->email, 'password' => $credentials['password']])) {
-
-            // メール認証されていない場合、ログインを拒否
-            if (!$user->hasVerifiedEmail()) {
-                Auth::logout();  // 未認証の場合はログアウト
-                return redirect()->route('login')->withErrors(['login_error' => '未認証ユーザーです。認証メールを確認してください。']);
-            }
-
-            // 認証されたユーザーの場合、トップページにリダイレクト
-            return redirect('/');  // ここでトップページに遷移
+        // ユーザーがまだ認証されていない場合
+        if ($user->hasVerifiedEmail()) {
+            // すでに認証済みの場合は、mypage/profileにリダイレクト
+            return redirect()->route('mypage.profile');
         }
+
+        // メール認証をマークしてからログイン
+        if ($user->markEmailAsVerified()) {
+            // 自動でユーザーをログインさせる
+            Auth::login($user);
+
+            // 認証後、mypage/profileにリダイレクト
+            return redirect('mypage/profile');
+        }
+
+        // メール認証が失敗した場合
+        return redirect()->route('verification.notice');
     }
 
-    // 資格情報が一致しない場合のエラーメッセージ
-    return back()->withErrors([
-        'login_identifier' => 'ログイン情報が登録されていません。',
-    ]);
-}
+    public function login(LoginRequest $request)
+    {
+        $credentials = $request->only('login_identifier', 'password');
 
+        // ユーザー名またはメールアドレスでユーザーを検索
+        $user = User::where('email', $credentials['login_identifier'])
+                    ->orWhere('name', $credentials['login_identifier'])
+                    ->first();
 
+        if ($user) {
+            // ユーザーが存在し、パスワードが一致する場合
+            if (Auth::attempt(['email' => $user->email, 'password' => $credentials['password']])) {
 
+                // メール認証されていない場合、ログインを拒否
+                if (!$user->hasVerifiedEmail()) {
+                    Auth::logout();  // 未認証の場合はログアウト
+                    return redirect()->route('login')->withErrors(['login_error' => '未認証ユーザーです。認証メールを確認してください。']);
+                }
 
+                // 認証されたユーザーの場合、トップページにリダイレクト
+                return redirect('/');  // ここでトップページに遷移
+            }
+        }
 
-
-    
+        // 資格情報が一致しない場合のエラーメッセージ
+        return back()->withErrors([
+            'login_identifier' => 'ログイン情報が登録されていません。',
+        ]);
+    }
 }

@@ -16,6 +16,8 @@ class ProductsTableSeeder extends Seeder
      */
     public function run()
     {
+        $user = User::factory()->create(); // ダミーユーザーを生成する場合、または既存のユーザーを取得する
+        
         // 商品データをシーディング
         DB::table('products')->insert([
             [

@@ -49,7 +49,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function purchasedProducts()
     {
         return $this->belongsToMany(Product::class, 'purchases', 'user_id', 'product_id')->withTimestamps();
-        // return $this->hasMany(Purchase::class, 'user_id');
     }
 
     public function purchases()
@@ -62,5 +61,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Like::class);
     }
-
 }

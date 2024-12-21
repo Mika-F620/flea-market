@@ -11,9 +11,6 @@ class ProfileController extends Controller
     // プロフィール表示
     public function show()
     {
-        // $user = Auth::user(); // ログイン中のユーザー情報を取得
-        // return view('profile', compact('user'));
-
         if (auth()->user()->hasVerifiedEmail()) {
             return view('profile');
         }

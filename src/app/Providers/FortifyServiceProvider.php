@@ -72,7 +72,5 @@ class FortifyServiceProvider extends ServiceProvider
         
             return null; // 認証失敗
         });
-        
-        
     }
 }
