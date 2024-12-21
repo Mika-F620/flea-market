@@ -23,7 +23,7 @@ DB_PASSWORD=laravel_pass
 6.マイグレーションの実行<br>
 `php artisan migrate`<br>
 7.シーディングの実行<br>
-`php artisan db:seed`
+`php artisan db:seed --class=ProductsTableSeeder`
 
 ### MailHog環境構築
 1.`docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog`<br>
