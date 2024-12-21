@@ -55,6 +55,29 @@ class RegisterTest extends TestCase
     }
 
     /**
+     * パスワードが入力されていない場合にバリデーションメッセージが表示されることを確認
+     *
+     * @return void
+     */
+    public function testPasswordRequiredValidation()
+    {
+        // 会員登録ページを開く
+        $response = $this->get('/register');
+
+        // パスワードを入力せずに他の必要項目を入力する
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'email' => 'testuser@example.com',
+            'password' => '', // パスワードは空
+            'password_confirmation' => '',
+        ]);
+
+        // バリデーションエラーメッセージが表示されることを確認
+        $response->assertSessionHasErrors('password');
+        $this->assertEquals('パスワードを入力してください。', $response->getSession()->get('errors')->first('password'));
+    }
+
+    /**
      * パスワードが7文字以下の場合、バリデーションメッセージが表示されるテスト
      *
      * @return void
