@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Like;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -64,6 +65,9 @@ class ProductController extends Controller
                 $query->where('name', 'LIKE', '%' . $searchQuery . '%');  // 検索クエリがある場合
             })
             ->get();
+        } elseif ($page === 'trading') {
+            // 「取引中の商品」タブが選択された場合
+            $products = DB::table('trading_products')->get(); // 取引中の商品を取得
         } else {
             // 全商品の中で検索クエリが一致するものを取得
             $products = Product::query()

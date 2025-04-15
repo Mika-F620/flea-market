@@ -46,6 +46,7 @@
         <a href="{{ url('/?page=recommend&search=' . urlencode($searchQuery ?? '')) }}" class="top__tabList {{ $page === 'recommend' ? 'active' : '' }}">おすすめ</a>
         @if (Auth::check()) <!-- ログインしている場合のみ表示 -->
           <a href="{{ url('/?page=mylist&search=' . urlencode($searchQuery ?? '')) }}" class="top__tabList {{ $page === 'mylist' ? 'active' : '' }}">マイリスト</a>
+          <a href="{{ url('/?page=trading&search=' . urlencode($searchQuery ?? '')) }}" class="top__tabList {{ $page === 'trading' ? 'active' : '' }}">取引中の商品</a>
         @else
           <!-- ログインしていない場合はリンクを表示しない -->
           <span class="top__tabList disabled" data-disabled="true">マイリスト</span>
@@ -62,6 +63,13 @@
             <div class="top__itemMask"></div>
             <img class="top__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
             <p class="top__itemName">{{ $product->name }} <span class="solid-label">Sold</span></p>
+          </div>
+        @elseif (isset($product->status) && $product->status === '取引中') <!-- 取引中の商品 -->
+          <div class="top__item">
+            <a class="top__itemLink" href="{{ route('products.show', $product->id) }}">
+              <img class="top__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+              <p class="top__itemName">{{ $product->name }}</p>
+            </a>
           </div>
         @else <!-- 購入されていない商品 -->
           <div class="top__item">
