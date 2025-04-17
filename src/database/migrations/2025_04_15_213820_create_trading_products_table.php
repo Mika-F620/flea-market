@@ -10,6 +10,7 @@ class CreateTradingProductsTable extends Migration
     {
         Schema::create('trading_products', function (Blueprint $table) {
             $table->id(); // 主キー
+            $table->foreignId('product_id')->constrained()->onDelete('cascade'); // 商品ID (productsテーブルとのリレーション)
             $table->string('name'); // 商品名
             $table->string('image'); // 商品画像
             $table->decimal('price', 10, 2); // 料金 (例: 9999.99)

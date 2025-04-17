@@ -65,12 +65,12 @@
             <p class="top__itemName">{{ $product->name }} <span class="solid-label">Sold</span></p>
           </div>
         @elseif (isset($product->status) && $product->status === '取引中') <!-- 取引中の商品 -->
-          <div class="top__item">
-            <a class="top__itemLink" href="{{ route('products.show', $product->id) }}">
-              <img class="top__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
-              <p class="top__itemName">{{ $product->name }}</p>
-            </a>
-          </div>
+        <div class="top__item">
+          <a class="top__itemLink" href="{{ route('chat.show', $product->id) }}">
+            <img class="top__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+            <p class="top__itemName">{{ $product->name }}</p>
+          </a>
+        </div>
         @else <!-- 購入されていない商品 -->
           <div class="top__item">
             <a class="top__itemLink" href="{{ route('products.show', $product->id) }}" class="top__item">

@@ -12,6 +12,9 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\StripePaymentsController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\ChatController;
+use App\Models\TradingProduct;
+use App\Models\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,3 +105,25 @@ Route::get('/payment/success', [PurchaseController::class, 'success'])->name('pa
 
 // 完了ページ
 Route::get('/complete', [PurchaseController::class, 'complete'])->name('complete');
+
+Route::post('products/trading/{id}', [ProductController::class, 'trading'])->name('products.trading');
+
+// チャット画面を表示するルート
+Route::get('chat/show/{id}', [ProductController::class, 'showChat'])->name('chat.show');
+
+// チャット表示
+// Route::get('/chat/{receiver_id}', [ChatController::class, 'show'])->name('chat.show');
+
+// Route::get('chat/show/{product_id}', [ChatController::class, 'show'])->name('chat.show');
+
+Route::get('/chat/{product_id}', [ChatController::class, 'show'])->name('chat.show');
+
+
+// チャットメッセージ送信
+Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+
+// メッセージ編集
+Route::post('/chat/edit/{message_id}', [ChatController::class, 'editMessage'])->name('chat.edit');
+
+// メッセージ削除
+Route::delete('/chat/delete/{message_id}', [ChatController::class, 'deleteMessage'])->name('chat.delete');

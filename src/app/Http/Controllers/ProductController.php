@@ -7,6 +7,7 @@ use App\Http\Requests\SellRequest;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Like;
+use App\Models\TradingProduct;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -67,7 +68,7 @@ class ProductController extends Controller
             ->get();
         } elseif ($page === 'trading') {
             // 「取引中の商品」タブが選択された場合
-            $products = DB::table('trading_products')->get(); // 取引中の商品を取得
+            $products = TradingProduct::where('user_id', $user->id)->get();  // ログイン中のユーザーが取引中の商品
         } else {
             // 全商品の中で検索クエリが一致するものを取得
             $products = Product::query()
@@ -171,4 +172,41 @@ class ProductController extends Controller
 
         return view('mypage', compact('user', 'page', 'products'));
     }
+
+    public function trading($id)
+    {
+        // 商品を取得
+        $product = Product::findOrFail($id);
+
+        // ログインユーザーを取得
+        $user = Auth::user();
+
+        // 商品がすでに取引中のテーブルに存在しない場合に保存
+        TradingProduct::create([
+            'product_id' => $product->id,  // 商品ID
+            'user_id' => $user->id,        // 出品者ID
+            'name' => $product->name,      // 商品名
+            'image' => $product->image,    // 商品画像
+            'price' => $product->price,    // 料金
+            'status' => '取引中',          // 取引中の状態
+        ]);
+
+        // 取引中商品一覧ページにリダイレクト
+        return redirect()->route('products.index', ['page' => 'trading'])->with('success', '商品が取引中に移動しました');
+    }
+
+    public function showChat($id)
+    {
+        // 取引中の商品を取得
+        $tradingProduct = TradingProduct::findOrFail($id);
+
+        // 商品の情報を取得
+        $product = $tradingProduct->product;
+        $seller = $product->user; // 出品者
+        $buyer = Auth::user(); // 現在ログインしているユーザー（取引相手）
+
+        return view('chat.show', compact('tradingProduct', 'product', 'seller', 'buyer'));
+    }
+
+
 }
