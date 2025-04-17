@@ -46,6 +46,18 @@
         <div class="show__productChatArea">
             <p>{{ $message->message }}</p> <!-- メッセージ内容 -->
         </div>
+    @if ($message->sender_id === Auth::id()) <!-- ログインユーザーが送信者の場合 -->
+      <div class="show__productChatLink">
+        <a href="{{ route('chat.edit', $message->id) }}">編集</a>
+        
+        <!-- 削除フォーム -->
+        <form action="{{ route('chat.delete', $message->id) }}" method="POST" style="display:inline;">
+          @csrf
+          @method('DELETE') <!-- DELETEメソッドを使用 -->
+          <button type="submit" onclick="return confirm('削除してもよろしいですか？');">削除</button>
+        </form>
+      </div>
+    @endif
     </div>
 @endforeach
 
@@ -57,18 +69,6 @@
 
 
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         <!-- メッセージ送信フォーム -->

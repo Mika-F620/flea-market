@@ -100,42 +100,49 @@ class ChatController extends Controller
 
 
 
-    /**
-     * メッセージを編集
-     */
+    // 編集ページ表示
+    public function editMessagePage($message_id)
+    {
+        $message = ChatMessage::findOrFail($message_id);
+        
+        // 編集ページにメッセージを渡して表示
+        return view('chat.edit', compact('message'));
+    }
+
+    // メッセージ更新
     public function editMessage(Request $request, $message_id)
     {
         $message = ChatMessage::findOrFail($message_id);
 
-        // メッセージの送信者が現在のユーザーでない場合はエラー
-        if ($message->sender_id !== Auth::id()) {
-            return redirect()->back()->with('error', '他のユーザーのメッセージは編集できません');
-        }
-
+        // 編集するメッセージのバリデーション
         $request->validate(['message' => 'required|string|max:500']);
 
         // メッセージを更新
         $message->message = $request->message;
         $message->save();
 
-        return redirect()->route('chat.show', ['receiver_id' => $message->receiver_id])->with('success', 'メッセージが更新されました');
+        // 更新後、元のチャットページにリダイレクト
+        return redirect()->route('chat.show', ['product_id' => $message->product_id])->with('success', 'メッセージが更新されました');
     }
+
+
 
     /**
      * メッセージを削除
      */
     public function deleteMessage($message_id)
-    {
-        $message = ChatMessage::findOrFail($message_id);
+{
+    $message = ChatMessage::findOrFail($message_id);
 
-        // メッセージの送信者が現在のユーザーでない場合はエラー
-        if ($message->sender_id !== Auth::id()) {
-            return redirect()->back()->with('error', '他のユーザーのメッセージは削除できません');
-        }
-
-        // メッセージの削除
-        $message->delete();
-
-        return redirect()->route('chat.show', ['receiver_id' => $message->receiver_id])->with('success', 'メッセージが削除されました');
+    // メッセージの送信者が現在のユーザーでない場合はエラー
+    if ($message->sender_id !== Auth::id()) {
+        return redirect()->route('chat.show', ['product_id' => $message->product_id])->with('error', '他のユーザーのメッセージは削除できません');
     }
+
+    // メッセージを削除
+    $message->delete();
+
+    return redirect()->route('chat.show', ['product_id' => $message->product_id])->with('success', 'メッセージが削除されました');
+}
+
 }

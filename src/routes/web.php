@@ -122,8 +122,14 @@ Route::get('/chat/{product_id}', [ChatController::class, 'show'])->name('chat.sh
 // チャットメッセージ送信
 Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
 
-// メッセージ編集
+// 編集ページ表示
+Route::get('/chat/edit/{message_id}', [ChatController::class, 'editMessagePage'])->name('chat.edit');
+
+// メッセージ更新
 Route::post('/chat/edit/{message_id}', [ChatController::class, 'editMessage'])->name('chat.edit');
 
-// メッセージ削除
+
+
+// メッセージ削除用のルート
 Route::delete('/chat/delete/{message_id}', [ChatController::class, 'deleteMessage'])->name('chat.delete');
+
