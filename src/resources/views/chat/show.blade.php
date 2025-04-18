@@ -46,8 +46,11 @@
             <p class="show__productChatUserName">{{ $message->sender ? $message->sender->name : 'ユーザー名なし' }}</p>
         </div>
         <div class="show__productChatArea">
-            <p>{{ $message->message }}</p> <!-- メッセージ内容 -->
-        </div>
+    <p>{{ $message->message }}</p> <!-- メッセージ内容 -->
+    @if ($message->image)
+        <img src="{{ asset('storage/' . $message->image) }}" alt="Uploaded Image" class="show__productChatImage">
+    @endif
+</div>
     @if ($message->sender_id === Auth::id()) <!-- ログインユーザーが送信者の場合 -->
       <div class="show__productChatLink">
         <a href="{{ route('chat.edit', $message->id) }}">編集</a>
@@ -75,14 +78,20 @@
 
         <!-- メッセージ送信フォーム -->
         <div class="show__productChatBottom">
-        <form action="{{ route('chat.send') }}" method="POST">
+        <form action="{{ route('chat.send') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <!-- receiver_id をフォームに埋め込む -->
     <input type="hidden" name="receiver_id" value="{{ $seller->id }}">
-    <input type="hidden" name="product_id" value="{{ $product->id }}">  <!-- 商品IDを追加 -->
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+    
     <input type="text" class="show__productChatBottomInput" name="message" placeholder="メッセージを入力してください">
+    
+    <!-- 画像選択 -->
+    <input type="file" name="image" accept="image/*">
+    
     <button type="submit" class="show__productChatBottomBtn">送信</button>
 </form>
+
 
 
 </div>

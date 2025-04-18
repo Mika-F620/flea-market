@@ -66,27 +66,34 @@ class ChatController extends Controller
      */
     public function sendMessage(Request $request)
 {
+    // バリデーション
     $request->validate([
-        'message' => 'required|string|max:500',
-        'receiver_id' => 'required|exists:users,id',
-        'product_id' => 'required|exists:products,id',
+        'message' => 'nullable|string',
+        'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048', // 画像のバリデーション
     ]);
 
-    $sender_id = Auth::id();
-    $receiver_id = $request->receiver_id;
-    $message = $request->message;
-    $product_id = $request->product_id;
+    $message = new ChatMessage();
+    $message->sender_id = Auth::id();
+    $message->receiver_id = $request->receiver_id;
+    $message->product_id = $request->product_id;
 
-    // メッセージをデータベースに保存
-    ChatMessage::create([
-        'sender_id' => $sender_id,
-        'receiver_id' => $receiver_id,
-        'message' => $message,
-        'product_id' => $product_id,
-    ]);
+    // メッセージの保存
+    if ($request->has('message')) {
+        $message->message = $request->message;
+    }
 
-    return redirect()->route('chat.show', ['product_id' => $product_id]);
+    // 画像の保存
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imagePath = $image->store('chat_images', 'public'); // 'public' ストレージに保存
+        $message->image = $imagePath;
+    }
+
+    $message->save();
+
+    return redirect()->route('chat.show', ['product_id' => $request->product_id]);
 }
+
 
 
 
