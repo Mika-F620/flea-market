@@ -23,7 +23,9 @@
                alt="ユーザー画像">
                <h2 class="show__headingTitle">{{ $product->user->name }}さんとの取引画面</h2><!-- 出品者の名前 -->
         </div>
-        <a class="show__headingBtn" href="#">取引を完了する</a>
+        <!-- 取引を完了するボタン -->
+        <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a>
+
       </div>
       <div class="show__product">
         <img class="show__productImg" src="{{ asset('storage/' . $product->image) }}" alt="商品画像">
@@ -93,6 +95,94 @@
 
       </div>
     </div>
+
+
+
+    <!-- 評価モーダル -->
+<div id="ratingModal" class="rating-modal">
+  <div class="rating-modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h3>取引を完了しました！</h3>
+    <p>相手の評価をお願いします。</p>
+
+    <form action="{{ route('rating.store') }}" method="POST">
+    @csrf
+    <input type="hidden" name="rated_id" value="{{ $seller->id }}"> <!-- 出品者のID -->
+    
+    <div class="rating">
+        <label for="score">評価 (1~5):</label>
+        
+        <!-- 星の評価 -->
+        <ul class="stars">
+            <li data-value="1" class="star">&#9733;</li>
+            <li data-value="2" class="star">&#9733;</li>
+            <li data-value="3" class="star">&#9733;</li>
+            <li data-value="4" class="star">&#9733;</li>
+            <li data-value="5" class="star">&#9733;</li>
+        </ul>
+
+        <input type="hidden" name="score" id="score" value="0">
+    </div>
+
+    <button type="submit">評価する</button>
+</form>
+
+  </div>
+</div>
+
+
   </section>
 @endsection
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // モーダルを開く
+    function openModal() {
+        document.getElementById("ratingModal").style.display = "block";
+    }
+
+    // モーダルを閉じる
+    function closeModal() {
+        document.getElementById("ratingModal").style.display = "none";
+    }
+
+    // モーダル外をクリックしたら閉じる
+    window.onclick = function(event) {
+        if (event.target == document.getElementById("ratingModal")) {
+            closeModal();
+        }
+    }
+
+
+    $(document).ready(function() {
+    // 星をクリックしたときの処理
+    $('.star').on('click', function() {
+        var value = $(this).data('value'); // クリックされた星の評価値を取得
+        $('#score').val(value); // 評価値をhiddenのinputにセット
+
+        // 星を選択状態にする
+        $('.star').removeClass('selected'); // すべての星を未選択に戻す
+        $(this).prevAll().addClass('selected'); // クリックした星とその前の星を選択にする
+        $(this).addClass('selected'); // クリックした星を選択状態にする
+    });
+
+    // マウスオーバーしたときの処理
+    $('.star').on('mouseover', function() {
+        var value = $(this).data('value');
+        $('.star').each(function(index) {
+            if (index < value) {
+                $(this).addClass('hover'); // マウスオーバー時の星をハイライト
+            } else {
+                $(this).removeClass('hover');
+            }
+        });
+    });
+
+    // マウスアウトしたときの処理
+    $('.star').on('mouseout', function() {
+        $('.star').removeClass('hover');
+    });
+});
+
+</script>
+
 

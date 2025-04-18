@@ -15,6 +15,7 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\ChatController;
 use App\Models\TradingProduct;
 use App\Models\Product;
+use App\Http\Controllers\RatingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,3 +134,4 @@ Route::post('/chat/edit/{message_id}', [ChatController::class, 'editMessage'])->
 // メッセージ削除用のルート
 Route::delete('/chat/delete/{message_id}', [ChatController::class, 'deleteMessage'])->name('chat.delete');
 
+Route::post('/rating', [RatingController::class, 'store'])->name('rating.store');
