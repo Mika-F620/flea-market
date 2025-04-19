@@ -208,3 +208,7 @@
   resize: none;
   margin: 8px 0 32px 0;
 }
+
+.item__btn {
+  margin-bottom: 8px;
+}
