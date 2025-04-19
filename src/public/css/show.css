@@ -301,6 +301,7 @@
   padding: 0;
   margin: 0;
   display: flex;
+  justify-content: center;
 }
 
 .rating .star {
@@ -308,6 +309,10 @@
   color: #ccc; /* 星の未選択時の色 */
   cursor: pointer;
   transition: color 0.2s ease-in-out;
+}
+
+.rating .star:hover {
+  color: #f39c12;
 }
 
 .rating .star.selected {
