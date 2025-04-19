@@ -207,6 +207,4 @@ class ProductController extends Controller
 
         return view('chat.show', compact('tradingProduct', 'product', 'seller', 'buyer'));
     }
-
-
 }
