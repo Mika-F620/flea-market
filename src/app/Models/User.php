@@ -61,4 +61,19 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Like::class);
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class, 'rated_id'); // 'rated_id' は評価を受けたユーザーのID
+    }
+
+    public function givenRatings()
+    {
+        return $this->hasMany(Rating::class, 'rater_id');  // 購入者が出品者に対してした評価
+    }
+
+    public function averageRating()
+    {
+        return $this->ratings()->avg('score'); // 評価スコアの平均を取得
+    }
 }

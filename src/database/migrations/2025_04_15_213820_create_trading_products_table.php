@@ -13,7 +13,7 @@ class CreateTradingProductsTable extends Migration
             $table->foreignId('product_id')->constrained()->onDelete('cascade'); // 商品ID (productsテーブルとのリレーション)
             $table->string('name'); // 商品名
             $table->string('image'); // 商品画像
-            $table->decimal('price', 10, 2); // 料金 (例: 9999.99)
+            $table->decimal('price', 10, 2)->default(0.00); // 価格 (デフォルト0.00)
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // 出品者のID (usersテーブルとのリレーション)
             $table->enum('status', ['取引中', '取引完了'])->default('取引中'); // 取引の状態
             $table->timestamps(); // 作成日時・更新日時

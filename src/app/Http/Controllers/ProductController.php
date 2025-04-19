@@ -174,37 +174,52 @@ class ProductController extends Controller
     }
 
     public function trading($id)
-    {
-        // 商品を取得
-        $product = Product::findOrFail($id);
+{
+    // 商品を取得
+    $product = Product::findOrFail($id);
 
-        // ログインユーザーを取得
-        $user = Auth::user();
+    // ログインユーザーを取得（購入者）
+    $buyer = Auth::user();
 
-        // 商品がすでに取引中のテーブルに存在しない場合に保存
-        TradingProduct::create([
-            'product_id' => $product->id,  // 商品ID
-            'user_id' => $user->id,        // 出品者ID
-            'name' => $product->name,      // 商品名
-            'image' => $product->image,    // 商品画像
-            'price' => $product->price,    // 料金
-            'status' => '取引中',          // 取引中の状態
-        ]);
+    // 出品者の情報
+    $seller = $product->user;
 
-        // 取引中商品一覧ページにリダイレクト
-        return redirect()->route('products.index', ['page' => 'trading'])->with('success', '商品が取引中に移動しました');
-    }
+    // 商品がすでに取引中のテーブルに存在しない場合に保存
+    TradingProduct::create([
+        'product_id' => $product->id,  // 商品ID
+        'user_id' => $buyer->id,        // 購入者ID
+        'name' => $product->name,      // 商品名
+        'image' => $product->image,    // 商品画像
+        'price' => $product->price,    // 価格
+        'status' => '取引中',          // 取引中の状態
+    ]);
+
+    // 出品者にも取引中の商品を保存
+    TradingProduct::create([
+        'product_id' => $product->id,  // 商品ID
+        'user_id' => $seller->id,      // 出品者ID
+        'name' => $product->name,      // 商品名
+        'image' => $product->image,    // 商品画像
+        'price' => $product->price,    // 価格
+        'status' => '取引中',          // 取引中の状態
+    ]);
+
+    // 取引中商品一覧ページにリダイレクト
+    return redirect()->route('products.index', ['page' => 'trading'])->with('success', '商品が取引中に移動しました');
+}
+
+
 
     public function showChat($id)
     {
-        // 取引中の商品を取得
+        // チャット画面に遷移
         $tradingProduct = TradingProduct::findOrFail($id);
 
-        // 商品の情報を取得
         $product = $tradingProduct->product;
         $seller = $product->user; // 出品者
         $buyer = Auth::user(); // 現在ログインしているユーザー（取引相手）
 
         return view('chat.show', compact('tradingProduct', 'product', 'seller', 'buyer'));
     }
+
 }

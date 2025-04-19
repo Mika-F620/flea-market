@@ -8,17 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class ChatMessage extends Model
 {
-    protected $fillable = ['product_id', 'sender_id', 'receiver_id', 'message'];
-
-    // 送信者とのリレーション
+    protected $table = 'chat_messages'; // テーブル名の確認
+    
+    // リレーションの定義
     public function sender()
     {
-        return $this->belongsTo(User::class, 'sender_id');  // sender_idがUserテーブルのidを参照
+        return $this->belongsTo(User::class, 'sender_id');
     }
-
-    // 受信者とのリレーション
+    
     public function receiver()
     {
-        return $this->belongsTo(User::class, 'receiver_id');  // receiver_idがUserテーブルのidを参照
+        return $this->belongsTo(User::class, 'receiver_id');
     }
 }

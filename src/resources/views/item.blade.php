@@ -47,10 +47,12 @@
       <p class="item__subName">ブランド名</p>
       <p class="item__price">¥<span class="item__price--big">{{ number_format($product->price) }}</span>(税込)</p>
       <!-- 取引中ボタン -->
-      <form action="{{ route('products.trading', $product->id) }}" method="POST">
+      <form action="{{ route('transaction.start', $product->id) }}" method="POST">
         @csrf
         <button type="submit" class="formBtnRed">取引する</button>
       </form>
+
+
       <div class="item__click">
         <div class="item__like">
           <img 

@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use App\Models\Product;
+use App\Models\TradingProduct;
+
 
 
 class ChatController extends Controller
@@ -15,39 +17,62 @@ class ChatController extends Controller
     /**
      * チャット画面を表示
      */
-    public function show($product_id)
+
+
+
+
+     public function start(Request $request)
+     {
+         // 受け取った情報を変数にセット
+         $productId = $request->input('product_id');
+         $sellerId = $request->input('seller_id');
+     
+         // 商品情報を取得
+         $product = Product::findOrFail($productId);
+         $seller = $product->user;
+         $buyer = Auth::user(); // 現在ログインしているユーザー（購入者）
+     
+         // チャットの開始（必要に応じてTradingProductモデルを使って取引状態にする）
+         TradingProduct::updateOrCreate([
+             'product_id' => $productId,
+             'user_id' => $buyer->id,  // 現在ログイン中のユーザー（購入者）
+         ], [
+             'status' => '取引中',  // 取引中の状態にする
+         ]);
+     
+         // チャット画面にリダイレクト
+         return redirect()->route('chat.show', $productId);
+     }
+
+     public function sendMessage(Request $request)
 {
-    $sender_id = Auth::id(); // 現在ログインしているユーザーID
+    // バリデーション
+    $request->validate([
+        'message' => 'nullable|string',
+        'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
+    ]);
 
-    // 商品情報を取得
-    $product = Product::findOrFail($product_id);
+    // メッセージの保存
+    $message = new ChatMessage();
+    $message->sender_id = Auth::id();
+    $message->receiver_id = $request->receiver_id;
+    $message->product_id = $request->product_id;
 
-    // 出品者の情報を取得（リレーションを通じて取得）
-    $seller = $product->user; // 商品に関連するユーザー（出品者）
+    // メッセージが空の場合でも空文字を代入
+    $message->message = $request->message ?? '';  // 空メッセージの場合は空文字に設定
 
-    // 出品者のIDをreceiver_idとして設定
-    $receiver_id = $product->user_id; // ここが出品者のIDです
+    // 画像の保存
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imagePath = $image->store('chat_images', 'public');
+        $message->image = $imagePath;
+    }
 
-    // 送信者と受信者でメッセージを取得
-    $messages = ChatMessage::where(function($query) use ($sender_id, $receiver_id) {
-        $query->where('sender_id', $sender_id)->where('receiver_id', $receiver_id);
-    })
-    ->orWhere(function($query) use ($sender_id, $receiver_id) {
-        $query->where('sender_id', $receiver_id)->where('receiver_id', $sender_id);
-    })
-    ->orderBy('created_at', 'asc') // メッセージを時間順にソート（古い順）
-    ->get();
+    // 購入者と出品者両方に1回だけ保存
+    $message->save();
 
-    // ビューにメッセージ、出品者情報、商品情報を渡す
-    return view('chat.show', compact('messages', 'receiver_id', 'seller', 'product'));
+    return redirect()->route('chat.show', ['product_id' => $request->product_id]);
 }
-
-
-
-
-    
-
-
 
 
 
@@ -64,34 +89,61 @@ class ChatController extends Controller
     /**
      * メッセージを送信
      */
-    public function sendMessage(Request $request)
+//     public function show($product_id)
+// {
+//     $sender_id = Auth::id(); // 現在ログインしているユーザーID
+//     $product = Product::findOrFail($product_id); // 商品情報を取得
+//     $seller = $product->user; // 出品者情報
+//     $receiver_id = $product->user_id; // 出品者ID
+
+//     // メッセージを取得
+//     $messages = ChatMessage::where(function($query) use ($sender_id, $receiver_id) {
+//         $query->where('sender_id', $sender_id)->where('receiver_id', $receiver_id);
+//     })
+//     ->orWhere(function($query) use ($sender_id, $receiver_id) {
+//         $query->where('sender_id', $receiver_id)->where('receiver_id', $sender_id);
+//     })
+//     ->where('product_id', $product_id) // 商品IDでフィルタ
+//     ->orderBy('created_at', 'asc') // メッセージを時間順に
+//     ->get();
+
+//     dd($messages); // メッセージが取得されているか確認
+
+//     return view('chat.show', compact('messages', 'receiver_id', 'seller', 'product'));
+// }
+
+public function show($product_id)
 {
-    // バリデーション
-    $request->validate([
-        'message' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048', // 画像のバリデーション
-    ]);
+    $sender_id = Auth::id(); // 現在ログインしているユーザーID
+    $product = Product::findOrFail($product_id); // 商品情報を取得
+    $seller = $product->user; // 出品者情報
+    $receiver_id = $product->user_id; // 出品者ID
 
-    $message = new ChatMessage();
-    $message->sender_id = Auth::id();
-    $message->receiver_id = $request->receiver_id;
-    $message->product_id = $request->product_id;
+    // 購入者情報を取得（取引を開始したユーザー）
+    $buyer = TradingProduct::where('product_id', $product_id)
+                ->where('user_id', Auth::id()) // ログインしているユーザーが購入者か確認
+                ->first();
 
-    // メッセージの保存
-    if ($request->has('message')) {
-        $message->message = $request->message;
+    // もし$buyerがnullであれば、取引を開始したユーザーとして購入者を設定
+    if (!$buyer) {
+        $buyer = Auth::user();  // 購入者はログインしているユーザー
     }
 
-    // 画像の保存
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $imagePath = $image->store('chat_images', 'public'); // 'public' ストレージに保存
-        $message->image = $imagePath;
-    }
+    // 購入者情報（Userモデル）を取得
+    $buyerUser = $buyer->user; // これで購入者のUserモデルが取得できます
 
-    $message->save();
+    // メッセージを取得
+    $messages = ChatMessage::where(function($query) use ($sender_id, $receiver_id) {
+        $query->where('sender_id', $sender_id)->where('receiver_id', $receiver_id);
+    })
+    ->orWhere(function($query) use ($sender_id, $receiver_id) {
+        $query->where('sender_id', $receiver_id)->where('receiver_id', $sender_id);
+    })
+    ->where('product_id', $product_id) // 商品IDでフィルタ
+    ->orderBy('created_at', 'asc') // メッセージを時間順に
+    ->get();
 
-    return redirect()->route('chat.show', ['product_id' => $request->product_id]);
+    return view('chat.show', compact('messages', 'receiver_id', 'seller', 'product', 'buyer', 'buyerUser'));
 }
 
 

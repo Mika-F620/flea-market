@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use App\Models\TradingProduct;
 use App\Models\Purchase;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -75,7 +76,7 @@ public function showMypage(Request $request)
     $page = $request->get('page', 'sell'); // 現在のページ（出品・購入・取引中）
 
     if ($page === 'trading') {
-        // 取引中の商品を取得
+        // 取引中の商品を取得 (購入者として取引中の商品 + 出品者として取引中の商品)
         $products = TradingProduct::where('user_id', $user->id)
             ->where('status', '取引中') // 取引中の商品
             ->get();
@@ -96,6 +97,10 @@ public function showMypage(Request $request)
 
 
 
+
+
+
+
 public function mypage(Request $request)
 {
     // ログイン状態を確認
@@ -112,6 +117,7 @@ public function mypage(Request $request)
         $products = Product::where('user_id', $user->id)->get();
         // 出品した商品が購入されたかどうか確認
         foreach ($products as $product) {
+            // 商品が購入されたかどうかを判定
             $product->is_sold = Purchase::where('product_id', $product->id)->exists();
         }
     } elseif ($page === 'buy') {
@@ -120,6 +126,11 @@ public function mypage(Request $request)
             ->with('product') // 購入商品情報を取得
             ->get()
             ->pluck('product'); // 購入商品データのみ抽出
+    } elseif ($page === 'trading') {
+        // 取引中の商品を取得（出品者としての取引中商品）
+        $products = TradingProduct::where('user_id', $user->id)
+            ->where('status', '取引中') // 取引中の商品
+            ->get();
     } else {
         $products = collect(); // 空のコレクション
     }
@@ -127,7 +138,55 @@ public function mypage(Request $request)
     return view('mypage', compact('user', 'page', 'products'));
 }
 
+public function startTransaction(Request $request, $productId)
+{
+    // 商品情報を取得
+    $product = Product::findOrFail($productId);
 
+    // ログインしているユーザー（購入者）を取得
+    $buyer = Auth::user();
+
+    // 出品者の情報
+    $seller = $product->user;
+
+    // 既に取引中のレコードが存在しないか確認
+    $existingTransaction = TradingProduct::where('product_id', $productId)
+        ->where(function($query) use ($buyer, $seller) {
+            $query->where('user_id', $buyer->id)
+                  ->orWhere('user_id', $seller->id);
+        })
+        ->first();
+
+    if ($existingTransaction) {
+        // 既に取引中の商品があれば、そのレコードを再利用
+        return redirect()->route('chat.show', ['product_id' => $productId])
+                         ->with('success', '既に取引が開始されています');
+    }
+
+    // 取引中の商品を作成（出品者と購入者両方のユーザーIDを同じレコードに保存）
+    TradingProduct::create([
+        'product_id' => $productId,  // 商品ID
+        'user_id' => $buyer->id,     // 購入者ID
+        'name' => $product->name,    // 商品名
+        'image' => $product->image,  // 商品画像
+        'price' => $product->price,  // 価格
+        'status' => '取引中',        // 取引中の状態
+    ]);
+
+    // 出品者にも取引を表示させるため、同じ商品で取引中として1つのレコードを作成
+    TradingProduct::create([
+        'product_id' => $productId,  // 商品ID
+        'user_id' => $seller->id,    // 出品者ID
+        'name' => $product->name,    // 商品名
+        'image' => $product->image,  // 商品画像
+        'price' => $product->price,  // 価格
+        'status' => '取引中',        // 取引中の状態
+    ]);
+
+    // チャット画面に遷移
+    return redirect()->route('chat.show', ['product_id' => $productId])
+                     ->with('success', '取引が開始されました');
+}
 
 
 }

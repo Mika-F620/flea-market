@@ -44,7 +44,14 @@
     <div class="maypage__info">
       <div class="mypage__infoUser">
         <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('img/dammy2.png') }}" class="mypage__infoImg" alt="ユーザー画像">
-        <p class="mypage__infoName">{{ $user->name }}</p>
+        <div>
+          <p class="mypage__infoName">{{ $user->name }}</p>
+          <ul class="stars">
+            @for ($i = 1; $i <= 5; $i++)
+                <li class="star {{ $i <= round($user->averageRating()) ? 'selected' : '' }}">&#9733;</li>
+            @endfor
+          </ul>
+        </div>
       </div>
       <a href="{{ route('profile.edit') }}" class="mypage__infoBtn">プロフィールを編集</a>
     </div>
@@ -109,8 +116,7 @@
     @else
         @foreach ($products as $product)
             <div class="mypage__item">
-                <!-- 商品リンクを chat/show に変更 -->
-                <a class="mypage__itemLink" href="{{ route('chat.show', $product->id) }}">
+                <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $product->product_id]) }}">
                     <img class="mypage__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
                     <p class="mypage__itemName">{{ $product->name }}</p>
                 </a>
@@ -118,6 +124,9 @@
         @endforeach
     @endif
 @endif
+
+
+
 
 </div>
 

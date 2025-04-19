@@ -110,8 +110,17 @@ Route::get('/complete', [PurchaseController::class, 'complete'])->name('complete
 
 Route::post('products/trading/{id}', [ProductController::class, 'trading'])->name('products.trading');
 
+
 // チャット画面を表示するルート
+// Route::post('chat/show/{id}', [ProductController::class, 'showChat'])->name('chat.show');
 Route::get('chat/show/{id}', [ProductController::class, 'showChat'])->name('chat.show');
+
+// POSTメソッドを使って取引開始を処理
+Route::post('transaction/start/{productId}', [TransactionController::class, 'startTransaction'])->name('transaction.start');
+
+
+
+
 
 // チャット表示
 // Route::get('/chat/{receiver_id}', [ChatController::class, 'show'])->name('chat.show');
@@ -119,6 +128,12 @@ Route::get('chat/show/{id}', [ProductController::class, 'showChat'])->name('chat
 // Route::get('chat/show/{product_id}', [ChatController::class, 'show'])->name('chat.show');
 
 Route::get('/chat/{product_id}', [ChatController::class, 'show'])->name('chat.show');
+
+// Route::get('chat/show/{product_id}', [ChatController::class, 'show'])->name('chat.show');
+
+
+Route::post('chat/start', [ChatController::class, 'start'])->name('chat.start');
+
 
 
 // チャットメッセージ送信
