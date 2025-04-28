@@ -71,15 +71,22 @@
       </div>
       <!-- メッセージ送信フォーム -->
       <div class="show__productChatBottom">
-        <form action="{{ route('chat.send') }}" method="POST" enctype="multipart/form-data">
+        <form class="show__productChatBottomForm" action="{{ route('chat.send') }}" method="POST" enctype="multipart/form-data">
           @csrf
           <!-- receiver_id をフォームに埋め込む -->
           <input type="hidden" name="receiver_id" value="{{ $seller->id }}">
           <input type="hidden" name="product_id" value="{{ $product->id }}">
-          <input type="text" class="show__productChatBottomInput" name="message" placeholder="メッセージを入力してください">
+          <input type="text" class="show__productChatBottomInput" name="message" placeholder="取引メッセージを記入してください">
           <!-- 画像選択 -->
-          <input type="file" name="image" accept="image/*">
-          <button type="submit" class="show__productChatBottomBtn">送信</button>
+          <!-- <input type="file" name="image" accept="image/*"> -->
+          <label for="file-upload" class="show__productChatBottomBtn">
+            画像を追加
+          </label>
+          <input type="file" id="file-upload" name="image" accept="image/*" style="display: none;">
+
+          <button type="submit" class="show__submit">
+            <img class="show__submitImg" src="{{ asset('img/chat-img.png') }}" alt="紙飛行機">
+          </button>
         </form>
       </div>
     </div>

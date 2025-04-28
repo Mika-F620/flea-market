@@ -74,18 +74,19 @@ class ChatController extends Controller
         $seller = $product->user; // 出品者情報
         $receiver_id = $product->user_id; // 出品者ID
 
-        // 購入者情報を取得（取引を開始したユーザー）
-        $buyer = TradingProduct::where('product_id', $product_id)
-                    ->where('user_id', Auth::id()) // ログインしているユーザーが購入者か確認
-                    ->first();
+        // 取引情報を取得（出品者以外のユーザーが購入者）
+        $tradingProduct = TradingProduct::where('product_id', $product_id)
+                                        ->where('user_id', '!=', $sender_id) // ログインユーザー以外を選択
+                                        ->first();
 
-        // もし$buyerがnullであれば、取引を開始したユーザーとして購入者を設定
-        if (!$buyer) {
-            $buyer = Auth::user();  // 購入者はログインしているユーザー
+        // 取引相手を取得（購入者情報）
+        if ($tradingProduct) {
+            // 購入者情報を取得
+            $buyer = User::findOrFail($tradingProduct->user_id); // 購入者情報
+        } else {
+            // 取引情報が見つからない場合はエラーハンドリング
+            return redirect()->route('mypage')->with('error', '取引が見つかりません。');
         }
-
-        // 購入者情報（Userモデル）を取得
-        $buyerUser = $buyer->user; // これで購入者のUserモデルが取得できます
 
         // メッセージを取得
         $messages = ChatMessage::where(function($query) use ($sender_id, $receiver_id) {
@@ -98,7 +99,7 @@ class ChatController extends Controller
         ->orderBy('created_at', 'asc') // メッセージを時間順に
         ->get();
 
-        return view('chat.show', compact('messages', 'receiver_id', 'seller', 'product', 'buyer', 'buyerUser'));
+        return view('chat.show', compact('messages', 'receiver_id', 'seller', 'product', 'buyer'));
     }
 
     // 編集ページ表示
