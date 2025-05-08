@@ -9,8 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use App\Models\Product;
 use App\Models\TradingProduct;
-
-
+use App\Http\Requests\MessageRequest;
 
 class ChatController extends Controller
 {
@@ -37,14 +36,39 @@ class ChatController extends Controller
         return redirect()->route('chat.show', $productId);
     }
 
-     public function sendMessage(Request $request)
-    {
-        // バリデーション
-        $request->validate([
-            'message' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
-        ]);
+    //  public function sendMessage(Request $request)
+    // {
+    //     // バリデーション
+    //     $request->validate([
+    //         'message' => 'nullable|string',
+    //         'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
+    //     ]);
 
+    //     // メッセージの保存
+    //     $message = new ChatMessage();
+    //     $message->sender_id = Auth::id();
+    //     $message->receiver_id = $request->receiver_id;
+    //     $message->product_id = $request->product_id;
+
+    //     // メッセージが空の場合でも空文字を代入
+    //     $message->message = $request->message ?? '';  // 空メッセージの場合は空文字に設定
+
+    //     // 画像の保存
+    //     if ($request->hasFile('image')) {
+    //         $image = $request->file('image');
+    //         $imagePath = $image->store('chat_images', 'public');
+    //         $message->image = $imagePath;
+    //     }
+
+    //     // 購入者と出品者両方に1回だけ保存
+    //     $message->save();
+
+    //     return redirect()->route('chat.show', ['product_id' => $request->product_id]);
+    // }
+
+    public function sendMessage(MessageRequest $request) // MessageRequest を型指定
+    {
+        // バリデーションが成功した場合
         // メッセージの保存
         $message = new ChatMessage();
         $message->sender_id = Auth::id();
@@ -61,9 +85,10 @@ class ChatController extends Controller
             $message->image = $imagePath;
         }
 
-        // 購入者と出品者両方に1回だけ保存
+        // メッセージの保存
         $message->save();
 
+        // チャット画面にリダイレクト
         return redirect()->route('chat.show', ['product_id' => $request->product_id]);
     }
 

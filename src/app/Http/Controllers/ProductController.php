@@ -141,72 +141,198 @@ class ProductController extends Controller
         return view('purchase', compact('product', 'user'));
     }
 
-    public function mypage(Request $request)
-    {
-        // ログイン状態を確認
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'ログインが必要です。');
-        }
+    // public function mypage(Request $request)
+    // {
+    //     // ログイン状態を確認
+    //     if (!Auth::check()) {
+    //         return redirect()->route('login')->with('error', 'ログインが必要です。');
+    //     }
 
-        // ログイン中のユーザーを取得
-        $user = Auth::user();
-        $page = $request->query('page', 'sell'); // デフォルトで 'sell'
+    //     // ログイン中のユーザーを取得
+    //     $user = Auth::user();
+    //     $page = $request->query('page', 'sell'); // デフォルトで 'sell'
 
-        // 出品商品か購入商品を取得
-        if ($page === 'sell') {
-            $products = Product::where('user_id', $user->id)->get();
-            // 出品した商品が購入されたかどうか確認
-            foreach ($products as $product) {
-                // 商品が購入されたかどうかを判定
-                $product->is_sold = Purchase::where('product_id', $product->id)->exists();
-            }
-        } elseif ($page === 'buy') {
-            // 購入済み商品を取得
-            $products = Purchase::where('user_id', $user->id)
-            ->with('product') // 購入商品情報を取得
-            ->get()
-            ->pluck('product'); // 購入商品データのみ抽出
-        } else {
-            $products = collect(); // 空のコレクション
-        }
+    //     // 出品商品か購入商品を取得
+    //     if ($page === 'sell') {
+    //         $products = Product::where('user_id', $user->id)->get();
+    //         // 出品した商品が購入されたかどうか確認
+    //         foreach ($products as $product) {
+    //             // 商品が購入されたかどうかを判定
+    //             $product->is_sold = Purchase::where('product_id', $product->id)->exists();
+    //         }
+    //     } elseif ($page === 'buy') {
+    //         // 購入済み商品を取得
+    //         $products = Purchase::where('user_id', $user->id)
+    //         ->with('product') // 購入商品情報を取得
+    //         ->get()
+    //         ->pluck('product'); // 購入商品データのみ抽出
+    //     } else {
+    //         $products = collect(); // 空のコレクション
+    //     }
 
-        return view('mypage', compact('user', 'page', 'products'));
+    //     return view('mypage', compact('user', 'page', 'products'));
+    // }
+
+//     public function mypage(Request $request)
+// {
+//     // ログイン状態を確認
+//     if (!Auth::check()) {
+//         return redirect()->route('login')->with('error', 'ログインが必要です。');
+//     }
+
+//     // ログイン中のユーザーを取得
+//     $user = Auth::user();
+//     $page = $request->query('page', 'sell'); // デフォルトで 'sell'
+
+//     // 取引中の商品件数をユニークな product_id でカウント
+//     $tradingProductsCount = TradingProduct::where('user_id', $user->id)
+//                                            ->where('status', '取引中') // 取引中のステータスで絞り込み
+//                                            ->distinct('product_id') // product_id で重複を排除
+//                                            ->count(); // 件数を取得
+
+//     // 出品商品か購入商品を取得
+//     if ($page === 'sell') {
+//         $products = Product::where('user_id', $user->id)->get();
+//         // 出品した商品が購入されたかどうか確認
+//         foreach ($products as $product) {
+//             // 商品が購入されたかどうかを判定
+//             $product->is_sold = Purchase::where('product_id', $product->id)->exists();
+//         }
+//     } elseif ($page === 'buy') {
+//         // 購入済み商品を取得
+//         $products = Purchase::where('user_id', $user->id)
+//         ->with('product') // 購入商品情報を取得
+//         ->get()
+//         ->pluck('product'); // 購入商品データのみ抽出
+//     } else {
+//         $products = collect(); // 空のコレクション
+//     }
+
+//     // ビューに変数を渡す
+//     return view('mypage', compact('user', 'page', 'products', 'tradingProductsCount'));
+// }
+
+// public function mypage(Request $request)
+// {
+//     // ログイン状態を確認
+//     if (!Auth::check()) {
+//         return redirect()->route('login')->with('error', 'ログインが必要です。');
+//     }
+
+//     $user = Auth::user();
+//     $page = $request->query('page', 'sell');
+
+//     // 取引中の商品件数をユニークな product_id でカウント
+//     $tradingProductsCount = TradingProduct::where('user_id', $user->id)
+//                                            ->where('status', '取引中')
+//                                            ->distinct('product_id')
+//                                            ->count();
+
+//     // 取引中の商品を取得（新しいメッセージ順に並べる）
+//     $products = TradingProduct::where('user_id', $user->id)
+//         ->where('status', '取引中')
+//         ->with('product') // 商品情報も一緒に取得
+//         ->get()
+//         ->sortByDesc(function ($tradingProduct) {
+//             // 最新メッセージの作成日時で並べ替える
+//             return $tradingProduct->product->chatMessages->max('created_at');
+//         });
+
+//     return view('mypage', compact('user', 'page', 'products', 'tradingProductsCount'));
+// }
+
+
+
+public function mypage(Request $request)
+{
+    // ログイン状態を確認
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'ログインが必要です。');
     }
 
-    public function trading($id)
-{
-    // 商品を取得
-    $product = Product::findOrFail($id);
+    // ログイン中のユーザーを取得
+    $user = Auth::user();
+    $page = $request->query('page', 'sell'); // デフォルトで 'sell'
 
-    // ログインユーザーを取得（購入者）
-    $buyer = Auth::user();
+    // 取引中の商品の取得部分を修正
+    $tradingProducts = \App\Models\TradingProduct::where('user_id', $user->id)
+        ->where('status', '取引中')
+        ->with(['product', 'latestMessage']) // product と最新メッセージをロード
+        ->get()
+        ->sortByDesc(function($tp) {
+            // 最新メッセージのタイムスタンプでソート
+            return $tp->latestMessage ? $tp->latestMessage->created_at : $tp->created_at;
+        });
+    
+    // ユニークな商品IDの数を取得
+    $tradingProductsCount = $tradingProducts->unique('product_id')->count();
+    
+    // 並べ替えた取引中商品をビューに渡す
+    $tradingProductsList = $tradingProducts->unique('product_id')->values();
 
-    // 出品者の情報
-    $seller = $product->user;
+    // 出品商品か購入商品を取得（既存のコード）
+    if ($page === 'sell') {
+        $products = Product::where('user_id', $user->id)->get();
+        foreach ($products as $product) {
+            $product->is_sold = Purchase::where('product_id', $product->id)->exists();
+        }
+    } elseif ($page === 'buy') {
+        $products = Purchase::where('user_id', $user->id)
+            ->with('product')
+            ->get()
+            ->pluck('product');
+    } else {
+        $products = collect();
+    }
 
-    // 商品がすでに取引中のテーブルに存在しない場合に保存
-    TradingProduct::create([
-        'product_id' => $product->id,  // 商品ID
-        'user_id' => $buyer->id,        // 購入者ID
-        'name' => $product->name,      // 商品名
-        'image' => $product->image,    // 商品画像
-        'price' => $product->price,    // 価格
-        'status' => '取引中',          // 取引中の状態
-    ]);
-
-    // 出品者にも取引中の商品を保存
-    TradingProduct::create([
-        'product_id' => $product->id,  // 商品ID
-        'user_id' => $seller->id,      // 出品者ID
-        'name' => $product->name,      // 商品名
-        'image' => $product->image,    // 商品画像
-        'price' => $product->price,    // 価格
-        'status' => '取引中',          // 取引中の状態
-    ]);
-
-    // 取引中商品一覧ページにリダイレクト
-    return redirect()->route('products.index', ['page' => 'trading'])->with('success', '商品が取引中に移動しました');
+    // ビューに変数を渡す（tradingProductsListを追加）
+    return view('mypage', compact('user', 'page', 'products', 'tradingProductsCount', 'tradingProductsList'));
 }
+
+
+
+
+
+
+
+
+
+
+
+    public function trading($id)
+    {
+        // 商品を取得
+        $product = Product::findOrFail($id);
+
+        // ログインユーザーを取得（購入者）
+        $buyer = Auth::user();
+
+        // 出品者の情報
+        $seller = $product->user;
+
+        // 商品がすでに取引中のテーブルに存在しない場合に保存
+        TradingProduct::create([
+            'product_id' => $product->id,  // 商品ID
+            'user_id' => $buyer->id,        // 購入者ID
+            'name' => $product->name,      // 商品名
+            'image' => $product->image,    // 商品画像
+            'price' => $product->price,    // 価格
+            'status' => '取引中',          // 取引中の状態
+        ]);
+
+        // 出品者にも取引中の商品を保存
+        TradingProduct::create([
+            'product_id' => $product->id,  // 商品ID
+            'user_id' => $seller->id,      // 出品者ID
+            'name' => $product->name,      // 商品名
+            'image' => $product->image,    // 商品画像
+            'price' => $product->price,    // 価格
+            'status' => '取引中',          // 取引中の状態
+        ]);
+
+        // 取引中商品一覧ページにリダイレクト
+        return redirect()->route('products.index', ['page' => 'trading'])->with('success', '商品が取引中に移動しました');
+    }
 
 
 

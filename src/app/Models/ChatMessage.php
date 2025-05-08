@@ -20,4 +20,10 @@ class ChatMessage extends Model
     {
         return $this->belongsTo(User::class, 'receiver_id');
     }
+
+    // リレーション設定
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

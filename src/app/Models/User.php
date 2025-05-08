@@ -76,4 +76,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->ratings()->avg('score'); // 評価スコアの平均を取得
     }
+
+    // Userモデルにメソッドを追加
+
+    public function tradingProducts()
+    {
+        return $this->hasMany(TradingProduct::class, 'user_id');
+    }
+
 }

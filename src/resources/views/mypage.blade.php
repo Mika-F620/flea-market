@@ -67,19 +67,29 @@
             購入した商品
           </a>
         </p>
+        
         <p class="mypage__tabList">
           <a href="{{ route('mypage', ['page' => 'trading']) }}" class="mypage__tabListLink {{ $page === 'trading' ? 'active' : '' }}">
-            取引中の商品
+            @php
+              // Auth::user()がインポートされていることを確認
+              $user_id = Auth::id();
+              $tradingProductsCount = App\Models\TradingProduct::where('user_id', $user_id)
+                                                      ->where('status', '取引中')
+                                                      ->select('product_id')
+                                                      ->distinct()
+                                                      ->count();
+            @endphp
+            取引中の商品<span class="mypage__tabListNum">{{ $tradingProductsCount > 0 ? $tradingProductsCount : 'データがありません' }}</span>
           </a>
         </p>
       </div>
     </div>
     <div class="mypage__contents wrapper">
-    @if ($page === 'sell')
+      @if ($page === 'sell')
         <!-- 出品した商品を表示 -->
         @if ($products->isEmpty())
         <p>出品した商品がありません。</p>
-    @else
+      @else
         @foreach ($products as $product)
             <div class="mypage__item">
                 <a class="mypage__itemLink" href="{{ route('item.show', ['id' => $product->id]) }}" 
@@ -93,8 +103,8 @@
                 </a>
             </div>
         @endforeach
-    @endif
-    @elseif ($page === 'buy')
+      @endif
+      @elseif ($page === 'buy')
         <!-- 購入した商品を表示 -->
         @if ($products->isEmpty())
             <p>購入した商品がありません。</p>
@@ -111,19 +121,28 @@
             @endforeach
         @endif
         @elseif ($page === 'trading')
-    @if ($products->isEmpty())
+      @if ($products->isEmpty())
         <p>取引中の商品がありません。</p>
-    @else
-        @foreach ($products as $product)
+      @else
+        <!-- @foreach ($products as $product)
             <div class="mypage__item">
                 <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $product->product_id]) }}">
                     <img class="mypage__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
                     <p class="mypage__itemName">{{ $product->name }}</p>
                 </a>
             </div>
-        @endforeach
+        @endforeach -->
+        @foreach ($products as $tradingProduct)
+    <div class="mypage__item">
+        <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
+            <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
+            <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
+        </a>
+    </div>
+@endforeach
+
+      @endif
     @endif
-@endif
 
 
 

@@ -88,6 +88,14 @@
             <img class="show__submitImg" src="{{ asset('img/chat-img.png') }}" alt="紙飛行機">
           </button>
         </form>
+        <!-- メッセージのエラーメッセージ -->
+        @error('message')
+          <div class="error-message">{{ $message }}</div>
+        @enderror
+        <!-- 画像のエラーメッセージ -->
+        @error('image')
+          <div class="error-message">{{ $message }}</div>
+        @enderror
       </div>
     </div>
   </section>
