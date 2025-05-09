@@ -20,11 +20,11 @@
         @csrf
         <button class="header__loginBtn">ログアウト</button>
       </form>
+      <p class="header__btnItem"><a href="{{ route('mypage') }}" class="header__myLink">マイページ</a></p>
     @else
       <!-- ログインしていない場合、ログインボタンを表示 -->
       <p class="header__btnItem"><a href="{{ route('login') }}" class="header__loginBtn">ログイン</a></p>
     @endif
-    <p class="header__btnItem"><a href="{{ route('mypage') }}" class="header__myLink">マイページ</a></p>
     <p class="header__btnItem"><a href="{{ route('sell.index') }}" class="header__sellLink">出品</a></p>
   </div>
   <form method="GET" action="{{ route('products.index') }}" class="header__search header__searchSP">

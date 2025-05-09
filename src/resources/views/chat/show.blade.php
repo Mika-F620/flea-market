@@ -23,8 +23,14 @@
           alt="ユーザー画像">
           <h2 class="show__headingTitle">{{ $buyer->name }}さんとの取引画面</h2>
         </div>
+       <!-- 取引が完了していない場合のみ表示 -->
+       @if($tradingProduct && $tradingProduct->status != '取引完了')
+          <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a>
+        @else
+          <p>取引は完了しました。</p>
+        @endif
         <!-- 取引を完了するボタン -->
-        <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a>
+        <!-- <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a> -->
       </div>
 
       <div class="show__product">

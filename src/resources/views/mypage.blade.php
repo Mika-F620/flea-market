@@ -133,13 +133,13 @@
             </div>
         @endforeach -->
         @foreach ($products as $tradingProduct)
-    <div class="mypage__item">
-        <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
-            <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
-            <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
-        </a>
-    </div>
-@endforeach
+          <div class="mypage__item">
+              <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
+                  <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
+                  <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
+              </a>
+          </div>
+        @endforeach
 
       @endif
     @endif

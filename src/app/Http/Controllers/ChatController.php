@@ -99,7 +99,7 @@ class ChatController extends Controller
         $seller = $product->user; // 出品者情報
         $receiver_id = $product->user_id; // 出品者ID
 
-        // 取引情報を取得（出品者以外のユーザーが購入者）
+        // 取引情報を取得
         $tradingProduct = TradingProduct::where('product_id', $product_id)
                                         ->where('user_id', '!=', $sender_id) // ログインユーザー以外を選択
                                         ->first();
@@ -124,7 +124,7 @@ class ChatController extends Controller
         ->orderBy('created_at', 'asc') // メッセージを時間順に
         ->get();
 
-        return view('chat.show', compact('messages', 'receiver_id', 'seller', 'product', 'buyer'));
+        return view('chat.show', compact('messages', 'receiver_id', 'seller', 'product', 'buyer', 'tradingProduct'));
     }
 
     // 編集ページ表示
