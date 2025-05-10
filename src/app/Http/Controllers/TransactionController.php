@@ -22,14 +22,26 @@ class TransactionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function completeTransaction($productId)
-    {
-        // 商品の情報を取得
-        $product = Product::findOrFail($productId);
-        $seller = $product->user; // 出品者の情報
+{
+    // 商品の情報を取得
+    $product = Product::findOrFail($productId);
+    $seller = $product->user; // 出品者の情報
 
-        // 取引完了画面を表示
-        return view('transaction.complete', compact('product', 'seller'));
+    // 取引完了時、取引中のステータスを「取引完了」に変更
+    $tradingProduct = TradingProduct::where('product_id', $productId)
+                                    ->where('user_id', $seller->id) // 出品者の取引情報を更新
+                                    ->first();
+
+    if ($tradingProduct) {
+        $tradingProduct->status = '取引完了';  // 取引完了に変更
+        $tradingProduct->save();
     }
+
+    // 取引完了画面を表示
+    return redirect()->route('chat.show', ['product_id' => $productId])->with('success', '取引が完了しました。');
+}
+
+
 
     /**
      * 評価完了後に出品者に評価結果を送信
@@ -38,36 +50,47 @@ class TransactionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function storeRating(Request $request, $productId)
-    {
-        // 商品が存在するか確認
-        $product = Product::find($productId);
-        if (!$product) {
-            return redirect()->route('products.index')->with('error', '指定された商品が存在しません。');
-        }
-
-        // 評価情報を保存
-        $rating = new Rating();
-        $rating->rater_id = auth()->id(); // ログイン中のユーザー
-        $rating->rated_id = $request->rated_id; // 出品者
-        $rating->product_id = $productId; // 商品ID
-        $rating->score = $request->score; // 評価スコア
-        $rating->comment = $request->comment ?? ''; // コメント（省略可）
-        $rating->save();
-
-        // 出品者に評価完了メールを送信
-        $seller = $product->user; // 出品者
-
-        // メール送信処理
-        try {
-            Mail::to($seller->email)->send(new RatingCompleted($seller, $product, $rating));
-        } catch (\Exception $e) {
-            // メール送信失敗時の処理
-            return redirect()->route('products.index')->with('error', 'メール送信に失敗しました。');
-        }
-
-        // メール送信後、商品一覧画面にリダイレクト
-        return redirect()->route('products.index')->with('message', '取引が完了しました。評価が送信されました。');
+{
+    // 商品が存在するか確認
+    $product = Product::find($productId);
+    if (!$product) {
+        return redirect()->route('products.index')->with('error', '指定された商品が存在しません。');
     }
+
+    // 評価情報を保存
+    $rating = new Rating();
+    $rating->rater_id = auth()->id(); // ログイン中のユーザー
+    $rating->rated_id = $request->rated_id; // 出品者
+    $rating->product_id = $productId; // 商品ID
+    $rating->score = $request->score; // 評価スコア
+    $rating->comment = $request->comment ?? ''; // コメント（省略可）
+    $rating->save();
+
+    // 出品者に評価完了メールを送信
+    $seller = $product->user; // 出品者
+
+    // メール送信処理
+    try {
+        Mail::to($seller->email)->send(new RatingCompleted($seller, $product, $rating));
+    } catch (\Exception $e) {
+        // メール送信失敗時の処理
+        return redirect()->route('products.index')->with('error', 'メール送信に失敗しました。');
+    }
+
+    // 取引ステータスを「取引完了」に更新
+    $tradingProduct = TradingProduct::where('product_id', $productId)
+                                    ->where('user_id', $request->rater_id) // 出品者
+                                    ->first();
+    if ($tradingProduct) {
+        $tradingProduct->status = '取引完了';  // 取引完了に変更
+        $tradingProduct->save();
+    }
+
+    // メール送信後、商品一覧画面にリダイレクト
+    return redirect()->route('products.index')->with('message', '取引が完了しました。評価が送信されました。');
+}
+
+
 
     public function showMypage(Request $request)
     {
@@ -187,4 +210,6 @@ class TransactionController extends Controller
         return redirect()->route('chat.show', ['product_id' => $productId])
                         ->with('success', '取引が開始されました');
     }
+    
+    
 }

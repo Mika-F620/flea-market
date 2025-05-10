@@ -37,10 +37,25 @@
         </div>
        <!-- 取引が完了していない場合のみ表示 -->
        @if($tradingProduct && $tradingProduct->status != '取引完了')
-          <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a>
-        @else
-          <p>取引は完了しました。</p>
-        @endif
+    @php
+        // 評価が既にされているかどうかを確認
+        $existingRating = App\Models\Rating::where('rater_id', Auth::id())
+                                            ->where('rated_id', $seller->id)
+                                            ->where('product_id', $product->id)
+                                            ->first();
+    @endphp
+    @if ($existingRating)
+        <!-- すでに評価がされている場合 -->
+        <p>取引は完了しました。</p>
+    @else
+        <!-- 評価がされていない場合 -->
+        <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a>
+    @endif
+@else
+    <!-- 取引が完了した場合 -->
+    <p>取引は完了しました。</p>
+@endif
+
         <!-- 取引を完了するボタン -->
         <!-- <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a> -->
       </div>
@@ -127,7 +142,8 @@
 
       <form action="{{ route('rating.store') }}" method="POST">
         @csrf
-        <input type="hidden" name="rated_id" value="{{ $seller->id }}"> <!-- 出品者のID -->
+        <input type="hidden" name="rated_id" value="{{ $seller->id }}">
+        <input type="hidden" name="product_id" value="{{ $product->id }}">
         
         <div class="rating">
           <label for="score">評価 (1~5):</label>
