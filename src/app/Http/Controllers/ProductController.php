@@ -142,176 +142,59 @@ class ProductController extends Controller
         return view('purchase', compact('product', 'user'));
     }
 
-    // public function mypage(Request $request)
-    // {
-    //     // ログイン状態を確認
-    //     if (!Auth::check()) {
-    //         return redirect()->route('login')->with('error', 'ログインが必要です。');
-    //     }
-
-    //     // ログイン中のユーザーを取得
-    //     $user = Auth::user();
-    //     $page = $request->query('page', 'sell'); // デフォルトで 'sell'
-
-    //     // 出品商品か購入商品を取得
-    //     if ($page === 'sell') {
-    //         $products = Product::where('user_id', $user->id)->get();
-    //         // 出品した商品が購入されたかどうか確認
-    //         foreach ($products as $product) {
-    //             // 商品が購入されたかどうかを判定
-    //             $product->is_sold = Purchase::where('product_id', $product->id)->exists();
-    //         }
-    //     } elseif ($page === 'buy') {
-    //         // 購入済み商品を取得
-    //         $products = Purchase::where('user_id', $user->id)
-    //         ->with('product') // 購入商品情報を取得
-    //         ->get()
-    //         ->pluck('product'); // 購入商品データのみ抽出
-    //     } else {
-    //         $products = collect(); // 空のコレクション
-    //     }
-
-    //     return view('mypage', compact('user', 'page', 'products'));
-    // }
-
-//     public function mypage(Request $request)
-// {
-//     // ログイン状態を確認
-//     if (!Auth::check()) {
-//         return redirect()->route('login')->with('error', 'ログインが必要です。');
-//     }
-
-//     // ログイン中のユーザーを取得
-//     $user = Auth::user();
-//     $page = $request->query('page', 'sell'); // デフォルトで 'sell'
-
-//     // 取引中の商品件数をユニークな product_id でカウント
-//     $tradingProductsCount = TradingProduct::where('user_id', $user->id)
-//                                            ->where('status', '取引中') // 取引中のステータスで絞り込み
-//                                            ->distinct('product_id') // product_id で重複を排除
-//                                            ->count(); // 件数を取得
-
-//     // 出品商品か購入商品を取得
-//     if ($page === 'sell') {
-//         $products = Product::where('user_id', $user->id)->get();
-//         // 出品した商品が購入されたかどうか確認
-//         foreach ($products as $product) {
-//             // 商品が購入されたかどうかを判定
-//             $product->is_sold = Purchase::where('product_id', $product->id)->exists();
-//         }
-//     } elseif ($page === 'buy') {
-//         // 購入済み商品を取得
-//         $products = Purchase::where('user_id', $user->id)
-//         ->with('product') // 購入商品情報を取得
-//         ->get()
-//         ->pluck('product'); // 購入商品データのみ抽出
-//     } else {
-//         $products = collect(); // 空のコレクション
-//     }
-
-//     // ビューに変数を渡す
-//     return view('mypage', compact('user', 'page', 'products', 'tradingProductsCount'));
-// }
-
-// public function mypage(Request $request)
-// {
-//     // ログイン状態を確認
-//     if (!Auth::check()) {
-//         return redirect()->route('login')->with('error', 'ログインが必要です。');
-//     }
-
-//     $user = Auth::user();
-//     $page = $request->query('page', 'sell');
-
-//     // 取引中の商品件数をユニークな product_id でカウント
-//     $tradingProductsCount = TradingProduct::where('user_id', $user->id)
-//                                            ->where('status', '取引中')
-//                                            ->distinct('product_id')
-//                                            ->count();
-
-//     // 取引中の商品を取得（新しいメッセージ順に並べる）
-//     $products = TradingProduct::where('user_id', $user->id)
-//         ->where('status', '取引中')
-//         ->with('product') // 商品情報も一緒に取得
-//         ->get()
-//         ->sortByDesc(function ($tradingProduct) {
-//             // 最新メッセージの作成日時で並べ替える
-//             return $tradingProduct->product->chatMessages->max('created_at');
-//         });
-
-//     return view('mypage', compact('user', 'page', 'products', 'tradingProductsCount'));
-// }
-
-
-
-public function mypage(Request $request)
-{
-    // ログイン状態を確認
-    if (!Auth::check()) {
-        return redirect()->route('login')->with('error', 'ログインが必要です。');
-    }
-
-    // ログイン中のユーザーを取得
-    $user = Auth::user();
-    $page = $request->query('page', 'sell'); // デフォルトで 'sell'
-
-    // 取引中の商品を取得部分を修正
-    $tradingProducts = TradingProduct::where('user_id', $user->id)
-        ->where('status', '取引中')
-        ->with(['product', 'latestMessage']) 
-        ->get()
-        ->sortByDesc(function($tp) {
-            return $tp->latestMessage ? $tp->latestMessage->created_at : $tp->created_at;
-        });
-    
-    // 取引中商品数のカウント
-    $tradingProductsCount = $tradingProducts->unique('product_id')->count();
-    $tradingProductsList = $tradingProducts->unique('product_id')->values();
-
-    // 未読メッセージのカウント
-    $unreadMessagesCount = ChatMessage::where('receiver_id', $user->id)
-                                      ->where('is_read', 0)
-                                      ->count();
-
-    // 直接クエリを使って確認
-    $directCount = DB::table('chat_messages')
-                     ->where('receiver_id', $user->id)
-                     ->where('is_read', 0)
-                     ->count();
-
-    // 出品商品か購入商品を取得
-    if ($page === 'sell') {
-        $products = Product::where('user_id', $user->id)->get();
-        foreach ($products as $product) {
-            $product->is_sold = Purchase::where('product_id', $product->id)->exists();
+    public function mypage(Request $request)
+    {
+        // ログイン状態を確認
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'ログインが必要です。');
         }
-    } elseif ($page === 'buy') {
-        $products = Purchase::where('user_id', $user->id)
-            ->with('product')
+
+        // ログイン中のユーザーを取得
+        $user = Auth::user();
+        $page = $request->query('page', 'sell'); // デフォルトで 'sell'
+
+        // 取引中の商品を取得部分を修正
+        $tradingProducts = TradingProduct::where('user_id', $user->id)
+            ->where('status', '取引中')
+            ->with(['product', 'latestMessage']) 
             ->get()
-            ->pluck('product');
-    } else {
-        $products = collect();
+            ->sortByDesc(function($tp) {
+                return $tp->latestMessage ? $tp->latestMessage->created_at : $tp->created_at;
+            });
+        
+        // 取引中商品数のカウント
+        $tradingProductsCount = $tradingProducts->unique('product_id')->count();
+        $tradingProductsList = $tradingProducts->unique('product_id')->values();
+
+        // 未読メッセージのカウント
+        $unreadMessagesCount = ChatMessage::where('receiver_id', $user->id)
+                                        ->where('is_read', 0)
+                                        ->count();
+
+        // 直接クエリを使って確認
+        $directCount = DB::table('chat_messages')
+                        ->where('receiver_id', $user->id)
+                        ->where('is_read', 0)
+                        ->count();
+
+        // 出品商品か購入商品を取得
+        if ($page === 'sell') {
+            $products = Product::where('user_id', $user->id)->get();
+            foreach ($products as $product) {
+                $product->is_sold = Purchase::where('product_id', $product->id)->exists();
+            }
+        } elseif ($page === 'buy') {
+            $products = Purchase::where('user_id', $user->id)
+                ->with('product')
+                ->get()
+                ->pluck('product');
+        } else {
+            $products = collect();
+        }
+
+        // ビューに変数を渡す
+        return view('mypage', compact('user', 'page', 'products', 'tradingProductsCount', 'tradingProductsList', 'unreadMessagesCount', 'directCount'));
     }
-
-    // ビューに変数を渡す
-    return view('mypage', compact('user', 'page', 'products', 'tradingProductsCount', 'tradingProductsList', 'unreadMessagesCount', 'directCount'));
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public function trading($id)
     {
@@ -348,8 +231,6 @@ public function mypage(Request $request)
         return redirect()->route('products.index', ['page' => 'trading'])->with('success', '商品が取引中に移動しました');
     }
 
-
-
     public function showChat($id)
     {
         // チャット画面に遷移
@@ -361,5 +242,4 @@ public function mypage(Request $request)
 
         return view('chat.show', compact('tradingProduct', 'product', 'seller', 'buyer'));
     }
-
 }

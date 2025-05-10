@@ -21,44 +21,39 @@
         <div class="show__headingInfo">
           <!-- 取引を開始したユーザー（購入者）の画像を表示 -->
           @if ($seller->id === Auth::id())
-              <img class="show__productChatUserImg" 
-                   src="{{ $buyer->profile_image ? asset('storage/' . $buyer->profile_image) : asset('img/dammy2.png') }}" 
-                   alt="購入者の画像">
-            @else
-              <img class="show__productChatUserImg" 
-                   src="{{ $seller->profile_image ? asset('storage/' . $seller->profile_image) : asset('img/dammy2.png') }}" 
-                   alt="出品者の画像">
-            @endif
+            <img class="show__productChatUserImg" 
+                  src="{{ $buyer->profile_image ? asset('storage/' . $buyer->profile_image) : asset('img/dammy2.png') }}" 
+                  alt="購入者の画像">
+          @else
+            <img class="show__productChatUserImg" 
+                  src="{{ $seller->profile_image ? asset('storage/' . $seller->profile_image) : asset('img/dammy2.png') }}" 
+                  alt="出品者の画像">
+          @endif
           @if ($seller->id === Auth::id())
-          <h2 class="show__headingTitle">{{ $buyer->name }}さんとの取引画面</h2>
-        @else
-          <h2 class="show__headingTitle">{{ $seller->name }}さんとの取引画面</h2>
-        @endif
+            <h2 class="show__headingTitle">{{ $buyer->name }}さんとの取引画面</h2>
+          @else
+            <h2 class="show__headingTitle">{{ $seller->name }}さんとの取引画面</h2>
+          @endif
         </div>
-       @if ($tradingProduct && $tradingProduct->status != '取引完了')
-    @php
-        // 評価が既にされているかどうかを確認
-        $existingRating = App\Models\Rating::where('rater_id', Auth::id())
-                                            ->where('rated_id', $seller->id)
-                                            ->where('product_id', $product->id)
-                                            ->first();
-    @endphp
-    @if ($existingRating)
-        <!-- すでに評価がされている場合 -->
-        <p>取引は完了しました。</p>
-    @else
-        <!-- 評価がされていない場合 -->
-        <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a>
-    @endif
-@else
-    <!-- 取引が完了した場合 -->
-    <p>取引は完了しました。</p>
-@endif
-
-
-
-        <!-- 取引を完了するボタン -->
-        <!-- <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a> -->
+        @if ($tradingProduct && $tradingProduct->status != '取引完了')
+          @php
+            // 評価が既にされているかどうかを確認
+            $existingRating = App\Models\Rating::where('rater_id', Auth::id())
+                                                ->where('rated_id', $seller->id)
+                                                ->where('product_id', $product->id)
+                                                ->first();
+          @endphp
+          @if ($existingRating)
+            <!-- すでに評価がされている場合 -->
+            <p>取引は完了しました。</p>
+          @else
+            <!-- 評価がされていない場合 -->
+            <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a>
+          @endif
+        @else
+          <!-- 取引が完了した場合 -->
+          <p>取引は完了しました。</p>
+        @endif
       </div>
 
       <div class="show__product">
@@ -138,26 +133,25 @@
   <div id="ratingModal" class="rating-modal">
     <div class="rating-modal-content">
       <span class="close-btn" onclick="closeModal()">&times;</span>
-      <h3>取引を完了しました！</h3>
-      <p>相手の評価をお願いします。</p>
+      <h3 class="rating-modal-title">取引を完了しました！</h3>
+      <p class="rating-modal-text">今回の取引相手はどうでしたか？</p>
 
       <form action="{{ route('rating.store') }}" method="POST">
-    @csrf
-    <input type="hidden" name="product_id" value="{{ $product->id }}">
+        @csrf
+        <input type="hidden" name="product_id" value="{{ $product->id }}">
 
-    <div class="rating">
-        <label for="score">評価 (1~5):</label>
-        <ul class="stars">
+        <div class="rating">
+          <ul class="stars">
             <li data-value="1" class="star">&#9733;</li>
             <li data-value="2" class="star">&#9733;</li>
             <li data-value="3" class="star">&#9733;</li>
             <li data-value="4" class="star">&#9733;</li>
             <li data-value="5" class="star">&#9733;</li>
-        </ul>
-        <input type="hidden" name="score" id="score" value="0">
-    </div>
-    <button type="submit">評価する</button>
-</form>
+          </ul>
+          <input type="hidden" name="score" id="score" value="0">
+        </div>
+        <button class="rating-modal-btn" type="submit">送信する</button>
+      </form>
     </div>
   </div>
 @endsection
@@ -212,24 +206,24 @@
   });
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const messageInput = document.querySelector('input[name="message"]');
-        const chatForm = document.querySelector('.show__productChatBottomForm');
+  document.addEventListener('DOMContentLoaded', function() {
+    const messageInput = document.querySelector('input[name="message"]');
+    const chatForm = document.querySelector('.show__productChatBottomForm');
 
-        // メッセージ入力の変更時にlocalStorageに保存
-        messageInput.addEventListener('input', function() {
-            localStorage.setItem('chatMessage', messageInput.value);
-        });
-
-        // ページが読み込まれたときにlocalStorageからメッセージを復元
-        const savedMessage = localStorage.getItem('chatMessage');
-        if (savedMessage) {
-            messageInput.value = savedMessage;
-        }
-
-        // フォーム送信時にlocalStorageをクリア
-        chatForm.addEventListener('submit', function() {
-            localStorage.removeItem('chatMessage'); // メッセージ送信後、ローカルストレージを削除
-        });
+    // メッセージ入力の変更時にlocalStorageに保存
+    messageInput.addEventListener('input', function() {
+      localStorage.setItem('chatMessage', messageInput.value);
     });
+
+    // ページが読み込まれたときにlocalStorageからメッセージを復元
+    const savedMessage = localStorage.getItem('chatMessage');
+    if (savedMessage) {
+      messageInput.value = savedMessage;
+    }
+
+    // フォーム送信時にlocalStorageをクリア
+    chatForm.addEventListener('submit', function() {
+      localStorage.removeItem('chatMessage'); // メッセージ送信後、ローカルストレージを削除
+    });
+  });
 </script>

@@ -12,19 +12,18 @@ class AddProductIdToRatingsTable extends Migration
      * @return void
      */
     public function up()
-{
-    Schema::table('ratings', function (Blueprint $table) {
-        $table->unsignedBigInteger('product_id'); // product_idカラムを追加
-        $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade'); // 外部キー制約
-    });
-}
+    {
+        Schema::table('ratings', function (Blueprint $table) {
+            $table->unsignedBigInteger('product_id'); // product_idカラムを追加
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade'); // 外部キー制約
+        });
+    }
 
-public function down()
-{
-    Schema::table('ratings', function (Blueprint $table) {
-        $table->dropForeign(['product_id']);
-        $table->dropColumn('product_id');
-    });
-}
-
+    public function down()
+    {
+        Schema::table('ratings', function (Blueprint $table) {
+            $table->dropForeign(['product_id']);
+            $table->dropColumn('product_id');
+        });
+    }
 }

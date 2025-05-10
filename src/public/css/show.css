@@ -4,6 +4,12 @@
   display: flex;
 }
 
+@media screen and (max-width: 480px) {
+  .show {
+    flex-direction: column;
+  }
+}
+
 .show__sidebar {
   background-color: #868686;
   padding: 13px 30px;
@@ -17,6 +23,12 @@
 @media screen and (max-width: 768px) {
   .show__sidebar {
     max-width: 200px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .show__sidebar {
+    max-width: none;
   }
 }
 
@@ -278,10 +290,6 @@
   margin-bottom: 16px;
 }
 
-
-
-
-
 /* モーダル背景 */
 .rating-modal {
   display: none; /* 初期状態は非表示 */
@@ -297,13 +305,38 @@
 
 /* モーダルコンテンツ */
 .rating-modal-content {
-  background-color: white;
+  background-color: #fdfce6;
   margin: 15% auto;
   padding: 20px;
-  border: 1px solid #888;
+  border: 1px solid #000;
   width: 80%;
-  max-width: 400px;
+  max-width: 598px;
   text-align: center;
+  border-radius: 15px;
+}
+
+.rating-modal-title {
+  font-size: 35px;
+  font-weight: normal;
+  margin: 0;
+  text-align: left;
+}
+
+@media screen and (max-width: 768px) {
+  .rating-modal-title {
+    font-size: 24px;
+  }
+}
+
+.rating-modal-text {
+  font-size: 20px;
+  color: #868686;
+  text-align: left;
+}
+
+.rating {
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
 }
 
 /* 閉じるボタン */
@@ -329,13 +362,26 @@
   margin: 0;
   display: flex;
   justify-content: center;
+  gap: 13px;
 }
 
 .rating .star {
-  font-size: 30px;
+  font-size: 70px;
   color: #ccc; /* 星の未選択時の色 */
   cursor: pointer;
   transition: color 0.2s ease-in-out;
+}
+
+@media screen and (max-width: 768px) {
+  .rating .star {
+    font-size: 48px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .rating .star {
+    font-size: 10vw;
+  }
 }
 
 .rating .star:hover {
@@ -344,4 +390,30 @@
 
 .rating .star.selected {
   color: #f39c12; /* 星が選択された時の色 */
+}
+
+.rating-modal-btn {
+  font-size: 24px;
+  color: #fff;
+  background-color: #ff8282;
+  padding: 10px 16px;
+  border-radius: 5px;
+  border: none;
+  margin-top: 14px;
+  margin-left: auto;
+  display: block;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 1px solid #ff8282;
+}
+
+@media screen and (max-width: 768px) {
+  .rating-modal-btn {
+    font-size: 20px;
+  }
+}
+
+.rating-modal-btn:hover {
+  color: #ff8282;
+  background-color: #fff;
 }

@@ -36,170 +36,90 @@ class ChatController extends Controller
         return redirect()->route('chat.show', $productId);
     }
 
-    //  public function sendMessage(Request $request)
-    // {
-    //     // バリデーション
-    //     $request->validate([
-    //         'message' => 'nullable|string',
-    //         'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
-    //     ]);
-
-    //     // メッセージの保存
-    //     $message = new ChatMessage();
-    //     $message->sender_id = Auth::id();
-    //     $message->receiver_id = $request->receiver_id;
-    //     $message->product_id = $request->product_id;
-
-    //     // メッセージが空の場合でも空文字を代入
-    //     $message->message = $request->message ?? '';  // 空メッセージの場合は空文字に設定
-
-    //     // 画像の保存
-    //     if ($request->hasFile('image')) {
-    //         $image = $request->file('image');
-    //         $imagePath = $image->store('chat_images', 'public');
-    //         $message->image = $imagePath;
-    //     }
-
-    //     // 購入者と出品者両方に1回だけ保存
-    //     $message->save();
-
-    //     return redirect()->route('chat.show', ['product_id' => $request->product_id]);
-    // }
-
     public function sendMessage(MessageRequest $request)
-{
-    session(['chatMessage' => $request->input('message')]);
+    {
+        session(['chatMessage' => $request->input('message')]);
 
-    // バリデーションが成功した場合
-    // メッセージの保存
-    $message = new ChatMessage();
-    $message->sender_id = Auth::id();
-    $message->receiver_id = $request->receiver_id;
-    $message->product_id = $request->product_id; // ここで product_id をセット
+        // バリデーションが成功した場合
+        // メッセージの保存
+        $message = new ChatMessage();
+        $message->sender_id = Auth::id();
+        $message->receiver_id = $request->receiver_id;
+        $message->product_id = $request->product_id; // ここで product_id をセット
 
-    // メッセージが空の場合でも空文字を代入
-    $message->message = $request->message ?? '';  // 空メッセージの場合は空文字に設定
+        // メッセージが空の場合でも空文字を代入
+        $message->message = $request->message ?? '';  // 空メッセージの場合は空文字に設定
 
-    // 画像の保存
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $imagePath = $image->store('chat_images', 'public');
-        $message->image = $imagePath;
+        // 画像の保存
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imagePath = $image->store('chat_images', 'public');
+            $message->image = $imagePath;
+        }
+
+        // メッセージの保存
+        $message->save();
+
+        session()->forget('chatMessage');
+
+        // チャット画面にリダイレクト
+        return redirect()->route('chat.show', ['product_id' => $request->product_id]);
     }
-
-    // メッセージの保存
-    $message->save();
-
-    session()->forget('chatMessage');
-
-    // チャット画面にリダイレクト
-    return redirect()->route('chat.show', ['product_id' => $request->product_id]);
-}
-
-
-    // public function show($product_id)
-    // {
-    //     $sender_id = Auth::id(); // 現在ログインしているユーザーID
-    //     $product = Product::findOrFail($product_id); // 商品情報を取得
-    //     $seller = $product->user; // 出品者情報
-    //     $receiver_id = $product->user_id; // 出品者ID
-
-    //     // 取引情報を取得
-    //     $tradingProduct = TradingProduct::where('product_id', $product_id)
-    //                                     ->where('user_id', '!=', $sender_id) // ログインユーザー以外を選択
-    //                                     ->first();
-
-    //     // 取引相手を取得（購入者情報）
-    //     if ($tradingProduct) {
-    //         // 購入者情報を取得
-    //         $buyer = User::findOrFail($tradingProduct->user_id); // 購入者情報
-    //     } else {
-    //         // 取引情報が見つからない場合はエラーハンドリング
-    //         return redirect()->route('mypage')->with('error', '取引が見つかりません。');
-    //     }
-
-    //     // メッセージを取得
-    //     $messages = ChatMessage::where(function($query) use ($sender_id, $receiver_id) {
-    //         $query->where('sender_id', $sender_id)->where('receiver_id', $receiver_id);
-    //     })
-    //     ->orWhere(function($query) use ($sender_id, $receiver_id) {
-    //         $query->where('sender_id', $receiver_id)->where('receiver_id', $sender_id);
-    //     })
-    //     ->where('product_id', $product_id) // 商品IDでフィルタ
-    //     ->orderBy('created_at', 'asc') // メッセージを時間順に
-    //     ->get();
-
-    //     return view('chat.show', compact('messages', 'receiver_id', 'seller', 'product', 'buyer', 'tradingProduct'));
-    // }
 
    public function show($product_id)
-{
-    $current_user = Auth::user(); // 現在ログインしているユーザー
-    $product = Product::findOrFail($product_id); // 商品情報を取得
-    $seller = $product->user; // 出品者情報
-    $is_seller = ($current_user->id === $product->user_id); // ログインユーザーが出品者かどうか
+    {
+        $current_user = Auth::user(); // 現在ログインしているユーザー
+        $product = Product::findOrFail($product_id); // 商品情報を取得
+        $seller = $product->user; // 出品者情報
+        $is_seller = ($current_user->id === $product->user_id); // ログインユーザーが出品者かどうか
 
-    // 取引情報を取得
-    $tradingProduct = TradingProduct::where('product_id', $product_id)->first();
+        // 取引情報を取得
+        $tradingProduct = TradingProduct::where('product_id', $product_id)->first();
 
-    // 取引情報がない場合（まだ決済後の処理が完了していない場合）
-    if (!$tradingProduct) {
-        // 決済直後の場合は、取引情報を新規作成
-        $tradingProduct = TradingProduct::create([
-            'product_id' => $product_id,
-            'user_id' => $current_user->id,
-            'seller_id' => $product->user_id, // 出品者IDを明示的に設定
-            'buyer_id' => $is_seller ? null : $current_user->id, // 購入者IDを設定
-            'name' => $product->name,
-            'image' => $product->image ?? 'default.jpg',
-            'status' => '取引中',
-        ]);
-    }
-
-    // 購入者を特定
-    $buyer_id = $is_seller ? $tradingProduct->user_id : $current_user->id;
-    $buyer = User::find($buyer_id);
-
-    // メッセージを取得 - sender との関連付けを eager loading
-    $messages = ChatMessage::with('sender')
-                           ->where('product_id', $product_id)
-                           ->orderBy('created_at', 'asc')
-                           ->get();
-
-    // デバッグ用：メッセージの確認 (コメントを外して使用)
-    // dd($messages->count(), $messages->toArray());
-
-    // メッセージの表示を受信者のみに更新
-    foreach ($messages as $message) {
-        // 受信者のみに 'is_read' を更新
-        if ($message->receiver_id == $current_user->id && $message->is_read == 0) {
-            $message->is_read = 1;  // 既読にする
-            $message->save();
+        // 取引情報がない場合（まだ決済後の処理が完了していない場合）
+        if (!$tradingProduct) {
+            // 決済直後の場合は、取引情報を新規作成
+            $tradingProduct = TradingProduct::create([
+                'product_id' => $product_id,
+                'user_id' => $current_user->id,
+                'seller_id' => $product->user_id, // 出品者IDを明示的に設定
+                'buyer_id' => $is_seller ? null : $current_user->id, // 購入者IDを設定
+                'name' => $product->name,
+                'image' => $product->image ?? 'default.jpg',
+                'status' => '取引中',
+            ]);
         }
+
+        // 購入者を特定
+        $buyer_id = $is_seller ? $tradingProduct->user_id : $current_user->id;
+        $buyer = User::find($buyer_id);
+
+        // メッセージを取得 - sender との関連付けを eager loading
+        $messages = ChatMessage::with('sender')
+                            ->where('product_id', $product_id)
+                            ->orderBy('created_at', 'asc')
+                            ->get();
+
+        // メッセージの表示を受信者のみに更新
+        foreach ($messages as $message) {
+            // 受信者のみに 'is_read' を更新
+            if ($message->receiver_id == $current_user->id && $message->is_read == 0) {
+                $message->is_read = 1;  // 既読にする
+                $message->save();
+            }
+        }
+
+        // 他の取引中の商品を取得（サイドバー用）
+        $other_products = TradingProduct::where(function ($query) use ($current_user) {
+            $query->where('seller_id', $current_user->id)
+                ->orWhere('buyer_id', $current_user->id);
+        })
+        ->where('status', '取引中')
+        ->with('product')
+        ->get();
+
+        return view('chat.show', compact('messages', 'seller', 'product', 'buyer', 'tradingProduct', 'other_products', 'is_seller'));
     }
-
-    // 他の取引中の商品を取得（サイドバー用）
-    $other_products = TradingProduct::where(function ($query) use ($current_user) {
-        $query->where('seller_id', $current_user->id)
-              ->orWhere('buyer_id', $current_user->id);
-    })
-    ->where('status', '取引中')
-    ->with('product')
-    ->get();
-
-    return view('chat.show', compact('messages', 'seller', 'product', 'buyer', 'tradingProduct', 'other_products', 'is_seller'));
-}
-
-
-
-
-
-
-
-
-
-
-
 
     // 編集ページ表示
     public function editMessagePage($message_id)

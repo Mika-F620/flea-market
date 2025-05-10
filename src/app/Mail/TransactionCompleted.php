@@ -2,29 +2,32 @@
 
 namespace App\Mail;
 
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
 
 class TransactionCompleted extends Mailable
 {
+    use Queueable, SerializesModels;
+
     public $seller;
     public $product;
-    public $rating; // 評価情報を追加
 
-    public function __construct($seller, $product, $rating = null)
+    public function __construct(Product $product, User $seller)
     {
         $this->seller = $seller;
         $this->product = $product;
-        $this->rating = $rating; // 評価情報をセット
     }
 
     public function build()
     {
-        return $this->view('emails.transaction_completed')
+        return $this->subject('取引が完了しました')
+                    ->view('emails.transaction_completed')
                     ->with([
-                        'seller' => $this->seller,
-                        'product' => $this->product,
-                        'rating' => $this->rating, // 評価スコアやコメントをビューに渡す
-                    ])
-                    ->subject('取引が完了しました');
+                        'sellerName' => $this->seller->name,
+                        'productName' => $this->product->name,
+                    ]);
     }
 }
