@@ -9,9 +9,11 @@
     <aside class="show__sidebar">
       <p class="show__sidebarTitle">その他の取引</p>
       <div class="show__sidebarDetails">
-        <p class="show__sidebarDetailsName">商品名</p>
-        <p class="show__sidebarDetailsName">商品名</p>
-        <p class="show__sidebarDetailsName">商品名</p>
+        @foreach ($other_products as $tradingProduct)
+          <a href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}" class="show__sidebarDetailsName">
+            {{ $tradingProduct->product->name }}
+          </a>
+        @endforeach
       </div>
     </aside>
     <div class="show__contents">

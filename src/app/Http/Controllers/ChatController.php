@@ -130,44 +130,46 @@ class ChatController extends Controller
     public function show($product_id)
 {
     $current_user = Auth::user(); // 現在ログインしているユーザー
-    $sender_id = $current_user->id; // 現在ログインしているユーザーID
     $product = Product::findOrFail($product_id); // 商品情報を取得
     $seller = $product->user; // 出品者情報
-    
-    // ログインユーザーが出品者か購入者かを判断
     $is_seller = ($current_user->id === $product->user_id);
-    
+
     // 取引情報を取得
     $tradingProduct = TradingProduct::where('product_id', $product_id)->first();
-    
-    // 取引情報がない場合（まだ決済後の処理が完了していない可能性）
+
+    // 取引情報がない場合（まだ決済後の処理が完了していない場合）
     if (!$tradingProduct) {
         // 決済直後の場合は、取引情報を新規作成
         $tradingProduct = TradingProduct::create([
             'product_id' => $product_id,
-            'user_id' => $sender_id,
-            'name' => $product->name, // 商品名をnameフィールドに設定
-            'image' => $product->image ?? 'default.jpg', // 商品画像をimageフィールドに設定
+            'user_id' => $current_user->id,
+            'name' => $product->name,
+            'image' => $product->image ?? 'default.jpg',
             'status' => '取引中',
         ]);
     }
-    
+
     // 購入者を特定
-    $buyer_id = ($is_seller) ? $tradingProduct->user_id : $sender_id;
+    $buyer_id = ($is_seller) ? $tradingProduct->user_id : $current_user->id;
     $buyer = User::find($buyer_id);
-    
-    // 受信者IDを特定
-    $receiver_id = $is_seller ? $buyer_id : $product->user_id;
-    
+
+    // サイドバー用に取引中の商品を購入者・出品者両方から取得
+    $other_products = TradingProduct::where(function ($query) use ($current_user) {
+        $query->where('seller_id', $current_user->id)
+              ->orWhere('buyer_id', $current_user->id);
+    })
+    ->where('status', '取引中') // 取引中の商品
+    ->with('product') // 商品情報を一緒に取得
+    ->get();
+
     // メッセージを取得
-    $messages = ChatMessage::where(function($query) use ($product_id) {
-            $query->where('product_id', $product_id);
-        })
-        ->orderBy('created_at', 'asc') // メッセージを時間順に
-        ->get();
-    
-    return view('chat.show', compact('messages', 'receiver_id', 'sender_id', 'seller', 'product', 'buyer', 'tradingProduct'));
+    $messages = ChatMessage::where('product_id', $product_id)
+                           ->orderBy('created_at', 'asc')
+                           ->get();
+
+    return view('chat.show', compact('messages', 'seller', 'product', 'buyer', 'tradingProduct', 'other_products'));
 }
+
 
 
     // 編集ページ表示
