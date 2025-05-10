@@ -93,36 +93,40 @@ class TransactionController extends Controller
 
 
     public function showMypage(Request $request)
-    {
-        // ログイン中のユーザーを取得
-        $user = Auth::user();
-        $page = $request->get('page', 'sell'); // 現在のページ（出品・購入・取引中）
+{
+    // ログイン中のユーザーを取得
+    $user = Auth::user();
+    $page = $request->get('page', 'sell'); // 現在のページ（出品・購入・取引中）
 
-        // 取引中の商品を取得（購入者として取引中の商品 + 出品者として取引中の商品）
-        if ($page === 'trading') {
-            $products = TradingProduct::where(function ($query) use ($user) {
-                    // 購入者としての取引中の商品
-                    $query->where('buyer_id', $user->id);
-                })
-                ->orWhere(function ($query) use ($user) {
-                    // 出品者としての取引中の商品
-                    $query->where('seller_id', $user->id);
-                })
-                ->where('status', '取引中') // 取引中の商品
-                ->get();
-        } elseif ($page === 'buy') {
-            // 購入した商品を取得
-            $products = Purchase::where('user_id', $user->id)
-                ->with('product')
-                ->get()
-                ->pluck('product'); // 購入商品データのみ抽出
-        } else {
-            // 出品した商品を取得
-            $products = Product::where('user_id', $user->id)->get(); // 出品中の商品
-        }
-
-        return view('mypage', compact('user', 'products', 'page'));
+    // 取引中の商品を取得（購入者として取引中の商品 + 出品者として取引中の商品）
+    if ($page === 'trading') {
+        $products = TradingProduct::where(function ($query) use ($user) {
+            // 購入者としての取引中の商品
+            $query->where('buyer_id', $user->id);
+        })
+        ->orWhere(function ($query) use ($user) {
+            // 出品者としての取引中の商品
+            $query->where('seller_id', $user->id);
+        })
+        ->where('status', '取引中') // 取引中の商品
+        ->get();
+    } elseif ($page === 'buy') {
+        // 購入した商品を取得
+        $products = Purchase::where('user_id', $user->id)
+            ->with('product')
+            ->get()
+            ->pluck('product'); // 購入商品データのみ抽出
+    } else {
+        // 出品した商品を取得
+        $products = Product::where('user_id', $user->id)->get(); // 出品中の商品
     }
+
+    // ユーザーの評価を計算（購入者として、または出品者としての評価平均）
+    $averageRating = $user->averageRating();
+
+    return view('mypage', compact('user', 'products', 'page', 'averageRating'));
+}
+
 
     public function mypage(Request $request)
     {

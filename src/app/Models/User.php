@@ -72,10 +72,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Rating::class, 'rater_id');  // 購入者が出品者に対してした評価
     }
 
-    public function averageRating()
-    {
-        return $this->ratings()->avg('score'); // 評価スコアの平均を取得
+    // Userモデルに追加するメソッド
+public function averageRating()
+{
+    // 出品者に対する評価
+    $ratings = Rating::where('rated_id', $this->id)->pluck('score'); // rated_idがユーザーIDの評価を取得
+
+    if ($ratings->isEmpty()) {
+        return 0; // 評価がない場合は0を返す
     }
+
+    return $ratings->avg(); // 平均スコアを返す
+}
+
 
     // Userモデルにメソッドを追加
 

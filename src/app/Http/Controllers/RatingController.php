@@ -18,10 +18,9 @@ class RatingController extends Controller
         'product_id' => 'required|exists:products,id',
     ]);
 
-    // 評価をするユーザーID
-    $rater_id = Auth::id();
-    $rated_id = $request->rated_id;
-    $product_id = $request->product_id;
+    $rater_id = Auth::id();  // 評価をするユーザーID
+    $rated_id = $request->rated_id; // 評価対象のユーザーID（出品者または購入者）
+    $product_id = $request->product_id;  // 商品ID
 
     // すでに評価されているか確認
     $existingRating = Rating::where('rater_id', $rater_id)
@@ -56,12 +55,12 @@ class RatingController extends Controller
         return redirect()->route('chat.show', ['product_id' => $product_id])
                          ->with('success', '評価が完了しました');
     } catch (\Exception $e) {
-        // エラーがあればログに記録
         Log::error('評価の保存に失敗: ' . $e->getMessage());
         return redirect()->route('chat.show', ['product_id' => $product_id])
                          ->with('error', '評価の保存に失敗しました');
     }
 }
+
 
 
 }
