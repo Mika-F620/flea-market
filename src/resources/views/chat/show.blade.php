@@ -94,7 +94,7 @@
           <!-- receiver_id をフォームに埋め込む -->
           <input type="hidden" name="receiver_id" value="{{ $seller->id }}">
           <input type="hidden" name="product_id" value="{{ $product->id }}">
-          <input type="text" class="show__productChatBottomInput" name="message" placeholder="取引メッセージを記入してください">
+          <input type="text" class="show__productChatBottomInput" name="message" placeholder="取引メッセージを記入してください" value="{{ old('message') }}">
           <!-- 画像選択 -->
           <!-- <input type="file" name="image" accept="image/*"> -->
           <label for="file-upload" class="show__productChatBottomBtn">
@@ -195,4 +195,26 @@
       $('.star').removeClass('hover');
     });
   });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageInput = document.querySelector('input[name="message"]');
+        const chatForm = document.querySelector('.show__productChatBottomForm');
+
+        // メッセージ入力の変更時にlocalStorageに保存
+        messageInput.addEventListener('input', function() {
+            localStorage.setItem('chatMessage', messageInput.value);
+        });
+
+        // ページが読み込まれたときにlocalStorageからメッセージを復元
+        const savedMessage = localStorage.getItem('chatMessage');
+        if (savedMessage) {
+            messageInput.value = savedMessage;
+        }
+
+        // フォーム送信時にlocalStorageをクリア
+        chatForm.addEventListener('submit', function() {
+            localStorage.removeItem('chatMessage'); // メッセージ送信後、ローカルストレージを削除
+        });
+    });
 </script>

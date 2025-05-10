@@ -68,6 +68,8 @@ class ChatController extends Controller
 
     public function sendMessage(MessageRequest $request)
 {
+    session(['chatMessage' => $request->input('message')]);
+
     // バリデーションが成功した場合
     // メッセージの保存
     $message = new ChatMessage();
@@ -87,6 +89,8 @@ class ChatController extends Controller
 
     // メッセージの保存
     $message->save();
+
+    session()->forget('chatMessage');
 
     // チャット画面にリダイレクト
     return redirect()->route('chat.show', ['product_id' => $request->product_id]);
