@@ -18,10 +18,20 @@
       <div class="show__heading">
         <div class="show__headingInfo">
           <!-- 取引を開始したユーザー（購入者）の画像を表示 -->
-          <img class="show__headingImg" 
-          src="{{ $buyer->profile_image ? asset('storage/' . $buyer->profile_image) : asset('img/dammy2.png') }}" 
-          alt="ユーザー画像">
+          @if ($seller->id === Auth::id())
+              <img class="show__productChatUserImg" 
+                   src="{{ $buyer->profile_image ? asset('storage/' . $buyer->profile_image) : asset('img/dammy2.png') }}" 
+                   alt="購入者の画像">
+            @else
+              <img class="show__productChatUserImg" 
+                   src="{{ $seller->profile_image ? asset('storage/' . $seller->profile_image) : asset('img/dammy2.png') }}" 
+                   alt="出品者の画像">
+            @endif
+          @if ($seller->id === Auth::id())
           <h2 class="show__headingTitle">{{ $buyer->name }}さんとの取引画面</h2>
+        @else
+          <h2 class="show__headingTitle">{{ $seller->name }}さんとの取引画面</h2>
+        @endif
         </div>
        <!-- 取引が完了していない場合のみ表示 -->
        @if($tradingProduct && $tradingProduct->status != '取引完了')

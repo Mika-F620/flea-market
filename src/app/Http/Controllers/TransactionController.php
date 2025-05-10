@@ -72,12 +72,19 @@ class TransactionController extends Controller
     public function showMypage(Request $request)
     {
         // ログイン中のユーザーを取得
-        $user = auth()->user();
+        $user = Auth::user();
         $page = $request->get('page', 'sell'); // 現在のページ（出品・購入・取引中）
 
+        // 取引中の商品を取得（購入者として取引中の商品 + 出品者として取引中の商品）
         if ($page === 'trading') {
-            // 取引中の商品を取得 (購入者として取引中の商品 + 出品者として取引中の商品)
-            $products = TradingProduct::where('user_id', $user->id)
+            $products = TradingProduct::where(function ($query) use ($user) {
+                    // 購入者としての取引中の商品
+                    $query->where('buyer_id', $user->id);
+                })
+                ->orWhere(function ($query) use ($user) {
+                    // 出品者としての取引中の商品
+                    $query->where('seller_id', $user->id);
+                })
                 ->where('status', '取引中') // 取引中の商品
                 ->get();
         } elseif ($page === 'buy') {

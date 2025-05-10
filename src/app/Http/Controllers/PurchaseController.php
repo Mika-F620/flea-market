@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\TradingProduct;
 use Illuminate\Http\Request;
 use App\Http\Requests\PurchaseRequest;
 use Illuminate\Support\Facades\Auth;
@@ -82,90 +83,191 @@ class PurchaseController extends Controller
     }
 
     // Stripe決済ページ（決済処理）
-    public function payment(PurchaseRequest $request)
-    {
-        try {
-            // 商品IDをリクエストから取得
-            $productId = $request->input('product_id');
-            $product = Product::findOrFail($productId);
-
-            // StripeのAPIキーを設定
-            Stripe::setApiKey(env('STRIPE_SECRET'));
-
-            // リクエストから購入情報を直接取得してセッションに保存
-            session([
-                'product_id' => $request->input('product_id'),
-                'payment_method' => $request->input('payment_method'),
-                'postal_code' => $request->input('postal_code'),
-                'address' => $request->input('address'),
-                'building_name' => $request->input('building_name'),
-            ]);
-
-            // Stripe Checkoutセッションの作成
-            $session = Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => [
-                    [
-                        'price_data' => [
-                            'currency' => 'jpy',
-                            'product_data' => [
-                                'name' => $product->name, // 商品名
-                            ],
-                            'unit_amount' => $product->price, // 金額
-                        ],
-                        'quantity' => 1,
-                    ],
-                ],
-                'mode' => 'payment',
-                'success_url' => route('payment.success', ['product_id' => $product->id]), // 決済成功後に遷移するURL
-                'cancel_url' => route('purchase.show', $product->id), // キャンセル時に遷移するURL
-            ]);
-
-            // Stripe Checkoutページにリダイレクト
-            return redirect()->away($session->url);
-
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => '決済処理に失敗しました。再試行してください。']);
-        }
-    }
-
-    // 決済成功後のサンクスページ
-    public function success(Request $request)
-    {
-        // セッションから購入情報を取得
-        $productId = session('product_id');
-        $paymentMethod = session('payment_method');
-        $postalCode = session('postal_code');
-        $address = session('address');
-        $buildingName = session('building_name');
-        
-        // 商品情報を取得
+    // Stripe決済ページ（決済処理）
+public function payment(PurchaseRequest $request)
+{
+    try {
+        // 商品IDをリクエストから取得
+        $productId = $request->input('product_id');
         $product = Product::findOrFail($productId);
 
-        // ユーザー情報を取得
-        $user = Auth::user();
+        // StripeのAPIキーを設定
+        Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        // 購入データの保存
-        Purchase::create([
-            'user_id' => $user->id,
-            'product_id' => $product->id,
-            'payment_method' => $paymentMethod,
-            'postal_code' => $postalCode,
-            'address' => $address,
-            'building_name' => $buildingName,
+        // リクエストから購入情報を直接取得してセッションに保存
+        session([
+            'product_id' => $productId,
+            'payment_method' => $request->input('payment_method'),
+            'postal_code' => $request->input('postal_code'),
+            'address' => $request->input('address'),
+            'building_name' => $request->input('building_name'),
         ]);
 
-        // セッションのデータを削除
-        session()->forget(['product_id', 'payment_method', 'postal_code', 'address', 'building_name']);
+        // Stripe Checkoutセッションの作成
+        $session = Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [
+                [
+                    'price_data' => [
+                        'currency' => 'jpy',
+                        'product_data' => [
+                            'name' => $product->name, // 商品名
+                        ],
+                        'unit_amount' => $product->price, // 金額
+                    ],
+                    'quantity' => 1,
+                ],
+            ],
+            'mode' => 'payment',
+            'success_url' => route('payment.success'), // 完了後にチャット画面に遷移
+            'cancel_url' => route('purchase.show', $product->id), // キャンセル時に遷移するURL
+        ]);
 
-        // 完了ページを表示
-        return view('complete');
+        // Stripe Checkoutページにリダイレクト
+        return redirect()->away($session->url);
+
+    } catch (\Exception $e) {
+        return back()->withErrors(['error' => '決済処理に失敗しました。再試行してください。']);
     }
+}
+
+    // 決済成功後のサンクスページ
+    // public function success(Request $request)
+    // {
+    //     // セッションから購入情報を取得
+    //     $productId = session('product_id');
+    //     $paymentMethod = session('payment_method');
+    //     $postalCode = session('postal_code');
+    //     $address = session('address');
+    //     $buildingName = session('building_name');
+        
+    //     // 商品情報を取得
+    //     $product = Product::findOrFail($productId);
+
+    //     // ユーザー情報を取得
+    //     $user = Auth::user();
+
+    //     // 購入データの保存
+    //     Purchase::create([
+    //         'user_id' => $user->id,
+    //         'product_id' => $product->id,
+    //         'payment_method' => $paymentMethod,
+    //         'postal_code' => $postalCode,
+    //         'address' => $address,
+    //         'building_name' => $buildingName,
+    //     ]);
+
+    //     // セッションのデータを削除
+    //     session()->forget(['product_id', 'payment_method', 'postal_code', 'address', 'building_name']);
+
+    //     // 完了ページを表示
+    //     return view('complete');
+    // }
+
+//     public function success(Request $request)
+// {
+//     // セッションから購入情報を取得
+//     $productId = session('product_id');
+//     $paymentMethod = session('payment_method');
+//     $postalCode = session('postal_code');
+//     $address = session('address');
+//     $buildingName = session('building_name');
+    
+//     // 商品情報を取得
+//     $product = Product::findOrFail($productId);
+
+//     // ユーザー情報を取得
+//     $user = Auth::user();
+
+//     // 購入データの保存
+//     Purchase::create([
+//         'user_id' => $user->id,
+//         'product_id' => $product->id,
+//         'payment_method' => $paymentMethod,
+//         'postal_code' => $postalCode,
+//         'address' => $address,
+//         'building_name' => $buildingName,
+//     ]);
+
+//     // セッションのデータを削除
+//     session()->forget(['product_id', 'payment_method', 'postal_code', 'address', 'building_name']);
+
+//     // チャット画面にリダイレクト
+//     return redirect()->route('chat.show', ['product_id' => $productId]);
+// }
+
+// 購入後の決済成功処理
+public function success(Request $request)
+{
+    // セッションから購入情報を取得
+    $productId = session('product_id');
+    $paymentMethod = session('payment_method');
+    $postalCode = session('postal_code');
+    $address = session('address');
+    $buildingName = session('building_name');
+    
+    // 商品情報を取得
+    $product = Product::findOrFail($productId);
+
+    // ユーザー情報を取得
+    $user = Auth::user();
+
+    // 購入データの保存
+    Purchase::create([
+        'user_id' => $user->id,
+        'product_id' => $product->id,
+        'payment_method' => $paymentMethod,
+        'postal_code' => $postalCode,
+        'address' => $address,
+        'building_name' => $buildingName,
+    ]);
+
+    // 取引情報を作成または更新する
+    // 出品者のIDを取得
+    $seller_id = $product->user_id;
+
+    // TradingProductの作成または更新
+    TradingProduct::updateOrCreate(
+        [
+            'product_id' => $product->id,
+            'user_id' => $user->id, // 購入者のID
+        ],
+        [
+            'name' => $product->name, // 商品名
+            'image' => $product->image ?? 'default.jpg', // 商品画像
+            'status' => '取引中',
+            'seller_id' => $seller_id, // 出品者のIDを設定
+            'buyer_id' => $user->id, // 購入者のIDを設定
+        ]
+    );
+
+    // セッションのデータを削除
+    session()->forget(['product_id', 'payment_method', 'postal_code', 'address', 'building_name']);
+
+    // チャット画面に遷移
+    return redirect()->route('chat.show', ['product_id' => $productId]);
+}
+
+
+
+
+
 
 
     // 完了ページ
-    public function complete()
-    {
-        return view('complete'); // 完了ページ（サンクスページ）
-    }
+    public function complete(Request $request)
+{
+    // デバッグ用 dd() を追加して、受け取った product_id を確認
+    dd('Product ID from request: ', $productId);
+    // 購入した商品情報を取得
+    $productId = $request->input('product_id');
+    $product = Product::findOrFail($productId); // 商品情報を取得
+
+    // チャット画面に遷移するために必要な情報を渡す
+    return view('complete', ['product' => $product]); // ここで product をビューに渡す
+}
+
+
+
+
 }

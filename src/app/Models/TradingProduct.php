@@ -16,6 +16,8 @@ class TradingProduct extends Model
         'image', 
         'price', 
         'status',
+        'seller_id',
+        'buyer_id'
     ];
 
     public function product()

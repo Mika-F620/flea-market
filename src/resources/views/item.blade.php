@@ -65,10 +65,10 @@
         </div>
       </div>
       <!-- 取引中ボタン -->
-      <form action="{{ route('transaction.start', $product->id) }}" method="POST">
+      <!-- <form action="{{ route('transaction.start', $product->id) }}" method="POST">
         @csrf
         <button type="submit" class="formBtnRed item__btn">取引する</button>
-      </form>
+      </form> -->
       <a href="{{ route('purchase.show', ['id' => $product->id]) }}" class="formBtnRed">購入手続きへ</a>
       <div class="item__explanation">
         <h3 class="item__title">商品説明</h3>
