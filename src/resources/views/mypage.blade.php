@@ -135,8 +135,22 @@
         @foreach ($products as $tradingProduct)
           <div class="mypage__item">
               <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
+                <div class="mypage__itemThumbnails">
                   <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
-                  <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
+                  <!-- 未読メッセージ数を表示 -->
+                  @php
+                      // 取引中の商品に関連する未読メッセージ数を取得
+                      $unreadMessagesCount = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)  // 商品IDで絞り込む
+                                                                    ->where('receiver_id', Auth::id())  // 現在のユーザーが受信者
+                                                                    ->where('is_read', 0)  // 未読メッセージ
+                                                                    ->count();
+                  @endphp
+                  <!-- 未読メッセージ数を表示 -->
+                  @if ($unreadMessagesCount > 0)
+                      <p class="mypage__itemUnread">{{ $unreadMessagesCount }}</p>
+                  @endif
+                </div>
+                <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
               </a>
           </div>
         @endforeach

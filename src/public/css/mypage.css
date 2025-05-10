@@ -126,6 +126,27 @@
   position: relative;
 }
 
+.mypage__itemThumbnails {
+  position: relative;
+}
+
+.mypage__itemUnread {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #ff0000;
+  color: #fff;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  letter-spacing: 0;
+  line-height: normal;
+  margin: 0;
+}
+
 .sold__itemMask {
   position: absolute;
   top: 0;
