@@ -70,16 +70,16 @@
         
         <p class="mypage__tabList">
           <a href="{{ route('mypage', ['page' => 'trading']) }}" class="mypage__tabListLink {{ $page === 'trading' ? 'active' : '' }}">
-            <!-- @php
-              // Auth::user()がインポートされていることを確認
+            @php
+              // 現在ログイン中のユーザーIDを取得
               $user_id = Auth::id();
-              $tradingProductsCount = App\Models\TradingProduct::where('user_id', $user_id)
-                                                      ->where('status', '取引中')
-                                                      ->select('product_id')
-                                                      ->distinct()
-                                                      ->count();
-            @endphp -->
-            取引中の商品<span class="mypage__tabListNum">{{ $unreadMessagesCount ?? '' }}</span>
+              
+              // 未読メッセージの件数をカウント
+              $unreadMessagesCount = App\Models\ChatMessage::where('receiver_id', $user_id)
+                                                            ->where('is_read', 0)
+                                                            ->count();
+            @endphp
+            取引中の商品<span class="mypage__tabListNum">{{ $unreadMessagesCount ?? 'なし' }}</span>
           </a>
         </p>
       </div>

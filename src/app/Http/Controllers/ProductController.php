@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Like;
 use App\Models\TradingProduct;
+use App\Models\ChatMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -250,28 +251,56 @@ public function mypage(Request $request)
         return redirect()->route('login')->with('error', 'ログインが必要です。');
     }
 
+    // ログイン中のユーザーを取得
     $user = Auth::user();
-    $page = $request->query('page', 'sell');
+    $page = $request->query('page', 'sell'); // デフォルトで 'sell'
 
-    // 未読メッセージのカウント
-    $unreadMessagesCount = \App\Models\ChatMessage::where('receiver_id', $user->id)
-        ->where('is_read', false) // 未読のメッセージをカウント
-        ->count();
-
-    // 取引中の商品を取得
+    // 取引中の商品を取得部分を修正
     $tradingProducts = TradingProduct::where('user_id', $user->id)
         ->where('status', '取引中')
-        ->with(['product', 'latestMessage']) // product と最新メッセージをロード
+        ->with(['product', 'latestMessage']) 
         ->get()
         ->sortByDesc(function($tp) {
             return $tp->latestMessage ? $tp->latestMessage->created_at : $tp->created_at;
         });
-
-    // 重複した product_id を削除
+    
+    // 取引中商品数のカウント
+    $tradingProductsCount = $tradingProducts->unique('product_id')->count();
     $tradingProductsList = $tradingProducts->unique('product_id')->values();
 
-    return view('mypage', compact('user', 'page', 'tradingProductsList', 'unreadMessagesCount'));
+    // 未読メッセージのカウント
+    $unreadMessagesCount = ChatMessage::where('receiver_id', $user->id)
+                                      ->where('is_read', 0)
+                                      ->count();
+
+    // 直接クエリを使って確認
+    $directCount = DB::table('chat_messages')
+                     ->where('receiver_id', $user->id)
+                     ->where('is_read', 0)
+                     ->count();
+
+    // 出品商品か購入商品を取得
+    if ($page === 'sell') {
+        $products = Product::where('user_id', $user->id)->get();
+        foreach ($products as $product) {
+            $product->is_sold = Purchase::where('product_id', $product->id)->exists();
+        }
+    } elseif ($page === 'buy') {
+        $products = Purchase::where('user_id', $user->id)
+            ->with('product')
+            ->get()
+            ->pluck('product');
+    } else {
+        $products = collect();
+    }
+
+    // ビューに変数を渡す
+    return view('mypage', compact('user', 'page', 'products', 'tradingProductsCount', 'tradingProductsList', 'unreadMessagesCount', 'directCount'));
 }
+
+
+
+
 
 
 

@@ -15,6 +15,7 @@ use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\ChatController;
 use App\Models\TradingProduct;
 use App\Models\Product;
+use App\Models\ChatMessage;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\TransactionController;
 

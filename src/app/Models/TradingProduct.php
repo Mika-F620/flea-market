@@ -65,6 +65,13 @@ class TradingProduct extends Model
     return redirect()->route('chat.show', ['product_id' => $product->id]);
 }
 
+// TradingProduct.php
+
+public function latestMessage()
+{
+    return $this->hasOne(ChatMessage::class, 'product_id', 'product_id')
+                ->orderBy('created_at', 'desc');  // 最新のメッセージを取得
+}
 
 
 
