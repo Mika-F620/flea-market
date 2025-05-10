@@ -70,7 +70,7 @@
         
         <p class="mypage__tabList">
           <a href="{{ route('mypage', ['page' => 'trading']) }}" class="mypage__tabListLink {{ $page === 'trading' ? 'active' : '' }}">
-            @php
+            <!-- @php
               // Auth::user()がインポートされていることを確認
               $user_id = Auth::id();
               $tradingProductsCount = App\Models\TradingProduct::where('user_id', $user_id)
@@ -78,8 +78,8 @@
                                                       ->select('product_id')
                                                       ->distinct()
                                                       ->count();
-            @endphp
-            取引中の商品<span class="mypage__tabListNum">{{ $tradingProductsCount > 0 ? $tradingProductsCount : 'データがありません' }}</span>
+            @endphp -->
+            取引中の商品<span class="mypage__tabListNum">{{ $unreadMessagesCount ?? '' }}</span>
           </a>
         </p>
       </div>

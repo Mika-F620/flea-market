@@ -66,31 +66,32 @@ class ChatController extends Controller
     //     return redirect()->route('chat.show', ['product_id' => $request->product_id]);
     // }
 
-    public function sendMessage(MessageRequest $request) // MessageRequest を型指定
-    {
-        // バリデーションが成功した場合
-        // メッセージの保存
-        $message = new ChatMessage();
-        $message->sender_id = Auth::id();
-        $message->receiver_id = $request->receiver_id;
-        $message->product_id = $request->product_id;
+    public function sendMessage(MessageRequest $request)
+{
+    // バリデーションが成功した場合
+    // メッセージの保存
+    $message = new ChatMessage();
+    $message->sender_id = Auth::id();
+    $message->receiver_id = $request->receiver_id;
+    $message->product_id = $request->product_id; // ここで product_id をセット
 
-        // メッセージが空の場合でも空文字を代入
-        $message->message = $request->message ?? '';  // 空メッセージの場合は空文字に設定
+    // メッセージが空の場合でも空文字を代入
+    $message->message = $request->message ?? '';  // 空メッセージの場合は空文字に設定
 
-        // 画像の保存
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imagePath = $image->store('chat_images', 'public');
-            $message->image = $imagePath;
-        }
-
-        // メッセージの保存
-        $message->save();
-
-        // チャット画面にリダイレクト
-        return redirect()->route('chat.show', ['product_id' => $request->product_id]);
+    // 画像の保存
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imagePath = $image->store('chat_images', 'public');
+        $message->image = $imagePath;
     }
+
+    // メッセージの保存
+    $message->save();
+
+    // チャット画面にリダイレクト
+    return redirect()->route('chat.show', ['product_id' => $request->product_id]);
+}
+
 
     // public function show($product_id)
     // {
@@ -127,12 +128,12 @@ class ChatController extends Controller
     //     return view('chat.show', compact('messages', 'receiver_id', 'seller', 'product', 'buyer', 'tradingProduct'));
     // }
 
-    public function show($product_id)
+   public function show($product_id)
 {
     $current_user = Auth::user(); // 現在ログインしているユーザー
     $product = Product::findOrFail($product_id); // 商品情報を取得
     $seller = $product->user; // 出品者情報
-    $is_seller = ($current_user->id === $product->user_id);
+    $is_seller = ($current_user->id === $product->user_id); // ログインユーザーが出品者かどうか
 
     // 取引情報を取得
     $tradingProduct = TradingProduct::where('product_id', $product_id)->first();
@@ -143,6 +144,8 @@ class ChatController extends Controller
         $tradingProduct = TradingProduct::create([
             'product_id' => $product_id,
             'user_id' => $current_user->id,
+            'seller_id' => $product->user_id, // 出品者IDを明示的に設定
+            'buyer_id' => $is_seller ? null : $current_user->id, // 購入者IDを設定
             'name' => $product->name,
             'image' => $product->image ?? 'default.jpg',
             'status' => '取引中',
@@ -150,25 +153,47 @@ class ChatController extends Controller
     }
 
     // 購入者を特定
-    $buyer_id = ($is_seller) ? $tradingProduct->user_id : $current_user->id;
+    $buyer_id = $is_seller ? $tradingProduct->user_id : $current_user->id;
     $buyer = User::find($buyer_id);
 
-    // サイドバー用に取引中の商品を購入者・出品者両方から取得
+    // メッセージを取得 - sender との関連付けを eager loading
+    $messages = ChatMessage::with('sender')
+                           ->where('product_id', $product_id)
+                           ->orderBy('created_at', 'asc')
+                           ->get();
+
+    // デバッグ用：メッセージの確認 (コメントを外して使用)
+    // dd($messages->count(), $messages->toArray());
+
+    // メッセージの表示を受信者のみに更新
+    foreach ($messages as $message) {
+        // 受信者のみに 'is_read' を更新
+        if ($message->receiver_id == $current_user->id && $message->is_read == 0) {
+            $message->is_read = 1;  // 既読にする
+            $message->save();
+        }
+    }
+
+    // 他の取引中の商品を取得（サイドバー用）
     $other_products = TradingProduct::where(function ($query) use ($current_user) {
         $query->where('seller_id', $current_user->id)
               ->orWhere('buyer_id', $current_user->id);
     })
-    ->where('status', '取引中') // 取引中の商品
-    ->with('product') // 商品情報を一緒に取得
+    ->where('status', '取引中')
+    ->with('product')
     ->get();
 
-    // メッセージを取得
-    $messages = ChatMessage::where('product_id', $product_id)
-                           ->orderBy('created_at', 'asc')
-                           ->get();
-
-    return view('chat.show', compact('messages', 'seller', 'product', 'buyer', 'tradingProduct', 'other_products'));
+    return view('chat.show', compact('messages', 'seller', 'product', 'buyer', 'tradingProduct', 'other_products', 'is_seller'));
 }
+
+
+
+
+
+
+
+
+
 
 
 

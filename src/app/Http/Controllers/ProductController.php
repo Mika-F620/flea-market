@@ -250,44 +250,29 @@ public function mypage(Request $request)
         return redirect()->route('login')->with('error', 'ログインが必要です。');
     }
 
-    // ログイン中のユーザーを取得
     $user = Auth::user();
-    $page = $request->query('page', 'sell'); // デフォルトで 'sell'
+    $page = $request->query('page', 'sell');
 
-    // 取引中の商品の取得部分を修正
-    $tradingProducts = \App\Models\TradingProduct::where('user_id', $user->id)
+    // 未読メッセージのカウント
+    $unreadMessagesCount = \App\Models\ChatMessage::where('receiver_id', $user->id)
+        ->where('is_read', false) // 未読のメッセージをカウント
+        ->count();
+
+    // 取引中の商品を取得
+    $tradingProducts = TradingProduct::where('user_id', $user->id)
         ->where('status', '取引中')
         ->with(['product', 'latestMessage']) // product と最新メッセージをロード
         ->get()
         ->sortByDesc(function($tp) {
-            // 最新メッセージのタイムスタンプでソート
             return $tp->latestMessage ? $tp->latestMessage->created_at : $tp->created_at;
         });
-    
-    // ユニークな商品IDの数を取得
-    $tradingProductsCount = $tradingProducts->unique('product_id')->count();
-    
-    // 並べ替えた取引中商品をビューに渡す
+
+    // 重複した product_id を削除
     $tradingProductsList = $tradingProducts->unique('product_id')->values();
 
-    // 出品商品か購入商品を取得（既存のコード）
-    if ($page === 'sell') {
-        $products = Product::where('user_id', $user->id)->get();
-        foreach ($products as $product) {
-            $product->is_sold = Purchase::where('product_id', $product->id)->exists();
-        }
-    } elseif ($page === 'buy') {
-        $products = Purchase::where('user_id', $user->id)
-            ->with('product')
-            ->get()
-            ->pluck('product');
-    } else {
-        $products = collect();
-    }
-
-    // ビューに変数を渡す（tradingProductsListを追加）
-    return view('mypage', compact('user', 'page', 'products', 'tradingProductsCount', 'tradingProductsList'));
+    return view('mypage', compact('user', 'page', 'tradingProductsList', 'unreadMessagesCount'));
 }
+
 
 
 
