@@ -35,8 +35,7 @@
           <h2 class="show__headingTitle">{{ $seller->name }}さんとの取引画面</h2>
         @endif
         </div>
-       <!-- 取引が完了していない場合のみ表示 -->
-       @if($tradingProduct && $tradingProduct->status != '取引完了')
+       @if ($tradingProduct && $tradingProduct->status != '取引完了')
     @php
         // 評価が既にされているかどうかを確認
         $existingRating = App\Models\Rating::where('rater_id', Auth::id())
@@ -55,6 +54,8 @@
     <!-- 取引が完了した場合 -->
     <p>取引は完了しました。</p>
 @endif
+
+
 
         <!-- 取引を完了するボタン -->
         <!-- <a href="javascript:void(0);" class="show__headingBtn" onclick="openModal()">取引を完了する</a> -->
@@ -141,24 +142,22 @@
       <p>相手の評価をお願いします。</p>
 
       <form action="{{ route('rating.store') }}" method="POST">
-        @csrf
-        <input type="hidden" name="rated_id" value="{{ $seller->id }}">
-        <input type="hidden" name="product_id" value="{{ $product->id }}">
-        
-        <div class="rating">
-          <label for="score">評価 (1~5):</label>
-          <!-- 星の評価 -->
-          <ul class="stars">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+    <div class="rating">
+        <label for="score">評価 (1~5):</label>
+        <ul class="stars">
             <li data-value="1" class="star">&#9733;</li>
             <li data-value="2" class="star">&#9733;</li>
             <li data-value="3" class="star">&#9733;</li>
             <li data-value="4" class="star">&#9733;</li>
             <li data-value="5" class="star">&#9733;</li>
-          </ul>
-          <input type="hidden" name="score" id="score" value="0">
-        </div>
-        <button type="submit">評価する</button>
-      </form>
+        </ul>
+        <input type="hidden" name="score" id="score" value="0">
+    </div>
+    <button type="submit">評価する</button>
+</form>
     </div>
   </div>
 @endsection

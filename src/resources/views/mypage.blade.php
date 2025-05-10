@@ -46,12 +46,11 @@
         <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('img/dammy2.png') }}" class="mypage__infoImg" alt="ユーザー画像">
         <div>
           <p class="mypage__infoName">{{ $user->name }}</p>
-          {{ $averageRating }}
           <ul class="stars">
-    @for ($i = 1; $i <= 5; $i++)
-        <li class="star {{ $i <= round($averageRating) ? 'selected' : '' }}">&#9733;</li>
-    @endfor
-</ul>
+            @for ($i = 1; $i <= 5; $i++)
+              <li class="star {{ $i <= round($averageRating) ? 'selected' : '' }}">&#9733;</li>
+            @endfor
+          </ul>
         </div>
       </div>
       <a href="{{ route('profile.edit') }}" class="mypage__infoBtn">プロフィールを編集</a>
