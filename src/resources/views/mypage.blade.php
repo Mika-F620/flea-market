@@ -132,28 +132,46 @@
                 </a>
             </div>
         @endforeach -->
-        @foreach ($products as $tradingProduct)
-          <div class="mypage__item">
-              <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
-                <div class="mypage__itemThumbnails">
-                  <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
-                  <!-- 未読メッセージ数を表示 -->
-                  @php
-                      // 取引中の商品に関連する未読メッセージ数を取得
-                      $unreadMessagesCount = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)  // 商品IDで絞り込む
-                                                                    ->where('receiver_id', Auth::id())  // 現在のユーザーが受信者
-                                                                    ->where('is_read', 0)  // 未読メッセージ
-                                                                    ->count();
-                  @endphp
-                  <!-- 未読メッセージ数を表示 -->
-                  @if ($unreadMessagesCount > 0)
-                      <p class="mypage__itemUnread">{{ $unreadMessagesCount }}</p>
-                  @endif
-                </div>
-                <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
-              </a>
-          </div>
-        @endforeach
+        
+      @php
+    // 取引中の商品を最新メッセージ順で並べ替え
+    $sortedProducts = $products->sortByDesc(function ($tradingProduct) {
+        // 各商品ごとの最新メッセージの作成日時を取得
+        $latestMessage = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
+                                                ->where('receiver_id', Auth::id())
+                                                ->orderBy('created_at', 'desc')
+                                                ->first();  // 最新のメッセージを取得
+
+        // 最新メッセージがあればその作成日時を返す、なければ商品作成日時を返す
+        return $latestMessage ? $latestMessage->created_at : $tradingProduct->created_at;
+    });
+@endphp
+
+@foreach ($sortedProducts as $tradingProduct)
+    @php
+        // 並べ替えた後で未読メッセージ数を取得
+        $unreadMessagesCount = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
+                                                      ->where('receiver_id', Auth::id())
+                                                      ->where('is_read', 0)
+                                                      ->count();
+    @endphp
+
+    <div class="mypage__item">
+        <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
+            <div class="mypage__itemThumbnails">
+                <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
+                <!-- 未読メッセージ数を表示 -->
+                @if ($unreadMessagesCount > 0)
+                    <p class="mypage__itemUnread">{{ $unreadMessagesCount }}</p>
+                @endif
+            </div>
+            <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
+        </a>
+    </div>
+@endforeach
+
+
+
 
       @endif
     @endif
