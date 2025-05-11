@@ -121,13 +121,16 @@
             @endforeach
         @endif
         @elseif ($page === 'trading')
-      @if ($products->isEmpty())
-        <p>取引中の商品がありません。</p>
-      @else
+          @if ($products->isEmpty())
+            <p>取引中の商品がありません。</p>
+          @else
         
         @php
           // 取引中の商品を最新メッセージ順で並べ替え
-          $sortedProducts = $products->sortByDesc(function ($tradingProduct) {
+          $sortedProducts = $products->filter(function($tradingProduct) {
+            // 取引が完了していない商品のみをフィルタリング
+            return $tradingProduct->status != '取引完了';
+          })->sortByDesc(function ($tradingProduct) {
             // 各商品ごとの最新メッセージの作成日時を取得
             $latestMessage = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
                                                     ->where('receiver_id', Auth::id())
