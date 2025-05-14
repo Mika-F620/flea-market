@@ -85,18 +85,35 @@ class TransactionController extends Controller
             return redirect()->route('products.index')->with('error', 'メール送信に失敗しました。');
         }
 
-        // 取引ステータスを「取引完了」に更新
+        // 取引ステータスを「取引完了」に更新する前に、評価が双方完了しているかを確認
         $tradingProduct = TradingProduct::where('product_id', $productId)
-                                        ->where('user_id', $request->rater_id) // 出品者
+                                        ->where(function($query) {
+                                            $query->where('buyer_id', Auth::id())
+                                                ->orWhere('seller_id', Auth::id());
+                                        })
                                         ->first();
+
+        // 両者が評価していない場合は、取引ステータスを「取引完了」に変更しない
         if ($tradingProduct) {
-            $tradingProduct->status = '取引完了';  // 取引完了に変更
-            $tradingProduct->save();
+            $sellerRated = Rating::where('rater_id', $tradingProduct->seller_id)
+                                ->where('product_id', $productId)
+                                ->exists();
+
+            $buyerRated = Rating::where('rater_id', $tradingProduct->buyer_id)
+                                ->where('product_id', $productId)
+                                ->exists();
+
+            // 両者が評価した場合にのみ取引ステータスを変更
+            if ($sellerRated && $buyerRated) {
+                $tradingProduct->status = '取引完了'; // 取引完了に変更
+                $tradingProduct->save();
+            }
         }
 
-        // メール送信後、商品一覧画面にリダイレクト
-        return redirect()->route('products.index')->with('message', '取引が完了しました。評価が送信されました。');
+        return redirect()->route('chat.show', ['product_id' => $productId])
+                        ->with('success', '評価が完了しました');
     }
+
 
     public function showMypage(Request $request)
     {

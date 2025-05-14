@@ -122,50 +122,50 @@
         @endif
         @elseif ($page === 'trading')
           @if ($products->isEmpty())
-            <p>取引中の商品がありません。</p>
+              <p>取引中の商品がありません。</p>
           @else
-        
-        @php
-          // 取引中の商品を最新メッセージ順で並べ替え
-          $sortedProducts = $products->filter(function($tradingProduct) {
-            // 取引が完了していない商品のみをフィルタリング
-            return $tradingProduct->status != '取引完了';
-          })->sortByDesc(function ($tradingProduct) {
-            // 各商品ごとの最新メッセージの作成日時を取得
-            $latestMessage = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
-                                                    ->where('receiver_id', Auth::id())
-                                                    ->orderBy('created_at', 'desc')
-                                                    ->first();  // 最新のメッセージを取得
 
-            // 最新メッセージがあればその作成日時を返す、なければ商品作成日時を返す
-            return $latestMessage ? $latestMessage->created_at : $tradingProduct->created_at;
-          });
-        @endphp
-
-        @foreach ($sortedProducts as $tradingProduct)
           @php
-            // 並べ替えた後で未読メッセージ数を取得
-            $unreadMessagesCount = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
+              // 取引中の商品を最新メッセージ順で並べ替え
+              $filteredProducts = $products->filter(function($tradingProduct) {
+                  // 取引完了の商品は除外
+                  return $tradingProduct->status != '取引完了';
+              })->sortByDesc(function ($tradingProduct) {
+                  // 各商品ごとの最新メッセージの作成日時を取得
+                  $latestMessage = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
                                                           ->where('receiver_id', Auth::id())
-                                                          ->where('is_read', 0)
-                                                          ->count();
+                                                          ->orderBy('created_at', 'desc')
+                                                          ->first();  // 最新のメッセージを取得
+
+                  // 最新メッセージがあればその作成日時を返す、なければ商品作成日時を返す
+                  return $latestMessage ? $latestMessage->created_at : $tradingProduct->created_at;
+              });
           @endphp
 
-          <div class="mypage__item">
-            <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
-              <div class="mypage__itemThumbnails">
-                <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
-                <!-- 未読メッセージ数を表示 -->
-                @if ($unreadMessagesCount > 0)
-                    <p class="mypage__itemUnread">{{ $unreadMessagesCount }}</p>
-                @endif
+          @foreach ($filteredProducts as $tradingProduct)
+              @php
+                  // 並べ替えた後で未読メッセージ数を取得
+                  $unreadMessagesCount = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
+                                                                ->where('receiver_id', Auth::id())
+                                                                ->where('is_read', 0)
+                                                                ->count();
+              @endphp
+
+              <div class="mypage__item">
+                  <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
+                      <div class="mypage__itemThumbnails">
+                          <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
+                          <!-- 未読メッセージ数を表示 -->
+                          @if ($unreadMessagesCount > 0)
+                              <p class="mypage__itemUnread">{{ $unreadMessagesCount }}</p>
+                          @endif
+                      </div>
+                      <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
+                  </a>
               </div>
-              <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
-            </a>
-          </div>
-        @endforeach
+          @endforeach
+        @endif
       @endif
-    @endif
   </div>
 </section>
 @endsection

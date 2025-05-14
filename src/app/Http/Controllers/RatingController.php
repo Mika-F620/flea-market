@@ -59,11 +59,23 @@ class RatingController extends Controller
             $rating->product_id = $product_id;
             $rating->save();  // 保存
 
-            // 取引ステータスを「取引終了」に更新
-            $tradingProduct->status = '取引完了';
-            $tradingProduct->save();
+            // 取引ステータスを「取引完了」に更新するタイミングを修正
+            // 出品者と購入者両方の評価が完了した時にのみ取引完了に変更
+            $buyerRating = Rating::where('product_id', $product_id)
+                                ->where('rater_id', $tradingProduct->buyer_id)
+                                ->first();
+                                
+            $sellerRating = Rating::where('product_id', $product_id)
+                                ->where('rater_id', $tradingProduct->seller_id)
+                                ->first();
 
-            // 取引が完了した後に表示を更新
+            // 両方の評価が完了している場合、取引完了に変更
+            if ($buyerRating && $sellerRating) {
+                $tradingProduct->status = '取引完了';
+                $tradingProduct->save();
+            }
+
+            // 評価完了後のリダイレクト
             return redirect()->route('chat.show', ['product_id' => $product_id])
                             ->with('success', '評価が完了しました');
         } catch (\Exception $e) {
