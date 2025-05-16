@@ -230,7 +230,9 @@
 <script>
 $(document).ready(function() {
   // 評価フォームが送信されたときにイベントをキャッチ
-  $('form[action="{{ route('rating.store') }}"]').on('submit', function() {
+  $('form[action="{{ route('rating.store') }}"]').on('submit', function(event) {
+    event.preventDefault(); // フォーム送信を一時的に停止
+    
     // フォームからスコアを取得
     var score = $('#score').val();
     
@@ -247,14 +249,20 @@ $(document).ready(function() {
       },
       success: function(response) {
         console.log('メール送信成功:', response);
+        
+        // メール送信後にフォーム送信を実行
+        if(response.success) {
+          // メール送信が成功したらフォームを送信
+          $('form[action="{{ route('rating.store') }}"]').off('submit').submit();  // イベントハンドラを解除してからフォーム送信
+        }
       },
       error: function(xhr, status, error) {
         console.log('メール送信エラー:', error);
+        alert('メール送信に失敗しました');
       }
     });
-    
-    // フォーム送信は通常通り続行
-    return true;
   });
 });
+
+
 </script>
