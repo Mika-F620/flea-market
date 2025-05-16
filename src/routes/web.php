@@ -140,3 +140,6 @@ Route::post('/rating', [RatingController::class, 'store'])->name('rating.store')
 Route::post('/transaction/complete/{productId}', [TransactionController::class, 'completeTransaction'])->name('transaction.complete');
 
 Route::get('/mypage', [TransactionController::class, 'showMypage'])->name('mypage');
+
+// Route::post('/transaction/send-rating-email', [TransactionController::class, 'sendRatingEmail'])->name('transaction.sendRatingEmail');
+Route::post('/transaction/send-rating-email', [App\Http\Controllers\TransactionController::class, 'sendRatingEmail'])->name('transaction.sendRatingEmail');

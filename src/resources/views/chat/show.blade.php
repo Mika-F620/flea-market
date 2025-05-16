@@ -227,3 +227,34 @@
     });
   });
 </script>
+<script>
+$(document).ready(function() {
+  // 評価フォームが送信されたときにイベントをキャッチ
+  $('form[action="{{ route('rating.store') }}"]').on('submit', function() {
+    // フォームからスコアを取得
+    var score = $('#score').val();
+    
+    // Ajaxリクエストを送信
+    $.ajax({
+      url: '{{ route('transaction.sendRatingEmail') }}',
+      method: 'POST',
+      data: {
+        _token: '{{ csrf_token() }}',
+        product_id: '{{ $product->id }}',
+        seller_id: '{{ $seller->id }}',
+        score: score,
+        message: '評価を送信しました'
+      },
+      success: function(response) {
+        console.log('メール送信成功:', response);
+      },
+      error: function(xhr, status, error) {
+        console.log('メール送信エラー:', error);
+      }
+    });
+    
+    // フォーム送信は通常通り続行
+    return true;
+  });
+});
+</script>

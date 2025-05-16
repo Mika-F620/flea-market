@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use App\Models\TradingProduct;
 use App\Models\Purchase;
+use App\Models\Rating;
 use Illuminate\Support\Facades\Auth;
-
-
+use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
@@ -60,46 +60,85 @@ class TransactionController extends Controller
     public function storeRating(Request $request, $productId)
     {
         // 商品が存在するか確認
-        $product = Product::find($productId);
-        if (!$product) {
-            return redirect()->route('products.index')->with('error', '指定された商品が存在しません。');
-        }
+        $product = Product::findOrFail($productId);
 
+        // ログイン中のユーザー
+        $currentUser = Auth::user();
+        
+        // 出品者を取得
+        $seller = $product->user;
+        
         // 評価情報を保存
         $rating = new Rating();
-        $rating->rater_id = auth()->id(); // ログイン中のユーザー
-        $rating->rated_id = $request->rated_id; // 出品者
+        $rating->rater_id = $currentUser->id; // ログイン中のユーザー（評価する側）
+        $rating->rated_id = $request->rated_id; // 評価される側
         $rating->product_id = $productId; // 商品ID
         $rating->score = $request->score; // 評価スコア
         $rating->comment = $request->comment ?? ''; // コメント（省略可）
-        $rating->save();
-
-        // 出品者に評価完了メールを送信
-        $seller = $product->user; // 出品者
-
-        // メール送信処理
-        try {
-            Mail::to($seller->email)->send(new RatingCompleted($seller, $product, $rating));
-        } catch (\Exception $e) {
-            // メール送信失敗時の処理
-            return redirect()->route('products.index')->with('error', 'メール送信に失敗しました。');
+        $rating->save();  // 保存
+        
+        // 購入者が出品者を評価した場合のみメールを送信
+        if ($currentUser->id != $seller->id && $request->rated_id == $seller->id) {
+            // デバッグ用ログを追加
+            Log::debug('評価のデータ確認:', [
+                'current_user_id' => $currentUser->id,
+                'seller_id' => $seller->id,
+                'rated_id' => $request->rated_id,
+                'seller_email' => $seller->email,
+                'product_name' => $product->name,
+                'rating_score' => $rating->score
+            ]);
+            
+            // メール送信処理
+            try {
+                // メールの送信先とデータを明示的にログに記録
+                Log::info('評価完了メール送信準備:', [
+                    'seller_email' => $seller->email,
+                    'product_name' => $product->name,
+                    'rating_score' => $rating->score
+                ]);
+                
+                // 出品者にメール送信 - メールを直接作成して内容確認
+                $email = new RatingCompleted($seller, $product, $rating);
+                Mail::to($seller->email)->send($email);
+                
+                // 送信成功をログに記録
+                Log::info('評価完了メールが送信されました。送信先: ' . $seller->email);
+            } catch (\Exception $e) {
+                // エラー詳細をログに記録
+                Log::error('評価完了メール送信エラー: ' . $e->getMessage(), [
+                    'exception' => get_class($e),
+                    'trace' => $e->getTraceAsString(),
+                    'seller_email' => $seller->email
+                ]);
+                
+                return redirect()->route('chat.show', ['product_id' => $productId])
+                                ->with('error', '評価完了メールの送信に失敗しました: ' . $e->getMessage());
+            }
+        } else {
+            // 条件に合わなかった場合の理由をログに記録
+            Log::info('メール送信条件不成立:', [
+                'current_user_id' => $currentUser->id,
+                'seller_id' => $seller->id,
+                'rated_id' => $request->rated_id
+            ]);
         }
 
-        // 取引ステータスを「取引完了」に更新する前に、評価が双方完了しているかを確認
+        // 取引情報を取得
         $tradingProduct = TradingProduct::where('product_id', $productId)
-                                        ->where(function($query) {
-                                            $query->where('buyer_id', Auth::id())
-                                                ->orWhere('seller_id', Auth::id());
-                                        })
-                                        ->first();
+                                      ->where(function ($query) use ($currentUser, $seller) {
+                                          $query->where('buyer_id', $currentUser->id)
+                                              ->orWhere('seller_id', $seller->id);
+                                      })
+                                      ->first();
 
-        // 両者が評価していない場合は、取引ステータスを「取引完了」に変更しない
         if ($tradingProduct) {
-            $sellerRated = Rating::where('rater_id', $tradingProduct->seller_id)
-                                ->where('product_id', $productId)
-                                ->exists();
+            // 取引ステータスを「取引完了」に更新する前に、評価が双方完了しているかを確認
+            $sellerRated = Rating::where('rater_id', $seller->id)
+                                 ->where('product_id', $productId)
+                                 ->exists();
 
-            $buyerRated = Rating::where('rater_id', $tradingProduct->buyer_id)
+            $buyerRated = Rating::where('rater_id', '!=', $seller->id)
                                 ->where('product_id', $productId)
                                 ->exists();
 
@@ -107,13 +146,14 @@ class TransactionController extends Controller
             if ($sellerRated && $buyerRated) {
                 $tradingProduct->status = '取引完了'; // 取引完了に変更
                 $tradingProduct->save();
+                
+                Log::info('両者の評価が完了しました。取引ステータスを「取引完了」に変更しました。');
             }
         }
 
         return redirect()->route('chat.show', ['product_id' => $productId])
                         ->with('success', '評価が完了しました');
     }
-
 
     public function showMypage(Request $request)
     {
@@ -236,4 +276,34 @@ class TransactionController extends Controller
         return redirect()->route('chat.show', ['product_id' => $productId])
                         ->with('success', '取引が開始されました');
     }
+
+    public function sendRatingEmail(Request $request)
+    {
+        try {
+            // フォームから送信されたデータを取得
+            $product = Product::findOrFail($request->input('product_id'));
+            $seller = User::findOrFail($request->input('seller_id'));
+            $ratingScore = $request->input('score'); // 評価スコア
+
+            // 1. 評価のデータベース保存
+            $rating = new Rating();
+            $rating->rater_id = Auth::id();  // 評価者
+            $rating->rated_id = $seller->id; // 出品者（評価対象）
+            $rating->product_id = $product->id; // 商品ID
+            $rating->score = $ratingScore; // 評価スコアを保存
+            $rating->save();  // 保存
+
+            // 2. メール送信処理
+            Mail::to($seller->email)->send(new RatingCompleted($seller, $product, $rating));
+
+            // 3. 成功時のレスポンス
+            return response()->json(['success' => true, 'message' => 'メールが送信されました']);
+        } catch (\Exception $e) {
+            // エラーハンドリング：エラー内容をログに記録
+            Log::error('メール送信エラー: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+
 }
