@@ -68,7 +68,6 @@ class ChatController extends Controller
 
     public function sendMessage(MessageRequest $request)
 {
-    // バリデーションが成功した場合
     // メッセージの保存
     $message = new ChatMessage();
     $sender_id = Auth::id();  // 送信者（現在ログイン中のユーザー）のID
@@ -116,6 +115,7 @@ class ChatController extends Controller
     // チャット画面にリダイレクト
     return redirect()->route('chat.show', ['product_id' => $product_id]);
 }
+
 
 
 
@@ -182,56 +182,65 @@ class ChatController extends Controller
 
 
 public function show($product_id)
-    {
-        $current_user = Auth::user();
-        $product = Product::findOrFail($product_id);
-        $seller = $product->user;
-        $is_seller = ($current_user->id === $product->user_id);
+{
+    $current_user = Auth::user();
+    $product = Product::findOrFail($product_id);
+    $seller = $product->user;
+    $is_seller = ($current_user->id === $product->user_id);
 
-        // 取引情報を取得
-        $tradingProduct = TradingProduct::where('product_id', $product_id)->first();
+    // 取引情報を取得
+    $tradingProduct = TradingProduct::where('product_id', $product_id)->first();
 
-        if (!$tradingProduct) {
-            $tradingProduct = TradingProduct::create([
-                'product_id' => $product_id,
-                'user_id' => $current_user->id,
-                'name' => $product->name,
-                'image' => $product->image ?? 'default.jpg',
-                'status' => '取引中',
-            ]);
-        }
+    if (!$tradingProduct) {
+        $tradingProduct = TradingProduct::create([
+            'product_id' => $product_id,
+            'user_id' => $current_user->id,
+            'name' => $product->name,
+            'image' => $product->image ?? 'default.jpg',
+            'status' => '取引中',
+        ]);
+    }
 
-        // 出品者と購入者を判別
-        $buyer_id = ($is_seller) ? $tradingProduct->user_id : $current_user->id;
-        $buyer = User::find($buyer_id);
+    // 出品者と購入者を判別
+    $buyer_id = ($is_seller) ? $tradingProduct->user_id : $current_user->id;
+    $buyer = User::find($buyer_id);
 
-        // メッセージを取得
-        $messages = ChatMessage::where('product_id', $product_id)
+    // メッセージを取得
+    $messages = ChatMessage::where('product_id', $product_id)
                                ->orderBy('created_at', 'asc')
                                ->get();
 
-        // 他の取引中の商品を取得（サイドバー用）
-        $other_products = TradingProduct::where(function ($query) use ($current_user) {
-            $query->where('seller_id', $current_user->id)
-                ->orWhere('buyer_id', $current_user->id);
-        })
-        ->where('status', '取引中')
-        ->with('product')
-        ->get();
-
-        // ログイン中のユーザー以外の取引相手のプロフィール情報を表示するための判定
-        if ($is_seller) {
-            // 出品者がログイン中 → 購入者の情報を表示
-            $profileImage = $buyer->profile_image ? asset('storage/' . $buyer->profile_image) : asset('img/dammy2.png');
-            $profileName = $buyer->name;
-        } else {
-            // 購入者がログイン中 → 出品者の情報を表示
-            $profileImage = $seller->profile_image ? asset('storage/' . $seller->profile_image) : asset('img/dammy2.png');
-            $profileName = $seller->name;
+    // メッセージを受信したユーザーが未読ならis_readを1に更新
+    foreach ($messages as $message) {
+        if ($message->receiver_id == $current_user->id && $message->is_read == 0) {
+            $message->is_read = 1;  // 既読にする
+            $message->save();
         }
-
-        return view('chat.show', compact('messages', 'seller', 'product', 'buyer', 'tradingProduct', 'other_products', 'is_seller', 'profileImage', 'profileName'));
     }
+
+    // 他の取引中の商品を取得（サイドバー用）
+    $other_products = TradingProduct::where(function ($query) use ($current_user) {
+        $query->where('seller_id', $current_user->id)
+            ->orWhere('buyer_id', $current_user->id);
+    })
+    ->where('status', '取引中')
+    ->with('product')
+    ->get();
+
+    // ログイン中のユーザー以外の取引相手のプロフィール情報を表示するための判定
+    if ($is_seller) {
+        // 出品者がログイン中 → 購入者の情報を表示
+        $profileImage = $buyer->profile_image ? asset('storage/' . $buyer->profile_image) : asset('img/dammy2.png');
+        $profileName = $buyer->name;
+    } else {
+        // 購入者がログイン中 → 出品者の情報を表示
+        $profileImage = $seller->profile_image ? asset('storage/' . $seller->profile_image) : asset('img/dammy2.png');
+        $profileName = $seller->name;
+    }
+
+    return view('chat.show', compact('messages', 'seller', 'product', 'buyer', 'tradingProduct', 'other_products', 'is_seller', 'profileImage', 'profileName'));
+}
+
 
 
 
