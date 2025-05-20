@@ -217,41 +217,39 @@
   });
 </script>
 <script>
-$(document).ready(function() {
-  // 評価フォームが送信されたときにイベントをキャッチ
-  $('form[action="{{ route('rating.store') }}"]').on('submit', function(event) {
-    event.preventDefault(); // フォーム送信を一時的に停止
-    
-    // フォームからスコアを取得
-    var score = $('#score').val();
-    
-    // Ajaxリクエストを送信
-    $.ajax({
-      url: '{{ route('transaction.sendRatingEmail') }}',
-      method: 'POST',
-      data: {
-        _token: '{{ csrf_token() }}',
-        product_id: '{{ $product->id }}',
-        seller_id: '{{ $seller->id }}',
-        score: score,
-        message: '評価を送信しました'
-      },
-      success: function(response) {
-        console.log('メール送信成功:', response);
-        
-        // メール送信後にフォーム送信を実行
-        if(response.success) {
-          // メール送信が成功したらフォームを送信
-          $('form[action="{{ route('rating.store') }}"]').off('submit').submit();  // イベントハンドラを解除してからフォーム送信
+  $(document).ready(function() {
+    // 評価フォームが送信されたときにイベントをキャッチ
+    $('form[action="{{ route('rating.store') }}"]').on('submit', function(event) {
+      event.preventDefault(); // フォーム送信を一時的に停止
+      
+      // フォームからスコアを取得
+      var score = $('#score').val();
+      
+      // Ajaxリクエストを送信
+      $.ajax({
+        url: '{{ route('transaction.sendRatingEmail') }}',
+        method: 'POST',
+        data: {
+          _token: '{{ csrf_token() }}',
+          product_id: '{{ $product->id }}',
+          seller_id: '{{ $seller->id }}',
+          score: score,
+          message: '評価を送信しました'
+        },
+        success: function(response) {
+          console.log('メール送信成功:', response);
+          
+          // メール送信後にフォーム送信を実行
+          if(response.success) {
+            // メール送信が成功したらフォームを送信
+            $('form[action="{{ route('rating.store') }}"]').off('submit').submit();  // イベントハンドラを解除してからフォーム送信
+          }
+        },
+        error: function(xhr, status, error) {
+          console.log('メール送信エラー:', error);
+          alert('メール送信に失敗しました');
         }
-      },
-      error: function(xhr, status, error) {
-        console.log('メール送信エラー:', error);
-        alert('メール送信に失敗しました');
-      }
+      });
     });
   });
-});
-
-
 </script>

@@ -278,36 +278,33 @@ class TransactionController extends Controller
     }
 
     public function sendRatingEmail(Request $request)
-{
-    try {
-        // フォームから送信されたデータを取得
-        $product = Product::findOrFail($request->input('product_id'));
-        $seller = User::findOrFail($request->input('seller_id'));
-        $ratingScore = $request->input('score'); // 評価スコア
+    {
+        try {
+            // フォームから送信されたデータを取得
+            $product = Product::findOrFail($request->input('product_id'));
+            $seller = User::findOrFail($request->input('seller_id'));
+            $ratingScore = $request->input('score'); // 評価スコア
 
-        // 1. 評価のデータベース保存
-        $rating = new Rating();
-        $rating->rater_id = Auth::id();  // 評価者
-        $rating->rated_id = $seller->id; // 出品者（評価対象）
-        $rating->product_id = $product->id; // 商品ID
-        $rating->score = $ratingScore; // 評価スコアを保存
-        $rating->save();  // 保存
+            // 1. 評価のデータベース保存
+            $rating = new Rating();
+            $rating->rater_id = Auth::id();  // 評価者
+            $rating->rated_id = $seller->id; // 出品者（評価対象）
+            $rating->product_id = $product->id; // 商品ID
+            $rating->score = $ratingScore; // 評価スコアを保存
+            $rating->save();  // 保存
 
-        // 購入者が評価をした場合のみメール送信
-        if (Auth::id() !== $seller->id) {
-            // 2. メール送信処理
-            Mail::to($seller->email)->send(new RatingCompleted($seller, $product, $rating));
+            // 購入者が評価をした場合のみメール送信
+            if (Auth::id() !== $seller->id) {
+                // 2. メール送信処理
+                Mail::to($seller->email)->send(new RatingCompleted($seller, $product, $rating));
+            }
+
+            // 3. 成功時のレスポンス
+            return response()->json(['success' => true, 'message' => 'メールが送信されました']);
+        } catch (\Exception $e) {
+            // エラーハンドリング：エラー内容をログに記録
+            Log::error('メール送信エラー: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
-
-        // 3. 成功時のレスポンス
-        return response()->json(['success' => true, 'message' => 'メールが送信されました']);
-    } catch (\Exception $e) {
-        // エラーハンドリング：エラー内容をログに記録
-        Log::error('メール送信エラー: ' . $e->getMessage());
-        return response()->json(['success' => false, 'error' => $e->getMessage()]);
     }
-}
-
-
-
 }

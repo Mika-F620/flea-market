@@ -51,10 +51,6 @@
       <form method="GET" action="{{ route('chat.show', ['product_id' => $product ?? ''->id]) }}">
         <button type="submit" class="btn btn-primary">取引をする</button>
       </form>
-
-
-
-      <!-- <a href="{{ route('mypage') }}" class="btn btn-primary">マイページへ戻る</a> -->
     </div>
   </section>
 @endsection

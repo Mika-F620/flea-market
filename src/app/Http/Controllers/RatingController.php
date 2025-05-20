@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class RatingController extends Controller
 {
-   public function store(Request $request)
+    public function store(Request $request)
     {
         // バリデーション
         $request->validate([

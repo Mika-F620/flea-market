@@ -91,87 +91,87 @@
         <p>出品した商品がありません。</p>
       @else
         @foreach ($products as $product)
-            <div class="mypage__item">
-                <a class="mypage__itemLink" href="{{ route('item.show', ['id' => $product->id]) }}" 
-                @if ($product->is_sold) style="pointer-events: none;" @endif>
-                    <img class="mypage__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
-                    <p class="mypage__itemName">{{ $product->name }}</p>
-                    @if ($product->is_sold) <!-- 購入済みの商品 -->
-                        <div class="sold__itemMask"></div>
-                        <span class="sold-label">Sold</span>
-                    @endif
-                </a>
-            </div>
+          <div class="mypage__item">
+            <a class="mypage__itemLink" href="{{ route('item.show', ['id' => $product->id]) }}" 
+            @if ($product->is_sold) style="pointer-events: none;" @endif>
+              <img class="mypage__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+              <p class="mypage__itemName">{{ $product->name }}</p>
+              @if ($product->is_sold) <!-- 購入済みの商品 -->
+                <div class="sold__itemMask"></div>
+                <span class="sold-label">Sold</span>
+              @endif
+            </a>
+          </div>
         @endforeach
       @endif
       @elseif ($page === 'buy')
         <!-- 購入した商品を表示 -->
         @if ($products->isEmpty())
-            <p>購入した商品がありません。</p>
+          <p>購入した商品がありません。</p>
         @else
-            @foreach ($products as $product)
-                <div class="mypage__item">
-                    <a class="mypage__itemLink" href="{{ route('item.show', ['id' => $product->id]) }}" style="pointer-events: none;">
-                        <img class="mypage__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
-                        <p class="mypage__itemName">{{ $product->name }}</p>
-                        <div class="sold__itemMask"></div>
-                        <span class="sold-label">Sold</span> <!-- 購入済み商品には「Sold」を表示 -->
-                    </a>
-                </div>
-            @endforeach
+          @foreach ($products as $product)
+            <div class="mypage__item">
+              <a class="mypage__itemLink" href="{{ route('item.show', ['id' => $product->id]) }}" style="pointer-events: none;">
+                <img class="mypage__itemImg" src="{{ filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                <p class="mypage__itemName">{{ $product->name }}</p>
+                <div class="sold__itemMask"></div>
+                <span class="sold-label">Sold</span> <!-- 購入済み商品には「Sold」を表示 -->
+              </a>
+            </div>
+          @endforeach
         @endif
         @elseif ($page === 'trading')
           @if ($products->isEmpty())
-              <p>取引中の商品がありません。</p>
+            <p>取引中の商品がありません。</p>
           @else
 
-          @php
-    // 取引中の商品を並べ替えるために、新着メッセージ順で並べる
-    $sortedProducts = $products->filter(function($tradingProduct) {
-        // 取引完了の商品は除外
-        return $tradingProduct->status != '取引完了';
-    })->sortByDesc(function ($tradingProduct) {
-        // 各商品ごとのメッセージの状態に基づいて並べ替え
-        $latestMessage = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
-                                                ->where('receiver_id', Auth::id())
-                                                ->orderBy('created_at', 'desc')
-                                                ->first();  // 最新のメッセージを取得
+            @php
+              // 取引中の商品を並べ替えるために、新着メッセージ順で並べる
+              $sortedProducts = $products->filter(function($tradingProduct) {
+                  // 取引完了の商品は除外
+                  return $tradingProduct->status != '取引完了';
+              })->sortByDesc(function ($tradingProduct) {
+                  // 各商品ごとのメッセージの状態に基づいて並べ替え
+                  $latestMessage = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
+                                                          ->where('receiver_id', Auth::id())
+                                                          ->orderBy('created_at', 'desc')
+                                                          ->first();  // 最新のメッセージを取得
 
-        // 未読メッセージがあればそれを優先する
-        if ($latestMessage && $latestMessage->is_read == 0) {
-            return 1;  // 未読メッセージがあれば優先して表示
-        }
+                  // 未読メッセージがあればそれを優先する
+                  if ($latestMessage && $latestMessage->is_read == 0) {
+                      return 1;  // 未読メッセージがあれば優先して表示
+                  }
 
-        // 最新メッセージがない場合または既読メッセージの場合
-        return 0;  // 次に表示されるべきメッセージ
-    });
-@endphp
+                  // 最新メッセージがない場合または既読メッセージの場合
+                  return 0;  // 次に表示されるべきメッセージ
+              });
+            @endphp
 
-@foreach ($sortedProducts as $tradingProduct)
-    @php
-        // 並べ替えた後で未読メッセージ数を取得
-        $unreadMessagesCount = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
-                                                      ->where('receiver_id', Auth::id())
-                                                      ->where('is_read', 0)
-                                                      ->count();
-    @endphp
+            @foreach ($sortedProducts as $tradingProduct)
+                @php
+                    // 並べ替えた後で未読メッセージ数を取得
+                    $unreadMessagesCount = App\Models\ChatMessage::where('product_id', $tradingProduct->product_id)
+                                                                  ->where('receiver_id', Auth::id())
+                                                                  ->where('is_read', 0)
+                                                                  ->count();
+                @endphp
 
-    <div class="mypage__item">
-        <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
-            <div class="mypage__itemThumbnails">
-                <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
-                <!-- 未読メッセージ数を表示 -->
-                @if ($unreadMessagesCount > 0)
-                    <p class="mypage__itemUnread">{{ $unreadMessagesCount }}</p>
-                @endif
-            </div>
-            <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
-        </a>
-    </div>
-@endforeach
+                <div class="mypage__item">
+                  <a class="mypage__itemLink" href="{{ route('chat.show', ['product_id' => $tradingProduct->product_id]) }}">
+                    <div class="mypage__itemThumbnails">
+                      <img class="mypage__itemImg" src="{{ asset('storage/' . $tradingProduct->product->image) }}" alt="{{ $tradingProduct->product->name }}">
+                      <!-- 未読メッセージ数を表示 -->
+                      @if ($unreadMessagesCount > 0)
+                        <p class="mypage__itemUnread">{{ $unreadMessagesCount }}</p>
+                      @endif
+                    </div>
+                    <p class="mypage__itemName">{{ $tradingProduct->product->name }}</p>
+                  </a>
+                </div>
+            @endforeach
 
+          @endif
         @endif
-      @endif
-  </div>
-</section>
+    </div>
+  </section>
 @endsection
