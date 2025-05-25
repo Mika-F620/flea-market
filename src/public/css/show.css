@@ -1,5 +1,9 @@
 @charset "utf-8";
 
+body {
+  position: relative;
+}
+
 .show {
   display: flex;
 }
@@ -163,10 +167,16 @@
 }
 
 .show__productChat {
-  padding: 25px;
+  padding: 25px 25px 150px;
   display: flex;
   flex-direction: column;
   gap: 40px;
+}
+
+@media screen and (max-width: 768px) {
+  .show__productChat {
+    padding: 25px 25px 250px;
+  }
 }
 
 @media screen and (max-width: 480px) {
@@ -230,12 +240,22 @@
   align-items: center;
   padding: 0 27px;
   justify-content: center;
+  position: absolute;
+  bottom: 0;
+  width: calc(100% - 259px);
 }
 
 @media screen and (max-width: 768px) {
   .show__productChatBottomForm {
     flex-wrap: wrap;
     justify-content: flex-start;
+    width: calc(100% - 200px);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .show__productChatBottomForm {
+    width: 100%;
   }
 }
 
