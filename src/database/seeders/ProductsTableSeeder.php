@@ -16,7 +16,14 @@ class ProductsTableSeeder extends Seeder
      */
     public function run()
     {
-        $user = User::factory()->create(); // ダミーユーザーを生成する場合、または既存のユーザーを取得する
+        // $user = User::factory()->create(); // ダミーユーザーを生成する場合、または既存のユーザーを取得する
+        // 認証済みのユーザーをシーディング
+        $user = User::create([
+            'name' => '出品者ユーザー',
+            'email' => 'user@example.com',
+            'password' => bcrypt('password'),
+            'email_verified_at' => now(),  // ユーザーを認証済みとして作成
+        ]);
         
         // 商品データをシーディング
         DB::table('products')->insert([
