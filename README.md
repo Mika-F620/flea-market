@@ -53,6 +53,6 @@ phpMyAdmin:http://localhost:8080/<br>
 MailHog:http://localhost:8025/
 
 ## 出品者のログイン情報
-ユーザー名：出品者ユーザー
-メールアドレス：user@example.com
-パスワード：password
+ユーザー名：出品者ユーザー  
+メールアドレス：user@example.com  
+パスワード：password  
