@@ -16,7 +16,10 @@ class ProductsTableSeeder extends Seeder
      */
     public function run()
     {
-        // $user = User::factory()->create(); // ダミーユーザーを生成する場合、または既存のユーザーを取得する
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        User::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
         // 認証済みのユーザーをシーディング
         $user1 = User::create([
             'name' => '出品者ユーザー1',
