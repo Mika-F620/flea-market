@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Database\Seeders\ProductsTableSeeder; // ProductsTableSeeder をインポート
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,6 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        
+        // ProductsTableSeeder を実行
+        $this->call(ProductsTableSeeder::class);
     }
 }

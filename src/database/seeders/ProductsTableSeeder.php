@@ -18,17 +18,24 @@ class ProductsTableSeeder extends Seeder
     {
         // $user = User::factory()->create(); // ダミーユーザーを生成する場合、または既存のユーザーを取得する
         // 認証済みのユーザーをシーディング
-        $user = User::create([
+        $user1 = User::create([
             'name' => '出品者ユーザー',
-            'email' => 'user@example.com',
+            'email' => 'user1@example.com',
             'password' => bcrypt('password'),
             'email_verified_at' => now(),  // ユーザーを認証済みとして作成
+        ]);
+
+        $user2 = User::create([
+            'name' => '出品者ユーザー2',
+            'email' => 'user2@example.com',
+            'password' => bcrypt('password'),
+            'email_verified_at' => now(),
         ]);
         
         // 商品データをシーディング
         DB::table('products')->insert([
             [
-                'user_id' => $user->id,
+                'user_id' => $user1->id,
                 'name' => '腕時計',
                 'price' => 15000,
                 'description' => 'スタイリッシュなデザインのメンズ腕時計',
@@ -37,7 +44,7 @@ class ProductsTableSeeder extends Seeder
                 'categories' => json_encode(['メンズ']),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $user1->id,
                 'name' => 'HDD',
                 'price' => 5000,
                 'description' => '高速で信頼性の高いハードディスク',
@@ -46,7 +53,7 @@ class ProductsTableSeeder extends Seeder
                 'categories' => json_encode(['家電']),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $user1->id,
                 'name' => '玉ねぎ3束',
                 'price' => 300,
                 'description' => '新鮮な玉ねぎ3束のセット',
@@ -55,7 +62,7 @@ class ProductsTableSeeder extends Seeder
                 'categories' => json_encode(['キッチン']),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $user1->id,
                 'name' => '革靴',
                 'price' => 4000,
                 'description' => 'クラシックなデザインの革靴',
@@ -64,7 +71,7 @@ class ProductsTableSeeder extends Seeder
                 'categories' => json_encode(['メンズ']),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $user1->id,
                 'name' => 'ノートPC',
                 'price' => 45000,
                 'description' => '高性能なノートパソコン',
@@ -73,7 +80,7 @@ class ProductsTableSeeder extends Seeder
                 'categories' => json_encode(['家電']),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $user2->id,
                 'name' => 'マイク',
                 'price' => 8000,
                 'description' => '高音質のレコーディング用マイク',
@@ -82,7 +89,7 @@ class ProductsTableSeeder extends Seeder
                 'categories' => json_encode(['家電']),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $user2->id,
                 'name' => 'ショルダーバッグ',
                 'price' => 3500,
                 'description' => 'おしゃれなショルダーバッグ',
@@ -91,7 +98,7 @@ class ProductsTableSeeder extends Seeder
                 'categories' => json_encode(['レディース']),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $user2->id,
                 'name' => 'タンブラー',
                 'price' => 500,
                 'description' => '使いやすいタンブラー',
@@ -100,7 +107,7 @@ class ProductsTableSeeder extends Seeder
                 'categories' => json_encode(['キッチン']),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $user2->id,
                 'name' => 'コーヒーミル',
                 'price' => 4000,
                 'description' => '手動のコーヒーミル',
@@ -109,7 +116,7 @@ class ProductsTableSeeder extends Seeder
                 'categories' => json_encode(['キッチン']),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $user2->id,
                 'name' => 'メイクセット',
                 'price' => 2500,
                 'description' => '便利なメイクアップセット',
