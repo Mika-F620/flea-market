@@ -19,7 +19,7 @@ class ProductsTableSeeder extends Seeder
         // $user = User::factory()->create(); // ダミーユーザーを生成する場合、または既存のユーザーを取得する
         // 認証済みのユーザーをシーディング
         $user1 = User::create([
-            'name' => '出品者ユーザー',
+            'name' => '出品者ユーザー1',
             'email' => 'user1@example.com',
             'password' => bcrypt('password'),
             'email_verified_at' => now(),  // ユーザーを認証済みとして作成
